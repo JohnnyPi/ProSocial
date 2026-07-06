@@ -1,0 +1,9 @@
+<div class="delete-confirm">
+  <p>Delete this post?</p>
+  <form method="post" action="{% url 'posts:delete' public_id=post.public_id %}">
+    {% csrf_token %}
+    {{ form.confirm }}
+    <label for="{{ form.confirm.id_for_label }}">{{ form.confirm.label }}</label>
+    <button type="submit">Delete</button>
+  </form>
+</div>

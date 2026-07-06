@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Delete post · ProSocial{% endblock %}
+{% block content %}
+  <h1>Delete post</h1>
+  <p>This action cannot be undone.</p>
+  <form method="post">
+    {% csrf_token %}
+    {% include "components/form_errors.html" %}
+    <div class="field">
+      {{ form.confirm }}
+      <label for="{{ form.confirm.id_for_label }}">{{ form.confirm.label }}</label>
+    </div>
+    <button type="submit" class="danger">Delete post</button>
+  </form>
+{% endblock %}

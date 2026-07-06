@@ -1,0 +1,28 @@
+<section class="post-composer" id="post-composer">
+  <h2>Share an update</h2>
+  <form
+    method="post"
+    enctype="multipart/form-data"
+    action="{% url 'dashboard:index' %}"
+    hx-post="{% url 'dashboard:index' %}"
+    hx-target="#feed-list"
+    hx-swap="afterbegin"
+    hx-on::after-request="if(event.detail.successful) this.reset()"
+  >
+    {% csrf_token %}
+    {% include "components/form_errors.html" %}
+    <div class="field">
+      <label for="{{ form.body.id_for_label }}">Update</label>
+      {{ form.body }}
+    </div>
+    <div class="field">
+      <label for="{{ form.image.id_for_label }}">Image (optional)</label>
+      {{ form.image }}
+    </div>
+    <div class="field">
+      <label for="{{ form.image_alt_text.id_for_label }}">Image description (optional)</label>
+      {{ form.image_alt_text }}
+    </div>
+    <button type="submit">Post</button>
+  </form>
+</section>

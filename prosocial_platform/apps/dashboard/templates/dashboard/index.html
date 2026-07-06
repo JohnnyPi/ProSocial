@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · ProSocial{% endblock %}
+{% block content %}
+  <header class="page-header">
+    <h1>Dashboard</h1>
+    <p>Welcome, {{ profile.public_display_name }}.</p>
+  </header>
+
+  {% include "components/post_composer.html" %}
+
+  <section class="feed" aria-label="Recent posts">
+    <h2>Recent updates</h2>
+    <div id="feed-list">
+      {% for post in feed_page %}
+        {% include "components/post_card.html" %}
+      {% empty %}
+        <p class="empty-state">No posts yet. Share something meaningful.</p>
+      {% endfor %}
+    </div>
+    {% with page_obj=feed_page %}
+      {% include "components/pagination.html" %}
+    {% endwith %}
+  </section>
+{% endblock %}

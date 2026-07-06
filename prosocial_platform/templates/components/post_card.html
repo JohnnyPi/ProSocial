@@ -1,0 +1,23 @@
+<article class="post-card" id="post-{{ post.public_id }}">
+  <header class="post-card-header">
+    <a href="{% url 'profiles:detail' handle=post.author.profile.handle %}">
+      {{ post.author.profile.public_display_name }}
+    </a>
+    <time datetime="{{ post.created_at|date:'c' }}">{{ post.created_at|timesince }} ago</time>
+  </header>
+  {% if post.body %}
+    <p class="post-body">{{ post.body|linebreaksbr }}</p>
+  {% endif %}
+  {% if post.image %}
+    <figure class="post-image">
+      <img src="{{ post.image.url }}" alt="{{ post.image_alt_text|default:'Post image' }}">
+    </figure>
+  {% endif %}
+  <footer class="post-card-footer">
+    <a href="{% url 'posts:detail' public_id=post.public_id %}">View</a>
+    {% if user.is_authenticated and user == post.author %}
+      <a href="{% url 'posts:edit' public_id=post.public_id %}">Edit</a>
+      <a href="{% url 'posts:delete' public_id=post.public_id %}">Delete</a>
+    {% endif %}
+  </footer>
+</article>

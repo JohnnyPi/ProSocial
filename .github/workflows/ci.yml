@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: test_prosocial
+          POSTGRES_USER: prosocial
+          POSTGRES_PASSWORD: prosocial
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U prosocial"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.testing
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        working-directory: prosocial_platform
+        run: pip install -e ".[dev]"
+      - name: Lint
+        working-directory: prosocial_platform
+        run: ruff check .
+      - name: Migrate
+        working-directory: prosocial_platform
+        run: python manage.py migrate --noinput
+      - name: Test
+        working-directory: prosocial_platform
+        run: pytest
+      - name: Deploy check
+        working-directory: prosocial_platform
+        env:
+          DJANGO_SECRET_KEY: ci-production-secret
+          DJANGO_ALLOWED_HOSTS: example.com
+          DATABASE_URL: postgres://prosocial:prosocial@localhost:5432/test_prosocial
+        run: python manage.py check --deploy --settings=config.settings.production

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}New post · ProSocial{% endblock %}
+{% block content %}
+  <h1>Create post</h1>
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    {% include "components/form_errors.html" %}
+    {% for field in form %}
+      <div class="field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+      </div>
+    {% endfor %}
+    <button type="submit">Publish</button>
+  </form>
+{% endblock %}

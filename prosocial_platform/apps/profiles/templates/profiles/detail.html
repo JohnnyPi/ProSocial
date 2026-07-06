@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ profile.public_display_name }} · ProSocial{% endblock %}
+{% block content %}
+  <article class="profile-page">
+    <header class="profile-header">
+      {% if profile.profile_image %}
+        <img class="profile-avatar" src="{{ profile.profile_image.url }}" alt="">
+      {% endif %}
+      <h1>{{ profile.public_display_name }}</h1>
+      <p class="profile-handle">@{{ profile.handle }}</p>
+    </header>
+    {% if profile.biography %}
+      <p class="profile-bio">{{ profile.biography|linebreaksbr }}</p>
+    {% endif %}
+  </article>
+{% endblock %}
