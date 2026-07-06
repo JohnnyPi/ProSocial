@@ -1,8 +1,13 @@
 import pytest
 from django.contrib.auth import get_user_model
 
-from apps.interactions.models import Notification, ThankYou
-from apps.interactions.services import block_user, create_reply, mute_user, toggle_thank_you
+from apps.interactions.models import Notification, ProsocialReaction
+from apps.interactions.services import (
+    block_user,
+    create_reply,
+    mute_user,
+    toggle_prosocial_reaction,
+)
 from apps.posts.models import Post
 
 User = get_user_model()
@@ -36,20 +41,21 @@ def test_reject_third_nesting_level(user, other_user):
 
 
 @pytest.mark.django_db
-def test_thank_post(user, other_user):
+def test_thanks_reaction_on_post(user, other_user):
     post = Post.objects.create(author=user, body="Hello")
-    added, _ = toggle_thank_you(sender=other_user, post=post)
+    added, _ = toggle_prosocial_reaction(sender=other_user, post=post, kind="THANKS")
     assert added is True
-    assert ThankYou.objects.filter(sender=other_user, post=post).exists()
+    assert ProsocialReaction.objects.filter(sender=other_user, post=post, kind="THANKS").exists()
+    assert Notification.objects.filter(recipient=user, kind="THANK_YOU_RECEIVED").exists()
 
 
 @pytest.mark.django_db
-def test_self_thank_rejected(user):
+def test_self_thanks_reaction_rejected(user):
     from apps.interactions.services import InteractionError
 
     post = Post.objects.create(author=user, body="Hello")
     with pytest.raises(InteractionError):
-        toggle_thank_you(sender=user, post=post)
+        toggle_prosocial_reaction(sender=user, post=post, kind="THANKS")
 
 
 @pytest.mark.django_db

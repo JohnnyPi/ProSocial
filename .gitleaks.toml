@@ -1,0 +1,19 @@
+title = "ProSocial gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known dev/CI fixtures and documentation examples"
+paths = [
+  '''\.env\.example''',
+  '''prosocial_platform/config/settings/testing\.py''',
+  '''prosocial_platform/config/settings/development\.py''',
+  '''\.github/workflows/ci\.yml''',
+  '''prosocial_platform/apps/common/test_data/constants\.py''',
+  '''prosocial_platform/tests/''',
+  '''prosocial_platform/conftest\.py''',
+  '''CompleteAudit\.md''',
+  '''UserGuide\.md''',
+  '''prosocial_platform/README\.md''',
+]

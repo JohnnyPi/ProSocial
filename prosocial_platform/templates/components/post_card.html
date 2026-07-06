@@ -1,4 +1,11 @@
-<article class="post-card" id="post-{{ post.public_id }}">
+<article class="post-card{% if post_card_clickable != False %} post-card--clickable{% endif %}" id="post-{{ post.public_id }}">
+  {% if post_card_clickable != False %}
+    <a
+      class="post-card-link"
+      href="{% url 'posts:detail' public_id=post.public_id %}"
+      aria-label="Open thread"
+    ></a>
+  {% endif %}
   <header class="post-card-header">
     <div>
       <a href="{% url 'profiles:detail' handle=post.author.profile.handle %}">
@@ -33,9 +40,8 @@
       {% endfor %}
     </ul>
   {% endif %}
-  <footer class="post-card-footer">
-    <a href="{% url 'posts:detail' public_id=post.public_id %}">View thread</a>
-    {% if user.is_authenticated and user == post.author %}
+  {% if user.is_authenticated and user == post.author %}
+    <footer class="post-card-footer">
       <a href="{% url 'posts:edit' public_id=post.public_id %}">Edit</a>
       <button
         type="button"
@@ -44,6 +50,6 @@
         hx-target="#post-{{ post.public_id }}"
         hx-swap="innerHTML"
       >Delete</button>
-    {% endif %}
-  </footer>
+    </footer>
+  {% endif %}
 </article>

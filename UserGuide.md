@@ -2,7 +2,7 @@
 
 *A complete guide to the Prosocial Platform as it exists today. Each section states the **intent** of a feature, how to use it, and whether it is fully working, partially implemented, or not yet available.*
 
-**Last reviewed:** July 2026 · **App version:** Phases 0–11 scaffold (mixed maturity)
+**Last reviewed:** July 2026 · **App version:** Phases 0–12 (Functional Trust implemented)
 
 ---
 
@@ -27,8 +27,9 @@
 17. [Moderation & Safety](#17-moderation--safety)
 18. [Advanced — Donations, Skills & Data Export](#18-advanced--donations-skills--data-export)
 19. [Account Settings & Privacy](#19-account-settings--privacy)
-20. [Feature Status Summary](#20-feature-status-summary)
-21. [Known Gaps & Redundancies](#21-known-gaps--redundancies)
+20. [Functional Trust — Overview](#20-functional-trust--overview)
+21. [Feature Status Summary](#21-feature-status-summary)
+22. [Known Gaps & Redundancies](#22-known-gaps--redundancies)
 
 ---
 
@@ -79,11 +80,32 @@
 | Change password | `/accounts/password-change/` | ✅ Fully implemented |
 | Reset password (email flow) | `/accounts/password-reset/` | ✅ Fully implemented |
 
-> **Not available:** Multi-factor authentication (MFA) is not implemented.
+> **Not available:** Multi-factor authentication (MFA) enrollment UI is not implemented. The trust profile has an `auth_strength` field and capability gates reference MFA for moderation actions, but users cannot enable MFA yet.
 
 ### Test Accounts (Development)
 
-For local testing, five seeded accounts share the password `TestPass123!`. See `prosocial_platform/README.md` for handles (`test_river`, `test_morgan`, etc.).
+For local testing, five seeded accounts share the password `TestPass123!`. See `prosocial_platform/README.md` for handles (`test_river`, `test_morgan`, etc.). Running `seed_test_data` also seeds default privilege definitions and a sample **Helpful** prosocial reaction on the welcome post.
+
+### Management Commands (Trust & Testing)
+
+**Intent:** Operators and developers maintain trust data, privileges, and test fixtures from the command line.
+
+| Command | Purpose |
+|---------|---------|
+| `python manage.py seed_test_data` | Create test users, posts, replies, guilds; seed privileges; add sample reaction |
+| `python manage.py seed_test_data --verbose` | Same, listing each created item |
+| `python manage.py purge_test_data` | Remove all `test_*` users and marked test content |
+| `python manage.py purge_test_data --dry-run` | Preview purge counts without deleting |
+| `python manage.py seed_privileges` | Create default earned-privilege definitions (`can_tag_posts`, `can_submit_context_notes`, etc.) |
+| `python manage.py sync_trust_clusters` | Recompute trust clusters from guild membership + follow graph (anti-gaming) |
+| `python manage.py recalculate_trust_scores` | Recalculate ETS/PTS/contribution and domain reputation for all users |
+
+With Docker:
+
+```bash
+docker compose exec web python manage.py seed_privileges
+docker compose exec web python manage.py sync_trust_clusters
+```
 
 ---
 
@@ -190,12 +212,16 @@ Visitors who are not signed in see a simplified top bar with **Sign in** and **J
 From a post's detail page you can:
 
 - **Reply** — add a threaded comment
-- **Grateful** — thank the author (toggle)
+- **Grateful / Thanks** — use the **Thanks** prosocial reaction (feeds support-domain reputation and sends a thank-you notification)
+- **Prosocial reactions** — Helpful, Kind, Clarified, Supportive, Good faith, Needs context, Thanks (toggle per kind; counts by category)
+- **Add context** — submit a community context note (requires earned privilege)
 - **Clip to vault** — save the whole post
 - **Clip selection** — save highlighted text
 - **Follow thread** — get updates in Knowledge hub
 - **Hide** — remove from your feed
 - **Report** — flag for moderator review (if not the author)
+
+Visible **community context notes** appear below replies when raters from different trust groups mark them helpful.
 
 ---
 
@@ -209,8 +235,11 @@ From a post's detail page you can:
 |---------|--------|--------|
 | View any profile | ✅ | `/profiles/<handle>/` |
 | Display name, handle, bio, avatar | ✅ | |
+| Scoped role badges | ✅ | Verified claims with explicit method (self-asserted, org-attested, etc.) |
+| Add role badge (own profile) | ✅ | `/profiles/endorsements/new/` |
+| Moderation history (own profile) | ✅ | Link to `/moderation/history/` |
 | Mute / Block buttons | ✅ | On other users' profiles |
-| Trust scores on profile | ❌ | Not displayed publicly |
+| Trust scores on profile | ❌ | Not displayed publicly (by design) |
 | Helper Style badge | ❌ | Not displayed after onboarding |
 | XP / badges / level | ❌ | Not on profile page |
 | Profile visibility (public/guild/private) | ❌ | All profiles are always public |
@@ -245,16 +274,45 @@ From a post's detail page you can:
 
 Replies also trigger the **pre-send reflection prompt** (same as posts).
 
-### Gratitude (Thank-Yous)
+### Gratitude (Thanks reaction)
 
-**Intent:** Express appreciation for helpful posts and replies — a prosocial alternative to generic "likes."
+**Intent:** Express appreciation through the **Thanks** prosocial reaction on posts and replies. This feeds support-domain reputation and sends a thank-you notification. The legacy separate thank-you routes have been removed.
 
 | Target | Route | Status | UI |
 |--------|-------|--------|-----|
-| Thank a **post** | `/posts/<uuid>/thank/` | ✅ | Toggle button with count on post detail |
-| Thank a **reply** | `/replies/<uuid>/thank/` | ⚠️ Partial | Button exists but initial count/state is wrong until after first click |
+| Thanks on **post** or **reply** | POST `/posts/<uuid>/react/` or `/replies/<uuid>/react/` with `kind=THANKS` | ✅ | Thanks option in prosocial reaction picker |
 
-> **Redundancy / not implemented:** A separate **ProsocialReaction** system (Constructive, Supportive, Insightful) exists in the database but has **no UI, routes, or services**. Users only see "Grateful" (thank-you), not the three reaction kinds.
+### Prosocial Reactions
+
+**Intent:** Replace generic "likes" with signals that reward helpfulness, support, clarity, and good faith — feeding **domain-specific reputation** (support, clarity, knowledge, civility, concern) rather than one public score.
+
+| Reaction | Category | Meaning |
+|----------|----------|---------|
+| Helpful | knowledge | Technical or practical help |
+| Kind | support | Emotional warmth |
+| Clarified | clarity | Made something clearer |
+| Supportive | support | Encouragement |
+| Good faith | civility | Assumes positive intent |
+| Needs context | concern | Missing important context |
+| Thanks | support | Gratitude |
+
+| Action | Route | Status | UI |
+|--------|-------|--------|-----|
+| React to **post** | POST `/posts/<uuid>/react/` | ✅ | Picker on post detail (HTMX toggle) |
+| React to **reply** | POST `/replies/<uuid>/react/` | ✅ | Picker on each reply row |
+| Category totals | — | ✅ | Shown under reaction picker (not a single leaderboard score) |
+
+Positive feedback uses **prosocial reactions**. Negative signals (Escalatory, Dismissive, Spammy) remain on the peer-rating backend for moderation use.
+
+### Community Context Notes
+
+**Intent:** Add corrective or clarifying context to a post when something is misleading or missing background — surfaced only after **cross-perspective** support (helpful ratings from different trust groups).
+
+| Action | Route | Status |
+|--------|-------|--------|
+| Submit context note | `/posts/<uuid>/context-note/` | ✅ Requires `can_submit_context_notes` privilege |
+| Rate note helpful | POST `/context-notes/<id>/rate/` | ✅ |
+| View visible notes | Post detail page | ✅ When threshold met |
 
 ### Boundaries — Hide, Mute, Block
 
@@ -281,7 +339,7 @@ Blocking prevents feed visibility and interactions. Muting hides their content f
 | Report post | `/posts/<uuid>/report/` | ✅ |
 | Report reply | `/replies/<uuid>/report/` | ✅ |
 
-Both show a form with category and explanation. Reports enter the moderation queue.
+Both show a form with category and explanation. Reports enter the moderation queue. If the reporter was shown a **civility prompt** before posting related content, that context is attached to the report for moderators.
 
 ### Notifications
 
@@ -294,7 +352,7 @@ Both show a form with category and explanation. Reports enter the moderation que
 | Mark all read | POST `/notifications/read-all/` | ✅ |
 | Unread badge | Left sidebar | ✅ |
 
-**Notification kinds created in practice:** replies, thank-yous, action invitations, crisis reviews (moderators), commitment reminders.
+**Notification kinds created in practice:** replies, thank-yous, moderation actions (with appeal link), action invitations, crisis reviews (moderators), commitment reminders.
 
 **Not surfaced well:** Many notification kinds are defined (user followed, post followed, message received, XP earned, guild invite) but the list template shows only a text label — **no deep links** to the related content.
 
@@ -543,7 +601,7 @@ This is one of the most complete feature areas in the platform.
 
 ## 13. Trust & Helper Style
 
-**Intent:** Multi-dimensional trust that separates *quality of participation* (ETS) from *social validation* (PTS) — so popularity alone can never buy influence.
+**Intent:** Multi-dimensional trust that separates *quality of participation* (ETS) from *social validation* (PTS) — so popularity alone can never buy influence. **Functional Trust** adds domain reputation channels, assurance profiles, earned privileges, and anti-gaming safeguards without exposing a single public social-credit score.
 
 ### Helper Style Onboarding
 
@@ -563,32 +621,73 @@ This is one of the most complete feature areas in the platform.
 | Change helper style | — | ❌ No re-selection UI after onboarding |
 | Display on profile | — | ❌ Not shown anywhere after onboarding |
 
-### Trust Scores
+### Trust Scores & Domain Reputation
 
-**Intent:** A composite Contribution Score (65% ETS + 35% PTS) that drives role eligibility and feed visibility — shown only when you opt in.
+**Intent:** A composite Contribution Score (65% ETS + 35% PTS) drives role eligibility internally. **Domain reputation** tracks constructive signals per category (support, clarity, knowledge, civility, concern) from prosocial reactions.
 
 | Feature | Route | Status |
 |---------|-------|--------|
 | View your scores (private) | `/trust/settings/` | ✅ Shows exact ETS, PTS, contribution, range label |
 | Control score visibility | `/trust/settings/` | ⚠️ Setting saved but **never enforced** on any public surface |
-| Scores on public profile | — | ❌ Not displayed |
+| Domain reputation | — | ✅ Updated when you receive prosocial reactions; internal only |
+| Scores on public profile | — | ❌ Not displayed (by design) |
 | Right rail trust badges | — | ❌ **Hardcoded** static badges, not real data |
 
-### Peer Ratings
+### Assurance Profile (Layered Account Trust)
 
-**Intent:** Let community members rate the helpfulness, empathy, and constructiveness of posts and replies.
+**Intent:** Separate internal assurance dimensions for progressive verification — without a public trust-level number.
+
+| Field | Purpose | User-facing today |
+|-------|---------|-------------------|
+| `auth_strength` | BASIC / MFA / STRONG_MFA | ⚠️ Model only — MFA enrollment not built |
+| `identity_verified` | Required for high-risk actions like tips | ⚠️ Admin/backend only |
+| `role_verified` | Official role claims | ⚠️ Tied to scoped endorsements |
+| `behavior_score` | Internal conduct signal | ❌ Not shown |
+| `risk_flags` | Recent reports, velocity spikes, etc. | ❌ Not shown |
+
+**Capability gates** (in `apps/trust/capabilities.py`) block sensitive actions until requirements are met — e.g. `claim_official_role` requires `role_verified`.
+
+### Earned Privileges
+
+**Intent:** Practical abilities earned through constructive participation — not vanity badges.
+
+| Privilege slug | Typical criteria |
+|----------------|------------------|
+| `can_tag_posts` | Knowledge domain reputation |
+| `can_submit_context_notes` | Clarity domain reputation |
+| `can_review_notes` | Higher clarity score + ETS |
+| `can_flag_high_priority` | ETS threshold |
+| `can_moderate_small_group` | Civility + ETS |
+
+Privileges are evaluated after trust recalculation. View granted abilities on **Moderation history** (`/moderation/history/`).
+
+**Command:** `python manage.py seed_privileges` creates default definitions.
+
+### Peer Ratings (Moderation Signals)
+
+**Intent:** Flag escalatory, dismissive, or spammy content — **not** for positive feedback (use prosocial reactions instead).
 
 | Action | Route | Status |
 |--------|-------|--------|
-| Rate a post | `/trust/rate/post/<uuid>/` | ❌ Backend only — **no rating UI** on post detail |
-| Rate a reply | `/trust/rate/reply/<uuid>/` | ❌ Backend only — **no rating UI** on replies |
-| Negative rating dimensions | — | ❌ Model supports them; form excludes them |
+| Rate a post (negative) | `/trust/rate/post/<uuid>/` | ❌ Backend only — **no rating UI** on post detail |
+| Rate a reply (negative) | `/trust/rate/reply/<uuid>/` | ❌ Backend only — **no rating UI** on replies |
+| Positive dimensions | — | ❌ Redirected to prosocial reactions |
 
-### Trust Events
+### Trust Events & Anti-Gaming
 
-Scores are recalculated from trust events. In practice, only **peer ratings** and **clips by others** create events. Thank-yous, commitment verifications, and moderation actions do **not** yet generate trust events despite being defined.
+Scores recalculate from trust events with **time decay** and anti-gaming weighting when enabled:
 
-**Management command:** `python manage.py recalculate_trust_scores` recalculates all users.
+- Trust-cluster concentration (guild + follow graph)
+- Rating velocity spikes
+- Account age of raters
+- Reciprocal upvoting patterns
+
+**Management commands:**
+
+| Command | Purpose |
+|---------|---------|
+| `python manage.py recalculate_trust_scores` | Recalculate all users |
+| `python manage.py sync_trust_clusters` | Refresh cluster assignments for anti-gaming |
 
 ---
 
@@ -642,17 +741,28 @@ Scores are recalculated from trust events. In practice, only **peer ratings** an
 
 > **Important:** There is **no live LLM integration**. All "AI" features use keyword matching (`model_version: "keyword-v1"`).
 
-### Pre-Send Reflection Prompt
+### Pre-Send Civility Prompt
 
-**Intent:** Gentle friction before potentially harmful posts — preserves your agency while inviting reflection.
+**Intent:** Gentle friction before potentially harmful posts — preserves your agency while inviting reflection. Outcomes are **logged** for moderation analytics.
 
 | Feature | Status | What you see |
 |---------|--------|--------------|
-| Post composer check | ✅ | If negative keywords detected: *"Before you post — does this say what you mean?"* |
+| Post composer check | ✅ | Hostile-language detection triggers a reflection prompt |
 | Reply form check | ✅ | Same prompt on reply forms |
-| Dismissible | ✅ | Prompt appears inline; you can still post |
+| **Edit** | ✅ | Dismiss prompt and revise your draft |
+| **Post anyway** | ✅ | Records choice; content still posts |
+| **Cancel** | ✅ | Blocks submit until you edit or choose again |
+| Civility event logging | ✅ | `prompt_type`, `user_action`, `edited_after_prompt` stored |
+| Report context | ✅ | Recent civility events attached to related reports |
 
-**Route:** `/ai/pre-send-check/` (HTMX partial, not a standalone page)
+**Routes:**
+
+| Route | Purpose |
+|-------|---------|
+| `/ai/pre-send-check/` | HTMX partial — classify draft and create event |
+| `/ai/civility-action/` | Record Edit / Post anyway / Cancel before submit |
+
+> Detection uses keyword heuristics (`keyword-v1`), structured so a future ML classifier can plug in.
 
 ### Reflection Journal
 
@@ -718,7 +828,7 @@ Scores are recalculated from trust events. In practice, only **peer ratings** an
 
 ## 17. Moderation & Safety
 
-**Intent:** Human-reviewed content moderation with AI-assisted flagging, crisis-first protocols, and transparency.
+**Intent:** Human-reviewed content moderation with AI-assisted flagging, crisis-first protocols, transparent enforcement notices, and **appeals**.
 
 ### Reporting (User Side)
 
@@ -737,16 +847,29 @@ See [Reporting Content](#reporting-content) in Interactions.
 
 ### Moderator Tools
 
-**Intent:** Human moderators review flagged content and make binding decisions.
+**Intent:** Human moderators review flagged content, issue explainable actions, and process appeals.
 
 | Action | Route | Status | Access |
 |--------|-------|--------|--------|
 | Moderation queue | `/moderation/queue/` | ✅ | MODERATOR, COMMUNITY_GUIDE, or COMMUNITY_LEADER role |
-| Review item | `/moderation/review/<id>/` | ⚠️ Partial | Shows status dropdown + explanation — **does not show reported content** |
+| Review item | `/moderation/review/<id>/` | ⚠️ Partial | Creates `ModerationAction` + user notification |
+| Review appeal | `/moderation/appeals/<id>/review/` | ✅ | Approve restores content + trust |
 | Nav link | — | ❌ Must know URL |
 | Crisis flag review | — | ❌ No UI |
 | Transparency log | — | ❌ Written on review; admin only |
 | Role assignment | — | ❌ Admin only; auto-assignment from trust scores |
+
+### User-Facing Moderation Transparency
+
+**Intent:** Every enforcement action is explainable and contestable.
+
+| Action | Route | Status |
+|--------|-------|--------|
+| View your moderation history | `/moderation/history/` | ✅ Actions, appeal links, earned privileges |
+| Submit appeal | `/moderation/appeal/<action_id>/` | ✅ Within 14-day window (`APPEAL_WINDOW_DAYS`) |
+| Moderation notification | `/notifications/` | ✅ Payload includes rule, explanation, appeal URL |
+
+When an appeal is **approved**, content is restored, the action is marked reversed, and a compensating trust event is recorded.
 
 ### Platform Roles
 
@@ -796,7 +919,7 @@ Roles are earned through trust scores (ETS gates first, always). Auto-assignment
 |--------|-------|--------|
 | Export data | `/advanced/export/` | ✅ Immediate JSON download |
 | Rate limited | ✅ | |
-| Includes | Account, profile, posts, replies, clips, collections, journal, XP, trust, messages, commitments, follows, boundaries, notifications, donations, skills, guilds | |
+| Includes | Account, profile, posts, replies, clips, collections, journal, XP, trust (including **reactions_received**), messages, commitments, follows, boundaries, notifications, donations, skills, guilds | |
 
 ---
 
@@ -829,7 +952,28 @@ Deletion soft-deletes posts and replies; related data cascades.
 
 ---
 
-## 20. Feature Status Summary
+## 20. Functional Trust — Overview
+
+**Intent:** Implement the eight themes from `FunctionalTrust.md` — layered trust, prosocial signals, civility prompts, transparent moderation, earned privileges, scoped endorsements, community context, and anti-gaming — **without** a public social-credit score.
+
+All features are toggled via `FUNCTIONAL_TRUST_FEATURES` in `config/settings/base.py` (all enabled by default in development).
+
+| # | Feature | User-facing | Operator commands |
+|---|---------|-------------|-------------------|
+| 1 | Layered account trust | Assurance fields on trust profile; capability gates | — |
+| 2 | Prosocial reactions | Reaction picker on posts/replies | `sync_trust_clusters` |
+| 3 | Pre-send civility | Edit / Post anyway / Cancel + event logging | — |
+| 4 | Community context notes | Submit + cross-group visibility threshold | `seed_privileges` |
+| 5 | Earned privileges | Listed on moderation history | `seed_privileges` |
+| 6 | Scoped endorsements | Profile badges + self-asserted claims | — |
+| 7 | Transparent moderation | Actions, notifications, appeals | — |
+| 8 | Anti-gaming | Down-weights coordinated rating patterns | `sync_trust_clusters` |
+
+**Design principle:** Reward constructive behavior internally. Default `score_visibility` is **Hidden**. Public surfaces show range labels, scoped badges, and category reaction counts — not a single numeric trust score.
+
+---
+
+## 21. Feature Status Summary
 
 ### ✅ Fully Working (End-to-End)
 
@@ -838,6 +982,11 @@ Deletion soft-deletes posts and replies; related data cascades.
 - Post create (text/image), view, edit, delete
 - Replies (create, edit, delete, one-level nesting)
 - Thank post (toggle with count)
+- Prosocial reactions on posts and replies (7 kinds, category totals)
+- Community context notes (submit, rate, cross-perspective display)
+- Scoped role badges on profiles
+- Moderation history, appeals, and action notifications
+- Pre-send civility prompts with Edit / Post anyway / Cancel
 - Hide post + hidden posts restore
 - Mute/block from profile
 - Report post/reply
@@ -853,7 +1002,7 @@ Deletion soft-deletes posts and replies; related data cascades.
 - Helper style onboarding
 - Trust settings (private score view)
 - Gamification progress page
-- AI pre-send reflection prompts
+- AI pre-send civility prompts (with event logging)
 - Reflection journal (with static AI response)
 - Challenge list + honor-system completion
 - Discovery home (most clipped)
@@ -869,12 +1018,14 @@ Deletion soft-deletes posts and replies; related data cascades.
 | **Thank reply** | Toggle works on click | Wrong initial count/state in UI |
 | **Collections** | Create, list, view | No edit/delete; no "add to collection" buttons |
 | **Follow users** | Backend toggle; feed filter | No follow button on profiles; no followers list |
-| **Trust scores** | Calculated; visible in settings | Not on profile; visibility setting ignored; right rail badges hardcoded |
-| **Peer ratings** | Backend creates ratings + events | No rating UI anywhere |
+| **Trust scores** | Calculated; domain reputation; visible in settings | Not on profile; visibility setting ignored; right rail badges hardcoded |
+| **Peer ratings** | Negative dimensions + trust events | No negative-rating UI on posts/replies |
+| **Assurance / MFA** | Model + capability registry | No MFA enrollment UI |
+| **Earned privileges** | Auto-grant after trust recalc | Most users need reactions before context-note privilege |
 | **Gamification XP** | Engine works; 3 triggers wired | Most XP sources unwired; badges need admin seeding |
 | **AI coach** | Pre-send prompts; journal | Keyword-only (no LLM); sentiment not run on posts |
 | **Rest mode** | Session created/ended | No effect on notifications or streaks |
-| **Moderation review** | Queue + approve/remove | Review screen doesn't show reported content |
+| **Moderation review** | Queue, actions, appeals, notifications | Review screen doesn't show reported content |
 | **Donations** | Campaign create; stub donate | No payment processor; campaigns need admin verification |
 | **Discovery** | Most clipped works | Sentiment-boosted empty; ripple/spotlights need seeding |
 | **Crisis protocol** | Detection + moderator alert | No crisis resources shown to user |
@@ -884,8 +1035,7 @@ Deletion soft-deletes posts and replies; related data cascades.
 
 | Feature | Evidence |
 |---------|----------|
-| ProsocialReaction (Constructive/Supportive/Insightful) | Model + migration; zero UI |
-| MFA | No code |
+| MFA enrollment | `auth_strength` field exists; no user UI |
 | Profile visibility controls | No model field |
 | Group messaging | Two-participant model only |
 | Guild XP / missions / role management UI | Models/admin only |
@@ -904,18 +1054,20 @@ Deletion soft-deletes posts and replies; related data cascades.
 | Ripple effect auto-creation | Display only |
 | Thread summaries | Dead code |
 | AI interventions | Model never used |
-| Workshops | Model only |
+| Org-attested / platform-reviewed endorsements | Self-asserted flow only; no review queue UI |
+| Negative peer rating UI | Backend only |
 
 ---
 
-## 21. Known Gaps & Redundancies
+## 22. Known Gaps & Redundancies
 
 ### Redundancies (Two Systems for One Purpose)
 
-| Area | System A (Active) | System B (Dormant) | Recommendation |
-|------|-------------------|--------------------|----|
+| Area | System A (Active) | System B (Dormant / Secondary) | Notes |
+|------|-------------------|-------------------------------|-------|
 | **Post creation** | Dashboard composer modal | `/posts/create/` standalone page | Consolidate to dashboard; remove or link standalone |
-| **Reactions** | ThankYou ("Grateful") — full UI | ProsocialReaction (Constructive/Supportive/Insightful) — model only | Implement B or remove model |
+| **Positive feedback** | Prosocial reactions (7 kinds) | ThankYou ("Grateful") | Both active — thanks is a simple toggle; reactions feed domain reputation |
+| **Negative feedback** | PeerRating (escalatory/dismissive/spammy) | — | Backend only; no UI yet |
 | **Saving content** | Clip → Vault (has buttons) | Add post to collection (backend only) | Add collection UI or remove endpoint |
 | **Navigation** | `shell_left.html` (active) | `navigation.html` (unused) | Remove dead template |
 | **Trust display** | Real scores in `/trust/settings/` | Hardcoded badges in right rail | Wire rail to real data or remove badges |
@@ -933,7 +1085,8 @@ Deletion soft-deletes posts and replies; related data cascades.
 | Challenges | ✅ | `/engagement/challenges/` only | Knowledge hub (currently "coming soon") |
 | Unmute / unblock | ✅ backend | No UI link after mute/block | Profile page when already muted/blocked |
 | Follow user | ✅ backend | No button on profiles | Profile page |
-| Peer ratings | ✅ backend | No UI at all | Post/reply detail pages |
+| Negative peer ratings | ✅ backend | No UI at all | Post/reply detail pages |
+| Moderation history / appeals | ✅ | Profile link or `/moderation/history/` | Settings menu |
 | Acknowledge help | ✅ backend | No link on commitment detail | Commitment detail page |
 | Moderation queue | ✅ | `/moderation/queue/` only | Moderator nav (when role assigned) |
 
@@ -960,6 +1113,13 @@ Deletion soft-deletes posts and replies; related data cascades.
 | Post detail | `/posts/<uuid>/` | `posts:detail` |
 | Profile | `/profiles/<handle>/` | `profiles:detail` |
 | Edit profile | `/profiles/edit/` | `profiles:edit` |
+| Add role badge | `/profiles/endorsements/new/` | `profiles:endorsement_create` |
+| React to post | POST `/posts/<uuid>/react/` | `interactions:react_post` |
+| React to reply | POST `/replies/<uuid>/react/` | `interactions:react_reply` |
+| Context note | `/posts/<uuid>/context-note/` | `interactions:context_note_create` |
+| Civility action | POST `/ai/civility-action/` | `ai_coach:record_civility_action` |
+| Moderation history | `/moderation/history/` | `moderation:history` |
+| Submit appeal | `/moderation/appeal/<id>/` | `moderation:appeal_create` |
 | Vault | `/knowledge/vault/` | `knowledge:vault` |
 | Collections | `/knowledge/collections/` | `knowledge:collection_list` |
 | Tags | `/knowledge/tags/` | `knowledge:tag_browse` |
@@ -985,4 +1145,4 @@ Deletion soft-deletes posts and replies; related data cascades.
 
 ---
 
-*This guide reflects the codebase as of July 2026. Features marked ❌ or ⚠️ may be completed in future phases — see `ProsocialNetworkDesign.md` for the full product vision.*
+*This guide reflects the codebase as of July 2026, including the Functional Trust implementation. Features marked ❌ or ⚠️ may be completed in future phases — see `FunctionalTrust.md` and `ProsocialNetworkDesign.md` for the full product vision.*

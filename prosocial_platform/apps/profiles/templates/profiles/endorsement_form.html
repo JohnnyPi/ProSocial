@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Add role badge · Common Good{% endblock %}
+{% block content %}
+  <h1>Add scoped role badge</h1>
+  <p class="help-text">Badges explain exactly what was verified — not a generic checkmark.</p>
+  <form method="post">
+    {% csrf_token %}
+    <label for="claim_label">Claim label</label>
+    <input type="text" name="claim_label" id="claim_label" required maxlength="200">
+    <label for="claim_type">Claim type</label>
+    <input type="text" name="claim_type" id="claim_type" maxlength="64" placeholder="teacher, organizer, etc.">
+    <label for="scope">Scope (optional)</label>
+    <input type="text" name="scope" id="scope" maxlength="200">
+    <input type="hidden" name="verification_method" value="SELF_ASSERTED">
+    <button type="submit">Add self-asserted badge</button>
+  </form>
+{% endblock %}

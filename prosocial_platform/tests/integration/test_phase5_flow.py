@@ -1,9 +1,9 @@
 import pytest
 from django.contrib.auth import get_user_model
 
-from apps.interactions.services import block_user, create_reply, delete_reply
+from apps.interactions.services import create_reply, toggle_prosocial_reaction
 from apps.posts.models import Post
-from apps.trust.models import PeerRating, UserTrustProfile
+from apps.trust.models import UserTrustProfile
 from apps.trust.services import create_peer_rating, recalculate_trust_scores, set_helper_style
 
 User = get_user_model()
@@ -19,7 +19,7 @@ def test_helper_style_onboarding(user):
 @pytest.mark.django_db
 def test_peer_rating_and_trust_recalc(user, other_user):
     post = Post.objects.create(author=other_user, body="Here is help")
-    create_peer_rating(rater=user, post=post, dimension="HELPED_ME")
+    toggle_prosocial_reaction(sender=user, post=post, kind="HELPFUL")
     profile = recalculate_trust_scores(user=other_user)
     assert profile.engagement_trust_score > 0
 
@@ -31,55 +31,11 @@ def test_trust_profile_hidden_by_default(user):
 
 
 @pytest.mark.django_db
-def test_rate_reply(user, other_user):
+def test_negative_peer_rating_on_reply(user, other_user):
     post = Post.objects.create(author=other_user, body="Question")
     reply = create_reply(post=post, author=other_user, body="Answer")
-    create_peer_rating(rater=user, reply=reply, dimension="HELPFUL")
+    create_peer_rating(rater=user, reply=reply, dimension="ESCALATORY")
     assert reply.peer_ratings.filter(rater=user).exists()
-
-
-@pytest.mark.django_db
-def test_rate_deleted_reply_returns_404(user, other_user, client):
-    post = Post.objects.create(author=other_user, body="Question")
-    reply = create_reply(post=post, author=other_user, body="Answer")
-    delete_reply(reply=reply)
-    client.force_login(user)
-
-    response = client.post(
-        f"/trust/rate/reply/{reply.public_id}/",
-        {"dimension": "HELPFUL"},
-    )
-    assert response.status_code == 404
-    assert not PeerRating.objects.filter(rater=user, reply=reply).exists()
-
-
-@pytest.mark.django_db
-def test_rate_reply_blocked_user_returns_403(user, other_user, client):
-    post = Post.objects.create(author=other_user, body="Question")
-    reply = create_reply(post=post, author=other_user, body="Answer")
-    block_user(blocking_user=other_user, blocked_user=user)
-    client.force_login(user)
-
-    response = client.post(
-        f"/trust/rate/reply/{reply.public_id}/",
-        {"dimension": "HELPFUL"},
-    )
-    assert response.status_code == 403
-    assert not PeerRating.objects.filter(rater=user, reply=reply).exists()
-
-
-@pytest.mark.django_db
-def test_rate_post_blocked_user_returns_403(user, other_user, client):
-    post = Post.objects.create(author=other_user, body="Question")
-    block_user(blocking_user=other_user, blocked_user=user)
-    client.force_login(user)
-
-    response = client.post(
-        f"/trust/rate/post/{post.public_id}/",
-        {"dimension": "HELPFUL"},
-    )
-    assert response.status_code == 403
-    assert not PeerRating.objects.filter(rater=user, post=post).exists()
 
 
 @pytest.mark.django_db

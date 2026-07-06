@@ -28,7 +28,12 @@ def test_post_body_escaped(client, user):
     token = page.context["csrf_token"]
     client.post(
         "/dashboard/",
-        {"body": "<script>alert(1)</script>", "csrfmiddlewaretoken": token},
+        {
+            "body": "<script>alert(1)</script>",
+            "kind": "GENERAL",
+            "thread_type": "DISCUSSION",
+            "csrfmiddlewaretoken": token,
+        },
     )
     response = client.get("/dashboard/")
     assert b"<script>" not in response.content

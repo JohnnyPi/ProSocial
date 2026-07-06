@@ -12,8 +12,16 @@ def seed_tag(seed_id: str) -> str:
     return f"{TEST_MARKER}:post={seed_id}"
 
 
+def reply_seed_tag(seed_id: str) -> str:
+    return f"{TEST_MARKER}:reply={seed_id}"
+
+
 def format_test_body(seed_id: str, text: str) -> str:
     return f"{seed_tag(seed_id)} {text.strip()}"
+
+
+def format_test_reply_body(seed_id: str, text: str) -> str:
+    return f"{reply_seed_tag(seed_id)} {text.strip()}"
 
 
 def format_test_title(seed_id: str, title: str) -> str:

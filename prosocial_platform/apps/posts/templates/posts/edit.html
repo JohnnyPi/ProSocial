@@ -1,8 +1,12 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Edit post · Common Good{% endblock %}
+{% block extra_head %}
+  <script src="{% static 'js/pre_send_prompt.js' %}" defer></script>
+{% endblock %}
 {% block content %}
   <h1>Edit post</h1>
-  <form method="post" enctype="multipart/form-data" novalidate>
+  <form method="post" enctype="multipart/form-data" novalidate id="post-edit-form">
     {% csrf_token %}
     {% include "components/form_errors.html" %}
     {% for field in form %}
@@ -11,6 +15,15 @@
         {{ field }}
       </div>
     {% endfor %}
+    <div id="pre-send-prompt-edit"></div>
     <button type="submit">Save changes</button>
   </form>
+  <div
+    hidden
+    data-pre-send-body="{{ form.body.id_for_label }}"
+    data-pre-send-target="pre-send-prompt-edit"
+    data-pre-send-url="{% url 'ai_coach:pre_send_check' %}"
+    data-pre-send-record-url="{% url 'ai_coach:record_civility_action' %}"
+    data-csrf-token="{{ csrf_token }}"
+  ></div>
 {% endblock %}

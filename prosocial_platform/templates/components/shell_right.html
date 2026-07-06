@@ -16,15 +16,20 @@
   </section>
 
   <section class="rail-panel">
-    <h2 class="rail-heading">Your circles</h2>
-    <p class="rail-copy">Circles are coming soon. For now, browse open actions and commitments across the community.</p>
-    <div class="rail-chip-row">
-      {% for kind_value, kind_label in feed_kind_filters %}
-        {% if kind_value != "GENERAL" %}
-          <a href="{% url 'dashboard:index' %}?kind={{ kind_value }}" class="chip chip--{{ kind_value|lower }}">{{ kind_label }}</a>
-        {% endif %}
-      {% endfor %}
-    </div>
+    <h2 class="rail-heading">Your guilds</h2>
+    {% if shell_user_guilds %}
+      <ul class="rail-list">
+        {% for guild in shell_user_guilds %}
+          <li>
+            <a href="{% url 'guilds:detail' slug=guild.slug %}">{{ guild.name }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+      <a href="{% url 'guilds:list' %}" class="rail-more">Browse all guilds</a>
+    {% else %}
+      <p class="rail-copy">You haven't joined any guilds yet.</p>
+      <a href="{% url 'guilds:list' %}" class="rail-more">Find a guild</a>
+    {% endif %}
   </section>
 
   {% if shell_pending_invitations %}
@@ -78,7 +83,7 @@
 
   <section class="rail-panel rail-panel--quiet">
     <h2 class="rail-heading">Trust</h2>
-    <p class="rail-copy">Vouches and circles will show plainly here — so you always know who stands behind whom.</p>
+    <p class="rail-copy">Vouches and trust will show plainly here — so you always know who stands behind whom.</p>
     <span class="trust-badge trust-badge--helpful">✔ Verified helper</span>
   </section>
 </aside>

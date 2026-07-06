@@ -26,6 +26,10 @@ def get_user_guild_ids(*, user) -> list[int]:
     return list(GuildMembership.objects.filter(user=user).values_list("guild_id", flat=True))
 
 
+def get_user_guilds(*, user, limit: int = 5):
+    return Guild.objects.filter(memberships__user=user).order_by("name")[:limit]
+
+
 def get_guild_feed(*, guild: Guild, page: int = 1, per_page: int = 20):
     from apps.posts.models import Post
 

@@ -1,8 +1,14 @@
+import hashlib
 import re
+from dataclasses import dataclass
 
+from django.conf import settings
 from django.db import transaction
 
 from apps.ai_coach.models import (
+    CivilityPromptEvent,
+    CivilityPromptType,
+    CivilityUserAction,
     ReflectionJournalEntry,
     SentimentLabel,
     SentimentSnapshot,
@@ -12,13 +18,47 @@ from apps.gamification.models import XPSource
 from apps.gamification.services import award_xp
 
 POSITIVE_WORDS = {
-    "thank", "thanks", "grateful", "helpful", "support", "kind", "hope", "together",
-    "appreciate", "wonderful", "great", "love", "care", "community",
+    "thank",
+    "thanks",
+    "grateful",
+    "helpful",
+    "support",
+    "kind",
+    "hope",
+    "together",
+    "appreciate",
+    "wonderful",
+    "great",
+    "love",
+    "care",
+    "community",
 }
 NEGATIVE_WORDS = {
-    "hate", "stupid", "idiot", "worthless", "kill", "die", "attack", "harass",
-    "ugly", "dumb",
+    "hate",
+    "stupid",
+    "idiot",
+    "worthless",
+    "kill",
+    "die",
+    "attack",
+    "harass",
+    "ugly",
+    "dumb",
 }
+HOSTILE_PATTERNS = [
+    r"\b(stupid|idiot|dumb|worthless|hate you)\b",
+    r"\b(shut up|go away)\b",
+]
+
+
+@dataclass(frozen=True)
+class CivilityResult:
+    prompt_type: str
+    message: str | None
+
+
+def _text_hash(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def analyze_sentiment(*, text: str) -> tuple[str, float]:
@@ -43,11 +83,90 @@ def score_content(*, text: str, post=None, reply=None) -> SentimentSnapshot:
     )
 
 
-def pre_send_prompt(*, text: str) -> str | None:
+def classify_civility(*, text: str) -> CivilityResult:
+    if not settings.FUNCTIONAL_TRUST_FEATURES.get("civility_prompts"):
+        return CivilityResult(prompt_type=CivilityPromptType.NONE, message=None)
+    lower = text.lower()
     label, score = analyze_sentiment(text=text)
-    if label == SentimentLabel.NEGATIVE and score < -0.5:
-        return "Before you post — does this say what you mean? Consider whether a calmer phrasing might land better."
-    return None
+    hostile_match = any(re.search(p, lower) for p in HOSTILE_PATTERNS)
+    if hostile_match or (label == SentimentLabel.NEGATIVE and score < -0.5):
+        return CivilityResult(
+            prompt_type=CivilityPromptType.HOSTILE_LANGUAGE,
+            message=(
+                "This reply may come across as hostile. "
+                "Would you like to revise it before posting?"
+            ),
+        )
+    return CivilityResult(prompt_type=CivilityPromptType.NONE, message=None)
+
+
+def pre_send_prompt(*, text: str) -> str | None:
+    result = classify_civility(text=text)
+    return result.message
+
+
+@transaction.atomic
+def create_civility_prompt_event(*, user, text: str) -> CivilityPromptEvent | None:
+    result = classify_civility(text=text)
+    if result.prompt_type == CivilityPromptType.NONE:
+        return None
+    return CivilityPromptEvent.objects.create(
+        user=user,
+        prompt_type=result.prompt_type,
+        prompt_shown=True,
+        original_text_hash=_text_hash(text),
+    )
+
+
+@transaction.atomic
+def record_civility_action(
+    *,
+    event_id: int,
+    user,
+    user_action: str,
+    text: str = "",
+) -> CivilityPromptEvent:
+    event = CivilityPromptEvent.objects.get(pk=event_id, user=user)
+    event.user_action = user_action
+    if user_action == CivilityUserAction.EDITED:
+        event.edited_after_prompt = True
+    if text:
+        event.final_text_hash = _text_hash(text)
+    event.save(
+        update_fields=["user_action", "edited_after_prompt", "final_text_hash", "updated_at"]
+    )
+    return event
+
+
+@transaction.atomic
+def finalize_civility_event(
+    *,
+    event_id: int,
+    post=None,
+    reply=None,
+    final_text: str,
+) -> CivilityPromptEvent:
+    event = CivilityPromptEvent.objects.get(pk=event_id)
+    if not event.user_action:
+        event.user_action = CivilityUserAction.POSTED_ANYWAY
+    if event.original_text_hash != _text_hash(final_text):
+        event.edited_after_prompt = True
+    event.final_text_hash = _text_hash(final_text)
+    event.post = post
+    event.reply = reply
+    event.is_finalized = True
+    event.save(
+        update_fields=[
+            "user_action",
+            "edited_after_prompt",
+            "final_text_hash",
+            "post",
+            "reply",
+            "is_finalized",
+            "updated_at",
+        ]
+    )
+    return event
 
 
 def generate_thread_summary(*, post) -> ThreadSummary:
@@ -64,9 +183,13 @@ def generate_thread_summary(*, post) -> ThreadSummary:
 
 
 @transaction.atomic
-def create_journal_entry(*, user, body: str, prompt: str = "", trigger_event: str = "") -> ReflectionJournalEntry:
+def create_journal_entry(
+    *, user, body: str, prompt: str = "", trigger_event: str = ""
+) -> ReflectionJournalEntry:
     body = body.strip()
-    ai_response = "Thank you for taking time to reflect. Your thoughtfulness strengthens the community."
+    ai_response = (
+        "Thank you for taking time to reflect. Your thoughtfulness strengthens the community."
+    )
     entry = ReflectionJournalEntry.objects.create(
         user=user,
         body=body,

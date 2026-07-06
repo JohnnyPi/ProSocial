@@ -2,17 +2,49 @@
 {% block title %}{{ profile.public_display_name }} · Common Good{% endblock %}
 {% block content %}
   <article class="profile-page">
-    <header class="profile-header">
-      {% if profile.profile_image %}
-        <img class="profile-avatar" src="{{ profile.profile_image.url }}" alt="">
+    <header class="profile-hero">
+      {% if profile.header_image %}
+        <img class="profile-cover" src="{{ profile.header_image.url }}" alt="">
+      {% else %}
+        <div class="profile-cover profile-cover--default" aria-hidden="true"></div>
       {% endif %}
-      <h1>{{ profile.public_display_name }}</h1>
-      <p class="profile-handle">@{{ profile.handle }}</p>
+      <div class="profile-identity">
+        {% if profile.profile_image %}
+          <img class="profile-avatar profile-avatar--large" src="{{ profile.profile_image.url }}" alt="">
+        {% else %}
+          <span class="profile-avatar profile-avatar--large profile-avatar--placeholder" aria-hidden="true">{{ profile.public_display_name|slice:":1" }}</span>
+        {% endif %}
+        <h1>{{ profile.public_display_name }}</h1>
+        <p class="profile-handle">@{{ profile.handle }}</p>
+      </div>
     </header>
     {% if profile.biography %}
       <p class="profile-bio reading-text">{{ profile.biography|linebreaksbr }}</p>
+    {% elif user.is_authenticated and user == profile.user %}
+      <p class="profile-bio profile-bio--empty">
+        <a href="{% url 'profiles:edit' %}">Add a bio…</a>
+      </p>
     {% endif %}
-    {% if user.is_authenticated and user != profile.user %}
+    {% if endorsements %}
+      <section class="profile-endorsements">
+        <h2>Verified roles</h2>
+        <ul>
+          {% for e in endorsements %}
+            <li class="trust-badge trust-badge--helpful">
+              <strong>{{ e.claim_label }}</strong>
+              <span class="help-text">{{ e.get_verification_method_display }}{% if e.scope %} — {{ e.scope }}{% endif %}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+    {% if user.is_authenticated and user == profile.user %}
+      <div class="profile-actions">
+        <a href="{% url 'profiles:edit' %}">Edit profile</a>
+        <a href="{% url 'profiles:endorsement_create' %}">Add role badge</a>
+        <a href="{% url 'moderation:history' %}">Moderation history</a>
+      </div>
+    {% elif user.is_authenticated %}
       <div class="profile-actions">
         <a href="{% url 'interactions:mute_user' handle=profile.handle %}">Mute</a>
         <a href="{% url 'interactions:block_user' handle=profile.handle %}">Block</a>

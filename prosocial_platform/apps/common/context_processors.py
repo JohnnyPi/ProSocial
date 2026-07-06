@@ -3,6 +3,7 @@ def shell_context(request):
     if not request.user.is_authenticated:
         return {}
 
+    from apps.guilds.selectors import get_user_guilds
     from apps.interactions.selectors import get_unread_notification_count
     from apps.messaging.selectors import count_unread_messages
     from apps.prosocial_actions.selectors import (
@@ -19,4 +20,5 @@ def shell_context(request):
         "shell_pending_invitations": list(
             get_pending_invitations(user=request.user).select_related("inviter__profile")[:3]
         ),
+        "shell_user_guilds": list(get_user_guilds(user=request.user)),
     }

@@ -7,38 +7,41 @@ from django.shortcuts import redirect, render
 from apps.interactions.selectors import get_post_replies
 from apps.posts.forms import PostDeleteForm, PostForm
 from apps.posts.selectors import get_owned_post, get_post_for_display
-from apps.posts.services import create_post, soft_delete_post, update_post
-
-
-def _is_htmx(request: HttpRequest) -> bool:
-    return request.headers.get("HX-Request") == "true"
+from apps.posts.services import soft_delete_post, update_post
+from apps.posts.view_helpers import handle_post_create, is_htmx
 
 
 @login_required
 def post_create(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
+        response = handle_post_create(
+            request,
+            redirect_view="posts:detail",
+            redirect_with_post_id=True,
+        )
+        if response is not None:
+            return response
         form = PostForm(request.POST, request.FILES)
         form.actor = request.user
-        if form.is_valid():
-            post = create_post(author=request.user, **form.cleaned_post_kwargs())
-            if _is_htmx(request):
-                return render(request, "components/post_card.html", {"post": post})
-            return redirect("posts:detail", public_id=post.public_id)
-    else:
-        form = PostForm()
-
+        return render(request, "posts/create.html", {"form": form})
+    form = PostForm()
     return render(request, "posts/create.html", {"form": form})
 
 
 def post_detail(request: HttpRequest, public_id: uuid.UUID) -> HttpResponse:
     post = get_post_for_display(public_id=public_id)
     replies = get_post_replies(post=post)
-    from apps.interactions.models import ThankYou
-    thank_count = ThankYou.objects.filter(post=post).count()
-    user_thanked = (
-        request.user.is_authenticated
-        and ThankYou.objects.filter(sender=request.user, post=post).exists()
+    from apps.interactions.selectors import get_reaction_summary, get_visible_context_notes
+
+    reaction_summary = get_reaction_summary(
+        post=post, user=request.user if request.user.is_authenticated else None
     )
+    if request.user.is_authenticated:
+        for reply in replies:
+            reply.reaction_summary = get_reaction_summary(reply=reply, user=request.user)
+            for child in reply.children.all():
+                child.reaction_summary = get_reaction_summary(reply=child, user=request.user)
+    context_notes = get_visible_context_notes(post=post)
     is_following_post = False
     if request.user.is_authenticated:
         from apps.follows.selectors import is_following_post as check_following_post
@@ -47,11 +50,12 @@ def post_detail(request: HttpRequest, public_id: uuid.UUID) -> HttpResponse:
     context = {
         "post": post,
         "replies": replies,
-        "thank_count": thank_count,
-        "user_thanked": user_thanked,
         "is_following_post": is_following_post,
+        "reaction_summary": reaction_summary,
+        "context_notes": context_notes,
+        "post_card_clickable": False,
     }
-    if _is_htmx(request):
+    if is_htmx(request):
         return render(request, "components/post_card.html", context)
     return render(request, "posts/detail.html", context)
 
@@ -64,7 +68,12 @@ def post_edit(request: HttpRequest, public_id: uuid.UUID) -> HttpResponse:
         form = PostForm(request.POST, request.FILES, instance=post)
         form.actor = request.user
         if form.is_valid():
-            update_post(post=post, **form.cleaned_post_kwargs())
+            civility_event_id = request.POST.get("civility_event_id")
+            update_post(
+                post=post,
+                civility_event_id=int(civility_event_id) if civility_event_id else None,
+                **form.cleaned_post_kwargs(),
+            )
             return redirect("posts:detail", public_id=post.public_id)
     else:
         form = PostForm(instance=post)
@@ -80,11 +89,13 @@ def post_delete(request: HttpRequest, public_id: uuid.UUID) -> HttpResponse:
         form = PostDeleteForm(request.POST)
         if form.is_valid():
             soft_delete_post(post=post)
-            if _is_htmx(request):
+            if is_htmx(request):
                 return HttpResponse("")
             return redirect("dashboard:index")
     else:
         form = PostDeleteForm()
 
-    template = "components/post_delete_confirm.html" if _is_htmx(request) else "posts/confirm_delete.html"
+    template = (
+        "components/post_delete_confirm.html" if is_htmx(request) else "posts/confirm_delete.html"
+    )
     return render(request, template, {"form": form, "post": post})

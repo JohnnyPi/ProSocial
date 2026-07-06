@@ -3,8 +3,19 @@ from django.contrib.auth import get_user_model
 
 from apps.interactions.models import ReportStatus
 from apps.interactions.services import create_reply, submit_report
-from apps.moderation.models import CrisisFlag, ModerationReview, ModerationReviewStatus, PlatformRole, UserRoleAssignment
-from apps.moderation.services import evaluate_user_role, flag_crisis_content, review_content, sync_user_role
+from apps.moderation.models import (
+    CrisisFlag,
+    ModerationReview,
+    ModerationReviewStatus,
+    PlatformRole,
+    UserRoleAssignment,
+)
+from apps.moderation.services import (
+    evaluate_user_role,
+    flag_crisis_content,
+    review_content,
+    sync_user_role,
+)
 from apps.posts.models import Post
 from apps.posts.services import create_post
 
@@ -54,8 +65,23 @@ def test_review_content_updates_report(user, other_user):
         explanation="No violation found.",
     )
     report.refresh_from_db()
-    assert report.status == ReportStatus.RESOLVED_ACTIONED
+    assert report.status == ReportStatus.RESOLVED_NO_ACTION
     assert report.resolution_note == "No violation found."
+
+
+@pytest.mark.django_db
+def test_review_content_removed_marks_report_actioned(user, other_user):
+    post = Post.objects.create(author=other_user, body="Reported")
+    report = submit_report(reporter=user, post=post, reason="SPAM")
+    review = ModerationReview.objects.get(content_report=report)
+    review_content(
+        reviewer=user,
+        review=review,
+        status=ModerationReviewStatus.REMOVED,
+        explanation="Removed for spam.",
+    )
+    report.refresh_from_db()
+    assert report.status == ReportStatus.RESOLVED_ACTIONED
 
 
 @pytest.mark.django_db

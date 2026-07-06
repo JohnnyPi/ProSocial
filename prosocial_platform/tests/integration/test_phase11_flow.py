@@ -1,7 +1,7 @@
 import pytest
 from django.contrib.auth import get_user_model
 
-from apps.advanced.models import DonationCampaign, SkillOffering
+from apps.advanced.models import SkillOffering
 from apps.advanced.services import create_donation_campaign, record_donation, request_data_export
 from apps.ai_coach.services import create_journal_entry
 from apps.gamification.services import award_xp
@@ -10,7 +10,6 @@ from apps.knowledge.services import create_clip, create_collection
 from apps.messaging.services import send_message
 from apps.posts.models import Post, PostKind
 from apps.prosocial_actions.services import commit_to_action, create_action_post
-from apps.trust.services import create_peer_rating
 
 User = get_user_model()
 
@@ -88,7 +87,9 @@ def test_data_export_includes_user_content(user, other_user):
         body="Volunteer shift",
     )
     commit_to_action(action=action, participant=other_user)
-    create_peer_rating(rater=other_user, post=post, dimension="HELPFUL")
+    from apps.interactions.services import toggle_prosocial_reaction
+
+    toggle_prosocial_reaction(sender=other_user, post=post, kind="HELPFUL")
 
     payload = request_data_export(user=user)._payload
 
@@ -106,7 +107,7 @@ def test_data_export_includes_user_content(user, other_user):
     assert len(payload["messages"]) == 1
     assert payload["messages"][0]["messages"][0]["body"] == "Private hello"
     assert len(payload["commitments"]["actions_created"]) == 1
-    assert payload["trust"]["ratings_received"]
+    assert payload["trust"]["reactions_received"]
     assert payload["profile"]["handle"] == user.profile.handle
 
 

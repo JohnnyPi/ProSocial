@@ -1,11 +1,9 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpRequest, HttpResponse, HttpResponseForbidden
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 
-from apps.interactions.selectors import get_reply_for_display, is_blocked
-from apps.posts.selectors import get_post_for_display
-from apps.trust.forms import HelperStyleOnboardingForm, PeerRatingForm, ScoreVisibilityForm
-from apps.trust.services import TrustError, create_peer_rating, get_or_create_trust_profile, set_helper_style
+from apps.trust.forms import HelperStyleOnboardingForm, ScoreVisibilityForm
+from apps.trust.services import get_or_create_trust_profile, set_helper_style
 
 
 @login_required
@@ -35,41 +33,3 @@ def trust_settings(request: HttpRequest) -> HttpResponse:
     else:
         form = ScoreVisibilityForm(initial={"score_visibility": profile.score_visibility})
     return render(request, "trust/settings.html", {"profile": profile, "form": form})
-
-
-@login_required
-def rate_reply(request: HttpRequest, reply_id) -> HttpResponse:
-    reply = get_reply_for_display(public_id=reply_id)
-    if is_blocked(user_a=request.user, user_b=reply.author):
-        return HttpResponseForbidden("This interaction is not available.")
-    if request.method == "POST":
-        form = PeerRatingForm(request.POST)
-        if form.is_valid():
-            try:
-                create_peer_rating(
-                    rater=request.user,
-                    reply=reply,
-                    dimension=form.cleaned_data["dimension"],
-                )
-            except TrustError:
-                pass
-    return redirect("posts:detail", public_id=reply.post.public_id)
-
-
-@login_required
-def rate_post(request: HttpRequest, post_id) -> HttpResponse:
-    post = get_post_for_display(public_id=post_id)
-    if is_blocked(user_a=request.user, user_b=post.author):
-        return HttpResponseForbidden("This interaction is not available.")
-    if request.method == "POST":
-        form = PeerRatingForm(request.POST)
-        if form.is_valid():
-            try:
-                create_peer_rating(
-                    rater=request.user,
-                    post=post,
-                    dimension=form.cleaned_data["dimension"],
-                )
-            except TrustError:
-                pass
-    return redirect("posts:detail", public_id=post.public_id)

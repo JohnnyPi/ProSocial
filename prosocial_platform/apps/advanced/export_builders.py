@@ -74,7 +74,9 @@ def _export_replies(*, user) -> list[dict[str, Any]]:
     from apps.interactions.models import Reply
 
     replies = []
-    for reply in Reply.objects.filter(author=user).select_related("post", "parent").order_by("created_at"):
+    for reply in (
+        Reply.objects.filter(author=user).select_related("post", "parent").order_by("created_at")
+    ):
         replies.append(
             {
                 "public_id": str(reply.public_id),
@@ -93,7 +95,9 @@ def _export_clips(*, user) -> list[dict[str, Any]]:
     from apps.knowledge.models import Clip
 
     clips = []
-    for clip in Clip.objects.filter(owner=user).select_related("post", "reply").order_by("created_at"):
+    for clip in (
+        Clip.objects.filter(owner=user).select_related("post", "reply").order_by("created_at")
+    ):
         clips.append(
             {
                 "public_id": str(clip.public_id),
@@ -114,7 +118,9 @@ def _export_collections(*, user) -> list[dict[str, Any]]:
     from apps.knowledge.models import Collection
 
     collections = []
-    for collection in Collection.objects.filter(owner=user).prefetch_related("items__clip", "items__post"):
+    for collection in Collection.objects.filter(owner=user).prefetch_related(
+        "items__clip", "items__post"
+    ):
         items = []
         for item in collection.items.all():
             items.append(
@@ -186,7 +192,9 @@ def _export_xp(*, user) -> dict[str, Any]:
             "name": badge.badge.name,
             "awarded_at": _iso(badge.created_at),
         }
-        for badge in UserBadge.objects.filter(user=user).select_related("badge").order_by("created_at")
+        for badge in UserBadge.objects.filter(user=user)
+        .select_related("badge")
+        .order_by("created_at")
     ]
     return {
         "profile": gamification,
@@ -196,6 +204,7 @@ def _export_xp(*, user) -> dict[str, Any]:
 
 
 def _export_trust(*, user) -> dict[str, Any]:
+    from apps.interactions.models import ProsocialReaction
     from apps.trust.models import PeerRating, TrustEvent, UserTrustProfile
 
     profile = UserTrustProfile.objects.filter(user=user).first()
@@ -208,6 +217,9 @@ def _export_trust(*, user) -> dict[str, Any]:
             "popularity_trust_score": profile.popularity_trust_score,
             "contribution_score": profile.contribution_score,
             "score_visibility": profile.score_visibility,
+            "auth_strength": profile.auth_strength,
+            "identity_verified": profile.identity_verified,
+            "role_verified": profile.role_verified,
         }
     ratings_given = [
         {
@@ -234,6 +246,21 @@ def _export_trust(*, user) -> dict[str, Any]:
         .select_related("rater", "post", "reply")
         .order_by("created_at")
     ]
+    reactions_received = [
+        {
+            "kind": reaction.kind,
+            "category": reaction.category,
+            "sender_public_id": _user_public_id(reaction.sender),
+            "post_public_id": str(reaction.post.public_id) if reaction.post_id else None,
+            "reply_public_id": str(reaction.reply.public_id) if reaction.reply_id else None,
+            "created_at": _iso(reaction.created_at),
+        }
+        for reaction in ProsocialReaction.objects.filter(
+            Q(post__author=user) | Q(reply__author=user)
+        )
+        .select_related("sender", "post", "reply")
+        .order_by("created_at")
+    ]
     events = [
         {
             "event_type": event.event_type,
@@ -249,6 +276,7 @@ def _export_trust(*, user) -> dict[str, Any]:
         "profile": trust_profile,
         "ratings_given": ratings_given,
         "ratings_received": ratings_received,
+        "reactions_received": reactions_received,
         "events": events,
     }
 
@@ -298,7 +326,9 @@ def _export_commitments(*, user) -> dict[str, Any]:
             "completion_instructions": action.completion_instructions,
             "created_at": _iso(action.created_at),
         }
-        for action in ActionOpportunity.objects.filter(creator=user).select_related("post").order_by("created_at")
+        for action in ActionOpportunity.objects.filter(creator=user)
+        .select_related("post")
+        .order_by("created_at")
     ]
     commitments = [
         {
@@ -313,7 +343,9 @@ def _export_commitments(*, user) -> dict[str, Any]:
             "withdrawn_at": _iso(commitment.withdrawn_at),
             "created_at": _iso(commitment.created_at),
         }
-        for commitment in Commitment.objects.filter(participant=user).select_related("action").order_by("created_at")
+        for commitment in Commitment.objects.filter(participant=user)
+        .select_related("action")
+        .order_by("created_at")
     ]
     return {
         "actions_created": created_actions,
@@ -421,7 +453,9 @@ def _export_donations_and_skills(*, user) -> dict[str, Any]:
             "is_anonymous": donation.is_anonymous,
             "created_at": _iso(donation.created_at),
         }
-        for donation in Donation.objects.filter(donor=user).select_related("campaign").order_by("created_at")
+        for donation in Donation.objects.filter(donor=user)
+        .select_related("campaign")
+        .order_by("created_at")
     ]
     skills = [
         {

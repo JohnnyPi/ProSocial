@@ -1,6 +1,10 @@
 {% if prompt %}
-<div class="pre-send-prompt" role="status" aria-live="polite">
+<div class="pre-send-prompt" role="status" aria-live="polite" data-civility-event-id="{{ event.id }}">
   <p><strong>Reflection prompt:</strong> {{ prompt }}</p>
-  <button type="button" class="link-button" onclick="this.closest('.pre-send-prompt').remove()">Dismiss</button>
+  <div class="pre-send-prompt__actions">
+    <button type="button" class="link-button" data-civility-action="EDITED">Edit</button>
+    <button type="button" class="link-button" data-civility-action="POSTED_ANYWAY">Post anyway</button>
+    <button type="button" class="link-button" data-civility-action="CANCELLED">Cancel</button>
+  </div>
 </div>
 {% endif %}

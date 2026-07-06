@@ -19,6 +19,7 @@
     data-pre-send-body="id_body"
     data-pre-send-target="pre-send-prompt-reply"
     data-pre-send-url="{% url 'ai_coach:pre_send_check' %}"
+    data-pre-send-record-url="{% url 'ai_coach:record_civility_action' %}"
     data-csrf-token="{{ csrf_token }}"
   ></div>
 {% endblock %}

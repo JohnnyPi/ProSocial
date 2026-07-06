@@ -25,18 +25,3 @@ class ClipNoteForm(forms.Form):
         required=False,
         widget=forms.Textarea(attrs={"rows": 2, "placeholder": "Private note…"}),
     )
-
-
-class TagInputForm(forms.Form):
-    tags = forms.CharField(
-        max_length=200,
-        required=False,
-        help_text="Comma-separated tags (max 5)",
-    )
-
-    def clean_tags(self):
-        raw = self.cleaned_data.get("tags", "")
-        slugs = [t.strip().lower().replace(" ", "-") for t in raw.split(",") if t.strip()]
-        if len(slugs) > 5:
-            raise forms.ValidationError("At most 5 tags allowed.")
-        return slugs[:5]

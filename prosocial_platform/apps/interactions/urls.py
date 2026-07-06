@@ -12,8 +12,12 @@ urlpatterns = [
     ),
     path("replies/<uuid:reply_id>/edit/", views.reply_edit, name="reply_edit"),
     path("replies/<uuid:reply_id>/delete/", views.reply_delete, name="reply_delete"),
-    path("posts/<uuid:post_id>/thank/", views.thank_post, name="thank_post"),
-    path("replies/<uuid:reply_id>/thank/", views.thank_reply, name="thank_reply"),
+    path("posts/<uuid:post_id>/react/", views.react_post, name="react_post"),
+    path("replies/<uuid:reply_id>/react/", views.react_reply, name="react_reply"),
+    path(
+        "posts/<uuid:post_id>/context-note/", views.context_note_create, name="context_note_create"
+    ),
+    path("context-notes/<int:note_id>/rate/", views.context_note_rate, name="context_note_rate"),
     path("notifications/", views.notification_list, name="notifications"),
     path(
         "notifications/<int:notification_id>/read/",

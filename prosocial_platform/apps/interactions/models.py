@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-from apps.common.models import TimeStampedModel
+from apps.common.models import ReactionCategory, TimeStampedModel
 
 
 class ReplyQuerySet(models.QuerySet):
@@ -16,7 +16,11 @@ class Reply(TimeStampedModel):
     public_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     post = models.ForeignKey("posts.Post", on_delete=models.CASCADE, related_name="replies")
     author = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="replies"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="replies",
     )
     parent = models.ForeignKey(
         "self", null=True, blank=True, on_delete=models.CASCADE, related_name="children"
@@ -83,6 +87,7 @@ class NotificationKind(models.TextChoices):
     REPLY_RECEIVED = "REPLY_RECEIVED", "Reply received"
     REPLY_TO_REPLY = "REPLY_TO_REPLY", "Reply to reply"
     THANK_YOU_RECEIVED = "THANK_YOU_RECEIVED", "Thank you received"
+    COMMITMENT_ACKNOWLEDGED = "COMMITMENT_ACKNOWLEDGED", "Commitment acknowledged"
     REPORT_RESOLVED = "REPORT_RESOLVED", "Report resolved"
     USER_FOLLOWED = "USER_FOLLOWED", "User followed"
     POST_FOLLOWED = "POST_FOLLOWED", "Post followed"
@@ -147,9 +152,7 @@ class UserMute(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(
-                fields=["muting_user", "muted_user"], name="unique_user_mute"
-            ),
+            models.UniqueConstraint(fields=["muting_user", "muted_user"], name="unique_user_mute"),
         ]
 
 
@@ -236,9 +239,24 @@ class ContentReport(models.Model):
 
 
 class ProsocialReactionKind(models.TextChoices):
-    CONSTRUCTIVE = "CONSTRUCTIVE", "Constructive"
+    HELPFUL = "HELPFUL", "Helpful"
+    KIND = "KIND", "Kind"
+    CLARIFIED = "CLARIFIED", "Clarified"
     SUPPORTIVE = "SUPPORTIVE", "Supportive"
-    INSIGHTFUL = "INSIGHTFUL", "Insightful"
+    GOOD_FAITH = "GOOD_FAITH", "Good faith"
+    NEEDS_CONTEXT = "NEEDS_CONTEXT", "Needs context"
+    THANKS = "THANKS", "Thanks"
+
+
+REACTION_KIND_TO_CATEGORY = {
+    ProsocialReactionKind.HELPFUL.value: ReactionCategory.KNOWLEDGE.value,
+    ProsocialReactionKind.KIND.value: ReactionCategory.SUPPORT.value,
+    ProsocialReactionKind.CLARIFIED.value: ReactionCategory.CLARITY.value,
+    ProsocialReactionKind.SUPPORTIVE.value: ReactionCategory.SUPPORT.value,
+    ProsocialReactionKind.GOOD_FAITH.value: ReactionCategory.CIVILITY.value,
+    ProsocialReactionKind.NEEDS_CONTEXT.value: ReactionCategory.CONCERN.value,
+    ProsocialReactionKind.THANKS.value: ReactionCategory.SUPPORT.value,
+}
 
 
 class ProsocialReaction(TimeStampedModel):
@@ -248,12 +266,17 @@ class ProsocialReaction(TimeStampedModel):
         related_name="prosocial_reactions_sent",
     )
     post = models.ForeignKey(
-        "posts.Post", null=True, blank=True, on_delete=models.CASCADE, related_name="prosocial_reactions"
+        "posts.Post",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="prosocial_reactions",
     )
     reply = models.ForeignKey(
         Reply, null=True, blank=True, on_delete=models.CASCADE, related_name="prosocial_reactions"
     )
     kind = models.CharField(max_length=16, choices=ProsocialReactionKind.choices)
+    category = models.CharField(max_length=16, choices=ReactionCategory.choices, blank=True)
 
     class Meta:
         constraints = [
@@ -275,3 +298,47 @@ class ProsocialReaction(TimeStampedModel):
                 name="unique_prosocial_reaction_reply",
             ),
         ]
+
+
+class ContextNoteStatus(models.TextChoices):
+    PENDING = "PENDING", "Pending review"
+    VISIBLE = "VISIBLE", "Visible"
+    HIDDEN = "HIDDEN", "Hidden"
+    REJECTED = "REJECTED", "Rejected"
+
+
+class ContextNote(TimeStampedModel):
+    post = models.ForeignKey("posts.Post", on_delete=models.CASCADE, related_name="context_notes")
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="context_notes"
+    )
+    body = models.TextField(max_length=1000)
+    sources = models.JSONField(default=list, blank=True)
+    status = models.CharField(
+        max_length=16, choices=ContextNoteStatus.choices, default=ContextNoteStatus.PENDING
+    )
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["post", "status"]),
+        ]
+
+
+class NoteRating(TimeStampedModel):
+    note = models.ForeignKey(ContextNote, on_delete=models.CASCADE, related_name="ratings")
+    rater = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="note_ratings"
+    )
+    is_helpful = models.BooleanField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["note", "rater"], name="unique_note_rating"),
+        ]
+
+
+class RaterTrustGroup(TimeStampedModel):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="rater_trust_group"
+    )
+    group_id = models.CharField(max_length=64)

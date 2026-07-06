@@ -1,4 +1,7 @@
-.env
+**/.env
+**/.env.local
+*.pem
+*.key
 .venv/
 venv/
 __pycache__/

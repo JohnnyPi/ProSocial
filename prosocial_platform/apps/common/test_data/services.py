@@ -11,11 +11,22 @@ from apps.common.test_data.constants import (
     TEST_PASSWORD,
     TEST_USERNAME_PREFIX,
     format_test_body,
+    format_test_reply_body,
     format_test_title,
+    reply_seed_tag,
     seed_tag,
     test_email_for_username,
 )
-from apps.common.test_data.fixtures import TEST_POSTS, TEST_PROFILES
+from apps.common.test_data.fixtures import (
+    TEST_GUILDS,
+    TEST_POSTS,
+    TEST_PROFILES,
+    TEST_REPLIES,
+)
+from apps.guilds.models import Guild
+from apps.guilds.services import create_guild, join_guild
+from apps.interactions.models import Reply
+from apps.interactions.services import create_reply
 from apps.posts.models import Post
 from apps.posts.services import create_post
 from apps.profiles.models import Profile
@@ -31,6 +42,10 @@ class SeedResult:
     users_updated: int = 0
     posts_created: int = 0
     posts_skipped: int = 0
+    replies_created: int = 0
+    replies_skipped: int = 0
+    guilds_created: int = 0
+    guilds_skipped: int = 0
 
 
 @dataclass
@@ -59,14 +74,22 @@ def get_test_users_queryset():
 
 
 def orphan_test_post_queryset():
-    return Post.objects.filter(
-        Q(body__contains=TEST_MARKER) | Q(title__contains=TEST_MARKER)
-    )
+    return Post.objects.filter(Q(body__contains=TEST_MARKER) | Q(title__contains=TEST_MARKER))
 
 
 def _find_post_by_seed_id(seed_id: str) -> Post | None:
     tag = seed_tag(seed_id)
     return Post.objects.filter(body__contains=tag).first()
+
+
+def _find_reply_by_seed_id(seed_id: str) -> Reply | None:
+    tag = reply_seed_tag(seed_id)
+    return Reply.objects.filter(body__contains=tag).first()
+
+
+def _find_guild_by_seed_id(seed_id: str) -> Guild | None:
+    marker = f"{TEST_MARKER}:guild={seed_id}"
+    return Guild.objects.filter(description__contains=marker).first()
 
 
 def _seed_profile(
@@ -118,6 +141,54 @@ def _seed_post(fixture, users_by_username: dict[str, User], result: SeedResult) 
     result.posts_created += 1
 
 
+def _seed_reply(
+    fixture,
+    users_by_username: dict[str, User],
+    replies_by_seed_id: dict[str, Reply],
+    result: SeedResult,
+) -> None:
+    if _find_reply_by_seed_id(fixture.seed_id):
+        result.replies_skipped += 1
+        existing = _find_reply_by_seed_id(fixture.seed_id)
+        if existing:
+            replies_by_seed_id[fixture.seed_id] = existing
+        return
+
+    post = _find_post_by_seed_id(fixture.post_seed_id)
+    if not post:
+        return
+
+    parent = None
+    if fixture.parent_reply_seed_id:
+        parent = replies_by_seed_id.get(fixture.parent_reply_seed_id)
+        if not parent:
+            parent = _find_reply_by_seed_id(fixture.parent_reply_seed_id)
+
+    author = users_by_username[fixture.author_username]
+    body = format_test_reply_body(fixture.seed_id, fixture.body)
+    reply = create_reply(post=post, author=author, body=body, parent=parent)
+    replies_by_seed_id[fixture.seed_id] = reply
+    result.replies_created += 1
+
+
+def _seed_guild(fixture, users_by_username: dict[str, User], result: SeedResult) -> None:
+    if _find_guild_by_seed_id(fixture.seed_id):
+        result.guilds_skipped += 1
+        return
+
+    creator = users_by_username[fixture.creator_username]
+    marker = f"{TEST_MARKER}:guild={fixture.seed_id}"
+    description = f"{marker} {fixture.description}".strip()
+    guild = create_guild(
+        creator=creator,
+        name=fixture.name,
+        description=description,
+    )
+    for username in fixture.member_usernames:
+        join_guild(user=users_by_username[username], guild=guild)
+    result.guilds_created += 1
+
+
 @transaction.atomic
 def seed_test_data() -> SeedResult:
     result = SeedResult()
@@ -151,6 +222,26 @@ def seed_test_data() -> SeedResult:
 
     for fixture in TEST_POSTS:
         _seed_post(fixture, users_by_username, result)
+
+    replies_by_seed_id: dict[str, Reply] = {}
+    for fixture in TEST_REPLIES:
+        _seed_reply(fixture, users_by_username, replies_by_seed_id, result)
+
+    for fixture in TEST_GUILDS:
+        _seed_guild(fixture, users_by_username, result)
+
+    from apps.interactions.services import toggle_prosocial_reaction
+    from apps.trust.services import seed_privilege_definitions
+
+    seed_privilege_definitions()
+    first_post = _find_post_by_seed_id("river-welcome")
+    if first_post:
+        river = users_by_username.get("test_morgan")
+        if river:
+            try:
+                toggle_prosocial_reaction(sender=river, post=first_post, kind="HELPFUL")
+            except Exception:
+                pass
 
     return result
 

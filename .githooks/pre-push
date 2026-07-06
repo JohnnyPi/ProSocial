@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Pre-push: custom path checks + gitleaks on the commit range being pushed.
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+INPUT="$(cat)"
+
+run_gitleaks_range() {
+  local gitleaks_cmd="$1"
+  local blocked=0
+
+  while read -r local_ref local_sha remote_ref remote_sha; do
+    [[ -z "$local_sha" ]] && continue
+    if [[ "$local_sha" == "0000000000000000000000000000000000000000" ]]; then
+      continue
+    fi
+
+    local range
+    if [[ "$remote_sha" == "0000000000000000000000000000000000000000" ]]; then
+      range="$local_sha"
+    else
+      range="${remote_sha}..${local_sha}"
+    fi
+
+    echo "gitleaks: scanning push range $range" >&2
+    if ! "$gitleaks_cmd" git --config "$ROOT/.gitleaks.toml" --log-opts="$range" --verbose; then
+      blocked=1
+    fi
+  done <<< "$INPUT"
+
+  return "$blocked"
+}
+
+if [[ -n "$INPUT" ]]; then
+  echo "$INPUT" | "$ROOT/scripts/check-secrets-before-push.sh" --pre-push
+else
+  "$ROOT/scripts/check-secrets-before-push.sh" --pre-push
+fi
+
+if [[ "${GITLEAKS_DISABLE:-}" == "1" ]]; then
+  echo "gitleaks: skipped (GITLEAKS_DISABLE=1)" >&2
+  exit 0
+fi
+
+if command -v gitleaks >/dev/null 2>&1; then
+  run_gitleaks_range gitleaks || {
+    echo "" >&2
+    echo "Push blocked: gitleaks found potential secrets in the push range." >&2
+    echo "Bypass only if you are certain: git push --no-verify" >&2
+    exit 1
+  }
+  exit 0
+fi
+
+if command -v pre-commit >/dev/null 2>&1; then
+  cd "$ROOT"
+  pre-commit run gitleaks --hook-stage pre-push --all-files
+  exit $?
+fi
+
+echo "ERROR: gitleaks not found. Install hooks and dependencies:" >&2
+echo "  scripts/install-git-hooks.ps1" >&2
+echo "  or: pip install pre-commit && pre-commit install --hook-type pre-push" >&2
+exit 1

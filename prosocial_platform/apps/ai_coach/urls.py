@@ -8,4 +8,5 @@ urlpatterns = [
     path("journal/", views.journal_list, name="journal_list"),
     path("journal/new/", views.journal_create, name="journal_create"),
     path("pre-send-check/", views.pre_send_check, name="pre_send_check"),
+    path("civility-action/", views.record_civility_action_view, name="record_civility_action"),
 ]

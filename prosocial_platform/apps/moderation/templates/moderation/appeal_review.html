@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Review appeal · Common Good{% endblock %}
+{% block content %}
+  <h1>Review appeal</h1>
+  <p><strong>Appellant:</strong> {{ appeal.appellant.username }}</p>
+  <p><strong>Statement:</strong> {{ appeal.statement|linebreaksbr }}</p>
+  <p><strong>Original action:</strong> {{ appeal.moderation_action.explanation }}</p>
+  <form method="post">
+    {% csrf_token %}
+    <label for="outcome_note">Outcome note</label>
+    <textarea name="outcome_note" id="outcome_note" rows="3"></textarea>
+    <button type="submit" name="decision" value="approve">Approve appeal</button>
+    <button type="submit" name="decision" value="deny">Deny appeal</button>
+  </form>
+{% endblock %}

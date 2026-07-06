@@ -4,7 +4,15 @@ from django.utils.text import slugify
 from apps.common.models import ActivityEventType
 from apps.common.services import record_activity_event
 from apps.interactions.models import Reply
-from apps.knowledge.models import Clip, ClipKind, Collection, CollectionItem, CollectionVisibility, PostTag, Tag
+from apps.knowledge.models import (
+    Clip,
+    ClipKind,
+    Collection,
+    CollectionItem,
+    CollectionVisibility,
+    PostTag,
+    Tag,
+)
 from apps.posts.models import Post
 
 
@@ -27,7 +35,19 @@ def _get_or_create_tags(*, slugs: list[str]) -> list[Tag]:
 
 
 @transaction.atomic
-def set_post_tags(*, post: Post, tag_slugs: list[str]) -> None:
+def set_post_tags(*, post: Post, tag_slugs: list[str], author=None) -> None:
+    if tag_slugs:
+        from django.conf import settings
+
+        from apps.trust.services import user_has_privilege
+
+        tag_author = author or post.author
+        if (
+            settings.FUNCTIONAL_TRUST_FEATURES.get("earned_privileges")
+            and tag_author
+            and not user_has_privilege(user=tag_author, slug="can_tag_posts")
+        ):
+            raise KnowledgeError("Tagging requires earned knowledge reputation.")
     PostTag.objects.filter(post=post).delete()
     for tag in _get_or_create_tags(slugs=tag_slugs):
         PostTag.objects.create(post=post, tag=tag)

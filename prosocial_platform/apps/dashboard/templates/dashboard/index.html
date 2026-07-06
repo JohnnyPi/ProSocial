@@ -8,18 +8,18 @@
 {% block content %}
   <header class="dashboard-header">
     {% include "components/kind_filter.html" %}
+  </header>
+
+  <section class="feed" aria-label="Recent posts">
     <button
       type="button"
-      class="button dashboard-post-button"
+      class="feed-composer-trigger"
       id="post-modal-open"
       aria-haspopup="dialog"
       aria-controls="post-modal"
     >
-      + Post
+      Share Something
     </button>
-  </header>
-
-  <section class="feed" aria-label="Recent posts">
     <div id="feed-list">
       {% for post in feed_page %}
         {% include "components/post_card.html" %}

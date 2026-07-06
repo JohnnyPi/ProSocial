@@ -14,9 +14,8 @@ class ScoreVisibilityForm(forms.Form):
 class PeerRatingForm(forms.Form):
     dimension = forms.ChoiceField(
         choices=[
-            ("HELPED_ME", "This helped me"),
-            ("HELPFUL", "Helpful"),
-            ("SUPPORTIVE", "Supportive"),
-            ("INSIGHTFUL", "Insightful"),
+            ("ESCALATORY", "Escalatory"),
+            ("DISMISSIVE", "Dismissive"),
+            ("SPAMMY", "Spammy"),
         ]
     )

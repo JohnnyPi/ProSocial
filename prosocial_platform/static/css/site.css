@@ -286,6 +286,8 @@ select:focus-visible {
   gap: var(--space-md);
   max-height: calc(100vh - 2 * var(--space-lg));
   overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding-inline-end: var(--space-xs);
 }
 
 .rail-panel {
@@ -511,21 +513,33 @@ select:focus-visible {
 }
 
 .dashboard-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
-  gap: var(--space-md) var(--space-lg);
   padding: var(--space-md) var(--space-lg);
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-md);
 }
 
 .dashboard-header .kind-filter {
   margin: 0;
 }
 
-.dashboard-post-button {
-  justify-self: end;
-  flex-shrink: 0;
+.feed-composer-trigger {
+  display: block;
+  width: 100%;
+  margin: 0 0 var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
+  border: 1px solid var(--ink-border);
+  border-radius: var(--radius-input);
+  background: var(--surface);
+  color: var(--ink-muted);
+  font-size: 1rem;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--shadow-rest);
+}
+
+.feed-composer-trigger:hover {
+  border-color: var(--blush-deep);
+  color: var(--ink-base);
 }
 
 .form-actions {
@@ -777,6 +791,32 @@ button.tertiary:hover,
   color: var(--moss-deep);
 }
 
+.reaction-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.5rem 0;
+}
+
+.reaction-button {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--surface-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+}
+
+.reaction-button.active {
+  background: var(--moss-tint);
+  border-color: var(--moss-soft);
+}
+
+.pre-send-prompt__actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
 button.danger {
   background: var(--blush-deep);
 }
@@ -870,6 +910,35 @@ button:disabled,
   font-size: 0.875rem;
   padding-top: var(--space-sm);
   border-top: 1px solid var(--ink-tint);
+}
+
+.post-card--clickable {
+  position: relative;
+  cursor: pointer;
+}
+
+.post-card--clickable:hover {
+  border-color: var(--blush-deep);
+}
+
+.post-card-link {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+}
+
+.post-card-link:focus-visible {
+  outline: 2px solid var(--blush-deep);
+  outline-offset: 2px;
+}
+
+.post-card--clickable .post-card-header a,
+.post-card--clickable .post-tag-list a,
+.post-card--clickable .post-card-footer a,
+.post-card--clickable .post-card-footer button {
+  position: relative;
+  z-index: 1;
 }
 
 /* Action cards */
@@ -967,15 +1036,77 @@ button:disabled,
 }
 
 /* Profile */
-.profile-header {
+.profile-page {
+  max-width: 42rem;
+}
+
+.profile-hero {
+  margin-bottom: var(--space-lg);
+}
+
+.profile-cover {
+  display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  background: linear-gradient(135deg, var(--blush-soft) 0%, var(--surface-alt) 100%);
+}
+
+.profile-cover--default {
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+}
+
+.profile-identity {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-md);
+  gap: var(--space-xs);
+  padding: 0 var(--space-md) var(--space-md);
+  margin-top: calc(-3rem - var(--space-sm));
+}
+
+.profile-avatar--large {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius-card);
+  object-fit: cover;
+  border: 3px solid var(--surface);
+  box-shadow: var(--shadow-rest);
+  background: var(--surface-alt);
+}
+
+.profile-avatar--placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+.profile-identity h1 {
+  margin: var(--space-sm) 0 0;
 }
 
 .profile-handle {
   margin: 0;
+  font-size: 1rem;
+  color: var(--ink-muted);
+}
+
+.profile-bio {
+  margin: var(--space-md) 0;
+}
+
+.profile-bio--empty {
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
+.profile-actions {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
 }
 
 /* Replies */
@@ -1055,4 +1186,3 @@ button:disabled,
     padding: 0 var(--space-md) var(--space-lg);
   }
 }
-

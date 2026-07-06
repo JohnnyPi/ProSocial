@@ -44,7 +44,9 @@ def test_register_login_dashboard_flow(client):
 @pytest.mark.django_db
 def test_create_post_appears_on_dashboard(client):
     User = get_user_model()
-    user = User.objects.create_user(username="jane", email="j@example.com", password="test-pass-123")
+    user = User.objects.create_user(
+        username="jane", email="j@example.com", password="test-pass-123"
+    )
     client.force_login(user)
     response = client.post("/dashboard/", {"body": "My first update"}, follow=True)
     assert response.status_code == 200
@@ -54,10 +56,16 @@ def test_create_post_appears_on_dashboard(client):
 @pytest.mark.django_db
 def test_user_cannot_edit_other_users_post(client):
     User = get_user_model()
-    author = User.objects.create_user(username="kate", email="k@example.com", password="test-pass-123")
-    other = User.objects.create_user(username="leo", email="l@example.com", password="test-pass-123")
+    author = User.objects.create_user(
+        username="kate", email="k@example.com", password="test-pass-123"
+    )
+    other = User.objects.create_user(
+        username="leo", email="l@example.com", password="test-pass-123"
+    )
     client.force_login(author)
-    client.post("/dashboard/", {"body": "Author post"})
+    client.post(
+        "/dashboard/", {"body": "Author post", "kind": "GENERAL", "thread_type": "DISCUSSION"}
+    )
     post = author.posts.first()
     client.force_login(other)
     response = client.get(f"/posts/{post.public_id}/edit/")

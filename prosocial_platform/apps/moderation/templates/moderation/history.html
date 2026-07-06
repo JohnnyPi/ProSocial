@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Moderation history · Common Good{% endblock %}
+{% block content %}
+  <h1>Your moderation history</h1>
+  <section>
+    <h2>Actions</h2>
+    <ul>
+      {% for action in actions %}
+        <li>
+          <strong>{{ action.action_type }}</strong> — {{ action.rule_code }}
+          <p>{{ action.explanation }}</p>
+          {% if not action.is_reversed %}
+            <a href="{% url 'moderation:appeal_create' action_id=action.pk %}">Appeal</a>
+          {% else %}
+            <em>Reversed</em>
+          {% endif %}
+        </li>
+      {% empty %}
+        <li class="help-text">No moderation actions on your account.</li>
+      {% endfor %}
+    </ul>
+  </section>
+  <section>
+    <h2>Community abilities</h2>
+    <ul>
+      {% for up in privileges %}
+        <li>{{ up.privilege.name }}</li>
+      {% empty %}
+        <li class="help-text">No earned privileges yet.</li>
+      {% endfor %}
+    </ul>
+  </section>
+{% endblock %}

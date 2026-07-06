@@ -9,7 +9,7 @@
     <p>{{ reply.body|linebreaksbr }}</p>
     <footer class="reply-actions">
       {% if user.is_authenticated %}
-        {% include "interactions/thank_you_button.html" with reply=reply %}
+        {% include "interactions/prosocial_reactions.html" with reply=reply summary=reply.reaction_summary %}
         {% if not nested %}
           <a href="{% url 'interactions:reply_create' post_id=reply.post.public_id %}?parent={{ reply.public_id }}">Reply</a>
         {% endif %}

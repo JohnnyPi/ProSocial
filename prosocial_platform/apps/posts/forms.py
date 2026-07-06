@@ -2,7 +2,8 @@ from django import forms
 from django.conf import settings
 
 from apps.common.image_processing import ImageProcessingError, process_uploaded_image
-from apps.posts.models import Post, PostKind, ThreadType
+from apps.posts.constants import ACTION_POST_KINDS, COMPOSER_KIND_CHOICES
+from apps.posts.models import Post, ThreadType
 
 
 def _parse_tag_slugs(raw: str) -> list[str]:
@@ -29,7 +30,7 @@ class PostForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["kind"].choices = PostKind.choices
+        self.fields["kind"].choices = COMPOSER_KIND_CHOICES
         self.fields["thread_type"].choices = ThreadType.choices
         if self.instance and self.instance.pk:
             tag_names = [
@@ -48,6 +49,16 @@ class PostForm(forms.ModelForm):
 
     def clean_tags(self) -> list[str]:
         return _parse_tag_slugs(self.cleaned_data.get("tags", ""))
+
+    def clean_kind(self) -> str:
+        kind = self.cleaned_data.get("kind")
+        if kind in ACTION_POST_KINDS:
+            if self.instance.pk and self.instance.kind == kind:
+                return kind
+            raise forms.ValidationError(
+                "Help requests and action posts must be created from the Actions module."
+            )
+        return kind
 
     def clean(self):
         cleaned = super().clean()

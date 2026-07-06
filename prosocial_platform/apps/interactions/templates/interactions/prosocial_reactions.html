@@ -1,0 +1,20 @@
+<div class="prosocial-reactions" id="reactions-{% if post %}post-{{ post.public_id }}{% else %}reply-{{ reply.public_id }}{% endif %}">
+  {% if user.is_authenticated %}
+    <div class="reaction-picker">
+      {% for item in summary.items %}
+        <form method="post" action="{% if post %}{% url 'interactions:react_post' post_id=post.public_id %}{% else %}{% url 'interactions:react_reply' reply_id=reply.public_id %}{% endif %}" class="inline-form" hx-post="{% if post %}{% url 'interactions:react_post' post_id=post.public_id %}{% else %}{% url 'interactions:react_reply' reply_id=reply.public_id %}{% endif %}" hx-target="closest .prosocial-reactions" hx-swap="outerHTML">
+          {% csrf_token %}
+          <input type="hidden" name="kind" value="{{ item.kind }}">
+          <button type="submit" class="reaction-button{% if item.active %} active{% endif %}">{{ item.label }}{% if item.count %} · {{ item.count }}{% endif %}</button>
+        </form>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% if summary.category_totals %}
+    <ul class="reaction-category-totals help-text">
+      {% for cat, total in summary.category_totals.items %}
+        <li>{{ cat }}: {{ total }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>

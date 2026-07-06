@@ -1,6 +1,8 @@
 from django.db import transaction
 
 from apps.common.services import ActivityEventType, record_activity_event
+from apps.posts.constants import ACTION_POST_KINDS
+from apps.posts.exceptions import PostError
 from apps.posts.models import Post, PostKind, ThreadType
 
 
@@ -15,7 +17,13 @@ def create_post(
     thread_type: str = ThreadType.DISCUSSION,
     title: str = "",
     tag_slugs: list[str] | None = None,
+    civility_event_id: int | None = None,
+    _allow_action_kind: bool = False,
 ) -> Post:
+    if kind in ACTION_POST_KINDS and not _allow_action_kind:
+        raise PostError(
+            "Use the Actions module to create help requests, offers, and volunteer posts."
+        )
     post = Post(
         author=author,
         body=body.strip(),
@@ -31,16 +39,23 @@ def create_post(
     if tag_slugs:
         from apps.knowledge.services import set_post_tags
 
-        set_post_tags(post=post, tag_slugs=tag_slugs)
+        set_post_tags(post=post, tag_slugs=tag_slugs, author=author)
     from apps.moderation.services import flag_crisis_content
 
     flag_crisis_content(text=post.body, post=post)
+    if civility_event_id:
+        from apps.ai_coach.services import finalize_civility_event
+
+        finalize_civility_event(event_id=civility_event_id, post=post, final_text=post.body)
     record_activity_event(
         event_type=ActivityEventType.POST_CREATED,
         actor=author,
         object_type="post",
         object_public_id=post.public_id,
     )
+    from apps.ai_coach.services import score_content
+
+    score_content(text=post.body, post=post)
     return post
 
 
@@ -55,7 +70,10 @@ def update_post(
     thread_type: str | None = None,
     title: str | None = None,
     tag_slugs: list[str] | None = None,
+    civility_event_id: int | None = None,
 ) -> Post:
+    if kind is not None and kind in ACTION_POST_KINDS:
+        raise PostError("Use the Actions module to set action post kinds.")
     post.body = body.strip()
     post.image_alt_text = image_alt_text.strip()
     if kind is not None:
@@ -71,7 +89,14 @@ def update_post(
     if tag_slugs is not None:
         from apps.knowledge.services import set_post_tags
 
-        set_post_tags(post=post, tag_slugs=tag_slugs)
+        set_post_tags(post=post, tag_slugs=tag_slugs, author=post.author)
+    from apps.moderation.services import flag_crisis_content
+
+    flag_crisis_content(text=post.body, post=post)
+    if civility_event_id:
+        from apps.ai_coach.services import finalize_civility_event
+
+        finalize_civility_event(event_id=civility_event_id, post=post, final_text=post.body)
     record_activity_event(
         event_type=ActivityEventType.POST_UPDATED,
         actor=post.author,
@@ -82,12 +107,13 @@ def update_post(
 
 
 @transaction.atomic
-def soft_delete_post(*, post: Post) -> Post:
+def soft_delete_post(*, post: Post, record_event: bool = True) -> Post:
     post.soft_delete()
-    record_activity_event(
-        event_type=ActivityEventType.POST_DELETED,
-        actor=post.author,
-        object_type="post",
-        object_public_id=post.public_id,
-    )
+    if record_event and post.author_id:
+        record_activity_event(
+            event_type=ActivityEventType.POST_DELETED,
+            actor=post.author,
+            object_type="post",
+            object_public_id=post.public_id,
+        )
     return post

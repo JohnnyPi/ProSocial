@@ -12,7 +12,11 @@ class SentimentLabel(models.TextChoices):
 
 class SentimentSnapshot(TimeStampedModel):
     post = models.ForeignKey(
-        "posts.Post", null=True, blank=True, on_delete=models.CASCADE, related_name="sentiment_snapshots"
+        "posts.Post",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="sentiment_snapshots",
     )
     reply = models.ForeignKey(
         "interactions.Reply",
@@ -50,5 +54,47 @@ class AIIntervention(TimeStampedModel):
     message = models.TextField(max_length=1000)
     dismissed_at = models.DateTimeField(null=True, blank=True)
     post = models.ForeignKey(
-        "posts.Post", null=True, blank=True, on_delete=models.SET_NULL, related_name="ai_interventions"
+        "posts.Post",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="ai_interventions",
     )
+
+
+class CivilityPromptType(models.TextChoices):
+    HOSTILE_LANGUAGE = "HOSTILE_LANGUAGE", "Hostile language"
+    NONE = "NONE", "None"
+
+
+class CivilityUserAction(models.TextChoices):
+    EDITED = "EDITED", "Edited"
+    POSTED_ANYWAY = "POSTED_ANYWAY", "Posted anyway"
+    CANCELLED = "CANCELLED", "Cancelled"
+
+
+class CivilityPromptEvent(TimeStampedModel):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="civility_prompt_events"
+    )
+    post = models.ForeignKey(
+        "posts.Post",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="civility_prompt_events",
+    )
+    reply = models.ForeignKey(
+        "interactions.Reply",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="civility_prompt_events",
+    )
+    prompt_type = models.CharField(max_length=32, choices=CivilityPromptType.choices)
+    prompt_shown = models.BooleanField(default=True)
+    user_action = models.CharField(max_length=16, choices=CivilityUserAction.choices, blank=True)
+    edited_after_prompt = models.BooleanField(default=False)
+    original_text_hash = models.CharField(max_length=64)
+    final_text_hash = models.CharField(max_length=64, blank=True)
+    is_finalized = models.BooleanField(default=False)

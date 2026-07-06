@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
 from apps.profiles.forms import ProfileForm
 from apps.profiles.selectors import get_public_profile
@@ -9,7 +9,34 @@ from apps.profiles.services import update_profile
 
 def profile_detail(request: HttpRequest, handle: str) -> HttpResponse:
     profile = get_public_profile(handle=handle)
-    return render(request, "profiles/detail.html", {"profile": profile})
+    from apps.profiles.models import ScopedEndorsement
+
+    endorsements = ScopedEndorsement.objects.filter(user=profile.user, is_active=True)
+    return render(
+        request,
+        "profiles/detail.html",
+        {"profile": profile, "endorsements": endorsements},
+    )
+
+
+@login_required
+def endorsement_create(request: HttpRequest) -> HttpResponse:
+    from apps.profiles.models import VerificationMethod
+    from apps.profiles.services import create_endorsement
+
+    if request.method == "POST":
+        create_endorsement(
+            user=request.user,
+            claim_type=request.POST.get("claim_type", ""),
+            claim_label=request.POST.get("claim_label", ""),
+            verification_method=request.POST.get(
+                "verification_method", VerificationMethod.SELF_ASSERTED
+            ),
+            issuer=request.POST.get("issuer", ""),
+            scope=request.POST.get("scope", ""),
+        )
+        return redirect("profiles:detail", handle=request.user.profile.handle)
+    return render(request, "profiles/endorsement_form.html")
 
 
 @login_required

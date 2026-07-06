@@ -19,9 +19,9 @@
     <p class="help-text">Choose how this post should appear in feed filters.</p>
   </div>
   <div class="field">
-    <label for="{{ form.thread_type.id_for_label }}">Thread type</label>
+    <label for="{{ form.thread_type.id_for_label }}">Thread shape</label>
     {{ form.thread_type }}
-    <p class="help-text">Optional knowledge thread category.</p>
+    <p class="help-text">Conversation format for knowledge hub and thread tracking.</p>
   </div>
   <div class="field">
     <label for="{{ form.title.id_for_label }}">Title (optional)</label>
@@ -55,5 +55,6 @@
   data-pre-send-body="{{ form.body.id_for_label }}"
   data-pre-send-target="pre-send-prompt-composer"
   data-pre-send-url="{% url 'ai_coach:pre_send_check' %}"
+  data-pre-send-record-url="{% url 'ai_coach:record_civility_action' %}"
   data-csrf-token="{{ csrf_token }}"
 ></div>

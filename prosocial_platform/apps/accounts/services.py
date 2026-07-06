@@ -87,11 +87,12 @@ def cancel_account_deletion(*, user) -> AccountDeletionRequest:
 def process_account_deletion(*, user) -> None:
     from apps.interactions.models import Reply
     from apps.posts.models import Post
+    from apps.posts.services import soft_delete_post
 
-    user_public_id = str(user.public_id)
     now = timezone.now()
 
-    Post.objects.filter(author=user, deleted_at__isnull=True).update(deleted_at=now)
+    for post in Post.objects.filter(author=user, deleted_at__isnull=True):
+        soft_delete_post(post=post, record_event=False)
     Reply.objects.filter(author=user, deleted_at__isnull=True).update(deleted_at=now)
 
     record_activity_event(

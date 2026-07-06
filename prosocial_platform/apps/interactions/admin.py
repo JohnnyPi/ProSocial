@@ -2,8 +2,11 @@ from django.contrib import admin
 
 from apps.interactions.models import (
     ContentReport,
+    ContextNote,
     HiddenPost,
+    NoteRating,
     Notification,
+    ProsocialReaction,
     Reply,
     ThankYou,
     UserBlock,
@@ -49,3 +52,8 @@ class ContentReportAdmin(admin.ModelAdmin):
     list_display = ("reporter", "reason", "status", "created_at", "resolved_at")
     list_filter = ("status", "reason")
     search_fields = ("details", "reporter__username")
+
+
+admin.site.register(ProsocialReaction)
+admin.site.register(ContextNote)
+admin.site.register(NoteRating)

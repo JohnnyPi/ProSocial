@@ -10,7 +10,8 @@
   {% include "components/post_card.html" %}
   {% if user.is_authenticated %}
     <div class="post-actions">
-      {% include "interactions/thank_you_button.html" with post=post thanked=user_thanked thank_count=thank_count %}
+      {% include "interactions/prosocial_reactions.html" with post=post summary=reaction_summary %}
+      <a href="{% url 'interactions:context_note_create' post_id=post.public_id %}">Add context</a>
       <form method="post" action="{% url 'knowledge:clip_post' post_id=post.public_id %}" class="inline-form">
         {% csrf_token %}
         <input type="hidden" name="clip_kind" value="WHOLE_POST">
@@ -44,4 +45,24 @@
       <a href="{% url 'interactions:reply_create' post_id=post.public_id %}">Add a reply</a>
     {% endif %}
   </section>
+  {% if context_notes %}
+    <section class="context-notes" aria-label="Community context">
+      <h2>Community context</h2>
+      <ul>
+        {% for note in context_notes %}
+          <li>
+            <p>{{ note.body|linebreaksbr }}</p>
+            <p class="help-text">By {{ note.author.profile.public_display_name }}</p>
+            {% if user.is_authenticated %}
+              <form method="post" action="{% url 'interactions:context_note_rate' note_id=note.pk %}" class="inline-form">
+                {% csrf_token %}
+                <input type="hidden" name="helpful" value="1">
+                <button type="submit" class="link-button">Helpful</button>
+              </form>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
 {% endblock %}

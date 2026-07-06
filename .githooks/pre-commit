@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Pre-commit: block forbidden paths in the index + gitleaks on staged changes.
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+
+"$ROOT/scripts/check-secrets-before-push.sh"
+
+if [[ "${GITLEAKS_DISABLE:-}" == "1" ]]; then
+  echo "gitleaks: skipped (GITLEAKS_DISABLE=1)" >&2
+  exit 0
+fi
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --config "$ROOT/.gitleaks.toml" --staged --verbose
+  exit $?
+fi
+
+if command -v pre-commit >/dev/null 2>&1; then
+  cd "$ROOT"
+  pre-commit run gitleaks --hook-stage pre-commit --all-files
+  exit $?
+fi
+
+echo "ERROR: gitleaks not found. Run scripts/install-git-hooks.ps1" >&2
+exit 1

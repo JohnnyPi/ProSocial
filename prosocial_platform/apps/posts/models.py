@@ -24,7 +24,7 @@ class PostKind(models.TextChoices):
 
 class ThreadType(models.TextChoices):
     DISCUSSION = "DISCUSSION", "Discussion"
-    HELP_REQUEST = "HELP_REQUEST", "Help request"
+    PEER_SUPPORT = "PEER_SUPPORT", "Peer support thread"
     KNOWLEDGE_SHARE = "KNOWLEDGE_SHARE", "Knowledge share"
     SUPPORT_CIRCLE = "SUPPORT_CIRCLE", "Support circle"
     CHALLENGE = "CHALLENGE", "Challenge"
@@ -94,10 +94,14 @@ class Post(TimeStampedModel):
     def clean(self):
         from django.core.exceptions import ValidationError
 
+        from apps.posts.constants import ACTION_POST_KINDS
+
         body = (self.body or "").strip()
         has_image = bool(self.image)
         if not body and not has_image:
             raise ValidationError("A post must contain text, an image, or both.")
+        if self.kind in ACTION_POST_KINDS and self.thread_type != ThreadType.DISCUSSION:
+            raise ValidationError("Action posts must use the Discussion thread shape.")
 
     def soft_delete(self) -> None:
         self.deleted_at = timezone.now()

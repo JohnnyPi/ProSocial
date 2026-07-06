@@ -1,14 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 
 from apps.posts.forms import PostForm
 from apps.posts.selectors import get_dashboard_feed
-from apps.posts.services import create_post
-
-
-def _is_htmx(request: HttpRequest) -> bool:
-    return request.headers.get("HX-Request") == "true"
+from apps.posts.view_helpers import handle_post_create
 
 
 @login_required
@@ -22,23 +18,17 @@ def dashboard_index(request: HttpRequest) -> HttpResponse:
         feed_mode=feed_mode,
     )
 
+    form = PostForm()
     if request.method == "POST":
+        response = handle_post_create(
+            request,
+            redirect_view="dashboard:index",
+            redirect_with_post_id=False,
+        )
+        if response is not None:
+            return response
         form = PostForm(request.POST, request.FILES)
         form.actor = request.user
-        if form.is_valid():
-            post = create_post(author=request.user, **form.cleaned_post_kwargs())
-            if _is_htmx(request):
-                return render(request, "components/post_card.html", {"post": post})
-            return redirect("dashboard:index")
-        elif _is_htmx(request):
-            return render(
-                request,
-                "components/post_composer.html",
-                {"form": form},
-                status=422,
-            )
-    else:
-        form = PostForm()
 
     return render(
         request,
@@ -58,7 +48,9 @@ def knowledge_hub(request: HttpRequest) -> HttpResponse:
     from apps.knowledge.selectors import get_user_collections, get_user_vault
     from apps.posts.models import Post
 
-    followed_post_ids = PostFollow.objects.filter(user=request.user).values_list("post_id", flat=True)
+    followed_post_ids = PostFollow.objects.filter(user=request.user).values_list(
+        "post_id", flat=True
+    )
     followed_threads = (
         Post.objects.visible()
         .filter(pk__in=followed_post_ids)

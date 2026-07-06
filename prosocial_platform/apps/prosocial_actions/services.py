@@ -1,10 +1,9 @@
-
 from django.db import transaction
 from django.utils import timezone
 
 from apps.interactions.models import Notification, NotificationKind
 from apps.interactions.selectors import is_blocked
-from apps.posts.models import PostKind
+from apps.posts.constants import ACTION_POST_KINDS
 from apps.posts.services import create_post
 from apps.prosocial_actions.exceptions import ProsocialActionError, validate_transition
 from apps.prosocial_actions.models import (
@@ -20,13 +19,7 @@ from apps.prosocial_actions.models import (
     VerificationMode,
 )
 
-ACTION_KINDS = {
-    PostKind.HELP_REQUEST,
-    PostKind.HELP_OFFER,
-    PostKind.ENCOURAGEMENT_REQUEST,
-    PostKind.LOCAL_ACTION,
-    PostKind.VOLUNTEER_OPPORTUNITY,
-}
+ACTION_KINDS = ACTION_POST_KINDS
 
 
 @transaction.atomic
@@ -51,9 +44,9 @@ def create_action_post(
         body=body,
         image=image,
         image_alt_text=image_alt_text,
+        kind=kind,
+        _allow_action_kind=True,
     )
-    post.kind = kind
-    post.save(update_fields=["kind", "updated_at"])
     action = ActionOpportunity(
         post=post,
         creator=creator,
@@ -99,7 +92,10 @@ def save_action(*, action: ActionOpportunity, participant) -> Commitment:
         participant=participant,
         defaults={"status": CommitmentStatus.SAVED},
     )
-    if not created and commitment.status not in (CommitmentStatus.SAVED, CommitmentStatus.WITHDRAWN):
+    if not created and commitment.status not in (
+        CommitmentStatus.SAVED,
+        CommitmentStatus.WITHDRAWN,
+    ):
         raise ProsocialActionError("You already have an active commitment to this action.")
     if commitment.status == CommitmentStatus.WITHDRAWN:
         commitment.status = CommitmentStatus.SAVED
@@ -148,7 +144,9 @@ def withdraw_commitment(*, commitment: Commitment, participant) -> Commitment:
 
 
 @transaction.atomic
-def submit_completion(*, commitment: Commitment, participant, note: str = "") -> CompletionSubmission:
+def submit_completion(
+    *, commitment: Commitment, participant, note: str = ""
+) -> CompletionSubmission:
     if commitment.participant_id != participant.pk:
         raise ProsocialActionError("Not authorized.")
     validate_transition(commitment.status, CommitmentStatus.COMPLETION_SUBMITTED)
@@ -187,6 +185,18 @@ def verify_completion(*, commitment: Commitment, reviewer) -> Commitment:
     commitment.status = CommitmentStatus.VERIFIED
     commitment.completed_at = timezone.now()
     commitment.save(update_fields=["status", "completed_at", "updated_at"])
+    from apps.trust.models import TrustEvent, TrustEventType
+
+    TrustEvent.objects.create(
+        user=commitment.participant,
+        event_type=TrustEventType.COMMITMENT_VERIFIED,
+        weight=3.0,
+        source_type="commitment",
+        source_id=str(commitment.public_id),
+    )
+    from apps.trust.services import recalculate_trust_scores
+
+    recalculate_trust_scores(user=commitment.participant)
     return commitment
 
 
@@ -207,7 +217,9 @@ def reject_completion(*, commitment: Commitment, reviewer, note: str = "") -> Co
 
 
 @transaction.atomic
-def invite_user(*, action: ActionOpportunity, inviter, invitee, message: str = "") -> ActionInvitation:
+def invite_user(
+    *, action: ActionOpportunity, inviter, invitee, message: str = ""
+) -> ActionInvitation:
     if inviter.pk == invitee.pk:
         raise ProsocialActionError("You cannot invite yourself.")
     if is_blocked(user_a=inviter, user_b=invitee):
@@ -249,7 +261,9 @@ def decline_invitation(*, invitation: ActionInvitation, invitee) -> ActionInvita
 
 
 @transaction.atomic
-def send_acknowledgement(*, commitment: Commitment, sender, message: str = "") -> ActionAcknowledgement:
+def send_acknowledgement(
+    *, commitment: Commitment, sender, message: str = ""
+) -> ActionAcknowledgement:
     if commitment.status not in (CommitmentStatus.COMPLETION_SUBMITTED, CommitmentStatus.VERIFIED):
         raise ProsocialActionError("Acknowledgement is only available after completion.")
     recipient = commitment.participant
@@ -263,7 +277,7 @@ def send_acknowledgement(*, commitment: Commitment, sender, message: str = "") -
     Notification.objects.create(
         recipient=recipient,
         actor=sender,
-        kind=NotificationKind.THANK_YOU_RECEIVED,
+        kind=NotificationKind.COMMITMENT_ACKNOWLEDGED,
         payload={"commitment_public_id": str(commitment.public_id), "message": message.strip()},
     )
     return ack

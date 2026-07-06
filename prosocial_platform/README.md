@@ -108,12 +108,14 @@ Public profiles are at `/profiles/<handle>/` (for example, `/profiles/test_river
 
 ### What gets seeded
 
-Each run creates or updates **5 profiles** and **9 posts**:
+Each run creates or updates **5 profiles**, **9 posts**, **9 threaded replies**, and **2 guilds**:
 
 - **4 plain posts** — varied `PostKind` and `ThreadType` values (discussion, knowledge share, encouragement).
 - **5 action posts** — linked `ActionOpportunity` records (help request/offer, local action, volunteer shift).
+- **9 replies** — top-level and nested replies on discussion, knowledge, action, and support posts.
+- **2 guilds** — test community groups with memberships for right-rail guild panel testing.
 
-Every post body includes the marker `[PROSOCIAL_TEST]` and a unique seed id, for example `[PROSOCIAL_TEST:post=river-welcome]`. Titles, when present, are also tagged.
+Every post body includes the marker `[PROSOCIAL_TEST]` and a unique seed id, for example `[PROSOCIAL_TEST:post=river-welcome]`. Replies use `[PROSOCIAL_TEST:reply=<seed_id>]`. Titles, when present, are also tagged. Guild descriptions include `[PROSOCIAL_TEST:guild=<seed_id>]`.
 
 ### Identification and purge safety
 
@@ -191,3 +193,27 @@ See the repository root docs:
 - `Phases0to2.md`
 - `Phases3to5.md`
 - `ProsocialNetworkDesign.md`
+
+## Security hooks (before commit / push)
+
+Install once after cloning to block accidental secret leaks:
+
+```powershell
+# From repository root (Windows)
+.\scripts\install-git-hooks.ps1
+```
+
+```bash
+# macOS / Linux / Git Bash
+./scripts/install-git-hooks.sh
+```
+
+This installs **pre-commit** and **pre-push** hooks that:
+
+- Reject `.env`, `.env.local`, `*.pem`, `*.key`, and tracked bytecode
+- Run **gitleaks** on staged changes (commit) and the push range (push)
+- Flag deployment configs that use `config.settings.development`, `DJANGO_DEBUG=True`, or `seed_test_data`
+
+Requires `pre-commit` (`pip install pre-commit` or `pip install -e ".[dev]"` from this directory). Gitleaks is downloaded automatically on first run.
+
+Emergency bypass (rotate any exposed credential afterward): `GITLEAKS_DISABLE=1 git push`

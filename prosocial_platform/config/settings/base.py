@@ -116,6 +116,20 @@ EXPORT_RATE_LIMIT = 3
 EXPORT_RATE_WINDOW_SECONDS = 3600
 ACCOUNT_DELETION_GRACE_DAYS = 30
 
+FUNCTIONAL_TRUST_FEATURES = {
+    "prosocial_reactions": True,
+    "civility_prompts": True,
+    "moderation_actions": True,
+    "moderation_appeals": True,
+    "assurance_profile": True,
+    "earned_privileges": True,
+    "scoped_endorsements": True,
+    "context_notes": True,
+    "anti_gaming": True,
+}
+
+APPEAL_WINDOW_DAYS = 14
+
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",

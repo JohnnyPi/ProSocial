@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Add context note · Common Good{% endblock %}
+{% block content %}
+  <h1>Add context note</h1>
+  <p class="help-text">Offer clarifying context for this post. Notes appear after cross-perspective support.</p>
+  {% if error %}<p class="form-error">{{ error }}</p>{% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <textarea name="body" rows="4" maxlength="1000" required placeholder="What context would help readers?"></textarea>
+    <button type="submit">Submit note</button>
+  </form>
+{% endblock %}

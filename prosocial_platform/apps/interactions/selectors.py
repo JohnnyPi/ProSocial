@@ -1,9 +1,44 @@
 import uuid
+from dataclasses import dataclass, field
 
-from django.db.models import Exists, OuterRef, Prefetch, Q, QuerySet
+from django.db.models import Count, Exists, OuterRef, Prefetch, Q, QuerySet
 from django.shortcuts import get_object_or_404
 
-from apps.interactions.models import HiddenPost, Notification, Reply, UserBlock, UserMute
+from apps.interactions.models import (
+    ContextNote,
+    ContextNoteStatus,
+    HiddenPost,
+    Notification,
+    ProsocialReaction,
+    ProsocialReactionKind,
+    Reply,
+    UserBlock,
+    UserMute,
+)
+
+REACTION_KIND_LABELS = [
+    (ProsocialReactionKind.HELPFUL, "Helpful"),
+    (ProsocialReactionKind.KIND, "Kind"),
+    (ProsocialReactionKind.CLARIFIED, "Clarified"),
+    (ProsocialReactionKind.SUPPORTIVE, "Supportive"),
+    (ProsocialReactionKind.GOOD_FAITH, "Good faith"),
+    (ProsocialReactionKind.NEEDS_CONTEXT, "Needs context"),
+    (ProsocialReactionKind.THANKS, "Thanks"),
+]
+
+
+@dataclass
+class ReactionItem:
+    kind: str
+    label: str
+    count: int
+    active: bool
+
+
+@dataclass
+class ReactionSummary:
+    items: list[ReactionItem] = field(default_factory=list)
+    category_totals: dict[str, int] = field(default_factory=dict)
 
 
 def is_blocked(*, user_a, user_b) -> bool:
@@ -11,8 +46,7 @@ def is_blocked(*, user_a, user_b) -> bool:
     if not user_a or not user_b or user_a.pk == user_b.pk:
         return False
     return UserBlock.objects.filter(
-        Q(blocking_user=user_a, blocked_user=user_b)
-        | Q(blocking_user=user_b, blocked_user=user_a)
+        Q(blocking_user=user_a, blocked_user=user_b) | Q(blocking_user=user_b, blocked_user=user_a)
     ).exists()
 
 
@@ -73,4 +107,39 @@ def get_owned_reply(*, public_id: uuid.UUID, author) -> Reply:
     return get_object_or_404(
         Reply.objects.filter(author=author, deleted_at__isnull=True),
         public_id=public_id,
+    )
+
+
+def get_reaction_summary(*, post=None, reply=None, user=None) -> ReactionSummary:
+    qs = ProsocialReaction.objects.all()
+    if post:
+        qs = qs.filter(post=post)
+    elif reply:
+        qs = qs.filter(reply=reply)
+    else:
+        return ReactionSummary()
+
+    counts = dict(qs.values("kind").annotate(c=Count("id")).values_list("kind", "c"))
+    category_totals: dict[str, int] = {}
+    for row in qs.values("category").annotate(c=Count("id")):
+        if row["category"]:
+            category_totals[row["category"]] = row["c"]
+    user_kinds: set[str] = set()
+    if user and user.is_authenticated:
+        user_kinds = set(qs.filter(sender=user).values_list("kind", flat=True))
+    items = [
+        ReactionItem(
+            kind=k.value,
+            label=label,
+            count=counts.get(k.value, 0),
+            active=k.value in user_kinds,
+        )
+        for k, label in REACTION_KIND_LABELS
+    ]
+    return ReactionSummary(items=items, category_totals=category_totals)
+
+
+def get_visible_context_notes(*, post):
+    return ContextNote.objects.filter(post=post, status=ContextNoteStatus.VISIBLE).select_related(
+        "author", "author__profile"
     )

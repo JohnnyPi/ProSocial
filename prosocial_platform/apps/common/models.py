@@ -10,6 +10,14 @@ class TimeStampedModel(models.Model):
         abstract = True
 
 
+class ReactionCategory(models.TextChoices):
+    SUPPORT = "support", "Support"
+    CLARITY = "clarity", "Clarity"
+    KNOWLEDGE = "knowledge", "Knowledge"
+    CIVILITY = "civility", "Civility"
+    CONCERN = "concern", "Concern"
+
+
 class ActivityEventType(models.TextChoices):
     ACCOUNT_REGISTERED = "ACCOUNT_REGISTERED", "Account registered"
     ACCOUNT_DELETION_REQUESTED = "ACCOUNT_DELETION_REQUESTED", "Account deletion requested"
