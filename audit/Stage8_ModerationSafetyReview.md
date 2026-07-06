@@ -1,9 +1,9 @@
 # Stage 8 — Moderation and Safety Review
 
-**Method:** CompleteAudit §8 — 10-step lifecycle trace, crisis vs misconduct separation  
-**Inputs:** Stages 1–7, codebase trace  
-**Audit date:** 2026-07-05  
-**Test baseline:** 80 passed  
+**Method:** CompleteAudit §8 — 10-step lifecycle trace, crisis vs misconduct separation
+**Inputs:** Stages 1–7, codebase trace
+**Audit date:** 2026-07-05
+**Test baseline:** 80 passed
 **Note:** Crisis tests use synthetic phrases only (no real PII).
 
 ---

@@ -33,7 +33,11 @@ def get_action_detail(*, public_id: uuid.UUID) -> ActionOpportunity:
 
 
 def get_user_commitments(*, user, include_saved: bool = True) -> QuerySet[Commitment]:
-    statuses = [CommitmentStatus.COMMITTED, CommitmentStatus.COMPLETION_SUBMITTED, CommitmentStatus.VERIFIED]
+    statuses = [
+        CommitmentStatus.COMMITTED,
+        CommitmentStatus.COMPLETION_SUBMITTED,
+        CommitmentStatus.VERIFIED,
+    ]
     if include_saved:
         statuses.insert(0, CommitmentStatus.SAVED)
     return (
@@ -44,14 +48,11 @@ def get_user_commitments(*, user, include_saved: bool = True) -> QuerySet[Commit
 
 
 def get_pending_verifications(*, creator) -> QuerySet[Commitment]:
-    return (
-        Commitment.objects.filter(
-            action__creator=creator,
-            status=CommitmentStatus.COMPLETION_SUBMITTED,
-            completion_submission__review_status="PENDING",
-        )
-        .select_related("participant", "action", "completion_submission")
-    )
+    return Commitment.objects.filter(
+        action__creator=creator,
+        status=CommitmentStatus.COMPLETION_SUBMITTED,
+        completion_submission__review_status="PENDING",
+    ).select_related("participant", "action", "completion_submission")
 
 
 def get_pending_invitations(*, user) -> QuerySet[ActionInvitation]:

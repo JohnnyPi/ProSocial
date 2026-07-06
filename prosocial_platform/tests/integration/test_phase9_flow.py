@@ -1,7 +1,7 @@
 import pytest
 from django.contrib.auth import get_user_model
 
-from apps.engagement.models import Challenge, ChallengePeriod, RestModeSession
+from apps.engagement.models import Challenge, ChallengePeriod
 from apps.engagement.services import complete_challenge, is_in_rest_mode, start_rest_mode
 
 User = get_user_model()

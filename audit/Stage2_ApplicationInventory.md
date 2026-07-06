@@ -1,7 +1,7 @@
 # Stage 2 — Application Inventory
 
-**Repository:** `e:\CursorApps\ProSocial`  
-**Application root:** [prosocial_platform](../prosocial_platform)  
+**Repository:** `e:\CursorApps\ProSocial`
+**Application root:** [prosocial_platform](../prosocial_platform)
 **Audit date:** 2026-07-05
 
 ---
@@ -91,7 +91,7 @@ ProSocial/
 | [config/settings/production.py](../prosocial_platform/config/settings/production.py) | Deploy checks via CI `check --deploy` |
 | [compose.yaml](../prosocial_platform/compose.yaml) | Postgres 16 + web service |
 
-**Rate limits (base.py):** Registration 5/hr, login 10/15min.  
+**Rate limits (base.py):** Registration 5/hr, login 10/15min.
 **Content limits:** Post body 5000 chars, image 5MB max 4096px JPEG/PNG/WEBP.
 
 ---

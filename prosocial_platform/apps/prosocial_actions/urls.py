@@ -26,5 +26,7 @@ urlpatterns = [
     ),
     path("invitations/", views.invitation_list, name="invitations"),
     path("invitations/<uuid:public_id>/accept/", views.invitation_accept, name="invitation_accept"),
-    path("invitations/<uuid:public_id>/decline/", views.invitation_decline, name="invitation_decline"),
+    path(
+        "invitations/<uuid:public_id>/decline/", views.invitation_decline, name="invitation_decline"
+    ),
 ]

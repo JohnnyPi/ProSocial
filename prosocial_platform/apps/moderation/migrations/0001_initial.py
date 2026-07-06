@@ -6,79 +6,188 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('interactions', '0002_alter_notification_kind_prosocialreaction'),
-        ('posts', '0003_post_guild_post_thread_type_post_title'),
+        ("interactions", "0002_alter_notification_kind_prosocialreaction"),
+        ("posts", "0003_post_guild_post_thread_type_post_title"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='TransparencyLogEntry',
+            name="TransparencyLogEntry",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('action_type', models.CharField(max_length=64)),
-                ('summary', models.TextField(max_length=1000)),
-                ('anonymized_actor_id', models.CharField(blank=True, max_length=64)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("action_type", models.CharField(max_length=64)),
+                ("summary", models.TextField(max_length=1000)),
+                ("anonymized_actor_id", models.CharField(blank=True, max_length=64)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='CrisisFlag',
+            name="CrisisFlag",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('detected_phrase', models.CharField(blank=True, max_length=200)),
-                ('resources_shown', models.BooleanField(default=False)),
-                ('moderator_notified', models.BooleanField(default=False)),
-                ('resolved_at', models.DateTimeField(blank=True, null=True)),
-                ('post', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='crisis_flags', to='posts.post')),
-                ('reply', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='crisis_flags', to='interactions.reply')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("detected_phrase", models.CharField(blank=True, max_length=200)),
+                ("resources_shown", models.BooleanField(default=False)),
+                ("moderator_notified", models.BooleanField(default=False)),
+                ("resolved_at", models.DateTimeField(blank=True, null=True)),
+                (
+                    "post",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="crisis_flags",
+                        to="posts.post",
+                    ),
+                ),
+                (
+                    "reply",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="crisis_flags",
+                        to="interactions.reply",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='ModerationReview',
+            name="ModerationReview",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('ai_sentiment_label', models.CharField(blank=True, max_length=16)),
-                ('status', models.CharField(choices=[('PENDING', 'Pending'), ('APPROVED', 'Approved'), ('EDIT_REQUIRED', 'Edit required'), ('REMOVED', 'Removed'), ('ESCALATED', 'Escalated')], default='PENDING', max_length=16)),
-                ('explanation', models.TextField(blank=True, max_length=2000)),
-                ('content_report', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='moderation_reviews', to='interactions.contentreport')),
-                ('post', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='moderation_reviews', to='posts.post')),
-                ('reply', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='moderation_reviews', to='interactions.reply')),
-                ('reviewer', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='moderation_reviews_done', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("ai_sentiment_label", models.CharField(blank=True, max_length=16)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("PENDING", "Pending"),
+                            ("APPROVED", "Approved"),
+                            ("EDIT_REQUIRED", "Edit required"),
+                            ("REMOVED", "Removed"),
+                            ("ESCALATED", "Escalated"),
+                        ],
+                        default="PENDING",
+                        max_length=16,
+                    ),
+                ),
+                ("explanation", models.TextField(blank=True, max_length=2000)),
+                (
+                    "content_report",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="moderation_reviews",
+                        to="interactions.contentreport",
+                    ),
+                ),
+                (
+                    "post",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="moderation_reviews",
+                        to="posts.post",
+                    ),
+                ),
+                (
+                    "reply",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="moderation_reviews",
+                        to="interactions.reply",
+                    ),
+                ),
+                (
+                    "reviewer",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="moderation_reviews_done",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='UserRoleAssignment',
+            name="UserRoleAssignment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('role', models.CharField(choices=[('NEW_MEMBER', 'New member'), ('MEMBER', 'Member'), ('COMMUNITY_SUPPORTER', 'Community supporter'), ('MENTOR', 'Mentor'), ('COMMUNITY_GUIDE', 'Community guide'), ('AMBASSADOR', 'Ambassador'), ('MODERATOR', 'Moderator'), ('COMMUNITY_LEADER', 'Community leader'), ('LEGENDARY_STEWARD', 'Legendary steward')], max_length=32)),
-                ('granted_at', models.DateTimeField(auto_now_add=True)),
-                ('expires_at', models.DateTimeField(blank=True, null=True)),
-                ('is_active', models.BooleanField(default=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='role_assignments', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "role",
+                    models.CharField(
+                        choices=[
+                            ("NEW_MEMBER", "New member"),
+                            ("MEMBER", "Member"),
+                            ("COMMUNITY_SUPPORTER", "Community supporter"),
+                            ("MENTOR", "Mentor"),
+                            ("COMMUNITY_GUIDE", "Community guide"),
+                            ("AMBASSADOR", "Ambassador"),
+                            ("MODERATOR", "Moderator"),
+                            ("COMMUNITY_LEADER", "Community leader"),
+                            ("LEGENDARY_STEWARD", "Legendary steward"),
+                        ],
+                        max_length=32,
+                    ),
+                ),
+                ("granted_at", models.DateTimeField(auto_now_add=True)),
+                ("expires_at", models.DateTimeField(blank=True, null=True)),
+                ("is_active", models.BooleanField(default=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="role_assignments",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

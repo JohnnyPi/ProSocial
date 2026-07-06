@@ -1,9 +1,9 @@
 # ProSocial Application Audit — Stages 1–8
 
-**Audit procedure:** [CompleteAudit.md](../CompleteAudit.md) §§1–8  
-**Design specification:** [ProsocialNetworkDesign.md](../ProsocialNetworkDesign.md)  
-**Application:** [prosocial_platform](../prosocial_platform)  
-**Date:** 2026-07-05  
+**Audit procedure:** [CompleteAudit.md](../CompleteAudit.md) §§1–8
+**Design specification:** [ProsocialNetworkDesign.md](../ProsocialNetworkDesign.md)
+**Application:** [prosocial_platform](../prosocial_platform)
+**Date:** 2026-07-05
 **Mode:** Read-only audit + prioritized remediation (Stages 5–8 fixes)
 
 ---

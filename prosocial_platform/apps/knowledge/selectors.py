@@ -34,7 +34,9 @@ def get_collection_for_owner(*, public_id: uuid.UUID, owner) -> Collection:
 
 def get_collection_for_display(*, public_id: uuid.UUID, user=None) -> Collection:
     collection = get_object_or_404(
-        Collection.objects.prefetch_related("items__clip", "items__post", "owner", "owner__profile"),
+        Collection.objects.prefetch_related(
+            "items__clip", "items__post", "owner", "owner__profile"
+        ),
         public_id=public_id,
     )
     if collection.owner_id == getattr(user, "pk", None):

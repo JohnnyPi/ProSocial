@@ -30,8 +30,12 @@ def discovery_home(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def ripple_effect(request: HttpRequest) -> HttpResponse:
-    links = RippleLink.objects.filter(helper=request.user).select_related("helped", "helped__profile")
-    received = RippleLink.objects.filter(helped=request.user).select_related("helper", "helper__profile")
+    links = RippleLink.objects.filter(helper=request.user).select_related(
+        "helped", "helped__profile"
+    )
+    received = RippleLink.objects.filter(helped=request.user).select_related(
+        "helper", "helper__profile"
+    )
     return render(
         request,
         "discovery/ripple.html",

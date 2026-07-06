@@ -54,7 +54,9 @@ def donation_detail(request: HttpRequest, public_id) -> HttpResponse:
 
 @login_required
 def skill_list(request: HttpRequest) -> HttpResponse:
-    offerings = SkillOffering.objects.select_related("user", "user__profile").order_by("-created_at")
+    offerings = SkillOffering.objects.select_related("user", "user__profile").order_by(
+        "-created_at"
+    )
     return render(request, "advanced/skill_list.html", {"offerings": offerings})
 
 

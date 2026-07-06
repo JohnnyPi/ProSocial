@@ -113,9 +113,7 @@ class Commitment(TimeStampedModel):
         constraints = [
             models.UniqueConstraint(
                 fields=["action", "participant"],
-                condition=models.Q(
-                    status__in=["SAVED", "COMMITTED", "COMPLETION_SUBMITTED"]
-                ),
+                condition=models.Q(status__in=["SAVED", "COMMITTED", "COMPLETION_SUBMITTED"]),
                 name="unique_active_commitment_per_action",
             ),
         ]

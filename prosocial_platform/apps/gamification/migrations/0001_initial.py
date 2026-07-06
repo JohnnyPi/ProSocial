@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,77 +14,159 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='BadgeDefinition',
+            name="BadgeDefinition",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('slug', models.SlugField(unique=True)),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.TextField(max_length=500)),
-                ('tier', models.CharField(default='bronze', max_length=16)),
-                ('xp_threshold', models.PositiveIntegerField(default=0)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("slug", models.SlugField(unique=True)),
+                ("name", models.CharField(max_length=100)),
+                ("description", models.TextField(max_length=500)),
+                ("tier", models.CharField(default="bronze", max_length=16)),
+                ("xp_threshold", models.PositiveIntegerField(default=0)),
             ],
         ),
         migrations.CreateModel(
-            name='UserGamificationProfile',
+            name="UserGamificationProfile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('total_xp', models.PositiveIntegerField(default=0)),
-                ('level', models.PositiveIntegerField(default=1)),
-                ('streak_days', models.PositiveIntegerField(default=0)),
-                ('last_activity_date', models.DateField(blank=True, null=True)),
-                ('grace_used_this_week', models.BooleanField(default=False)),
-                ('multiplier', models.FloatField(default=1.0)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='gamification_profile', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("total_xp", models.PositiveIntegerField(default=0)),
+                ("level", models.PositiveIntegerField(default=1)),
+                ("streak_days", models.PositiveIntegerField(default=0)),
+                ("last_activity_date", models.DateField(blank=True, null=True)),
+                ("grace_used_this_week", models.BooleanField(default=False)),
+                ("multiplier", models.FloatField(default=1.0)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="gamification_profile",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='XPTransaction',
+            name="XPTransaction",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('source', models.CharField(choices=[('DIRECT_SUPPORT', 'Direct support'), ('DETAILED_GUIDANCE', 'Detailed guidance'), ('CRISIS_SUPPORT', 'Crisis support'), ('KNOWLEDGE_TIP', 'Knowledge tip'), ('TUTORIAL', 'Tutorial'), ('WELCOME', 'Welcome newcomer'), ('DAILY_CHALLENGE', 'Daily challenge'), ('GUILD_MISSION', 'Guild mission'), ('REFLECTION', 'Reflection journal'), ('CLIP_BONUS', 'Clip bonus'), ('COMMITMENT', 'Commitment completed')], max_length=32)),
-                ('base_amount', models.PositiveIntegerField()),
-                ('multiplier_applied', models.FloatField(default=1.0)),
-                ('final_amount', models.PositiveIntegerField()),
-                ('metadata', models.JSONField(blank=True, default=dict)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='xp_transactions', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "source",
+                    models.CharField(
+                        choices=[
+                            ("DIRECT_SUPPORT", "Direct support"),
+                            ("DETAILED_GUIDANCE", "Detailed guidance"),
+                            ("CRISIS_SUPPORT", "Crisis support"),
+                            ("KNOWLEDGE_TIP", "Knowledge tip"),
+                            ("TUTORIAL", "Tutorial"),
+                            ("WELCOME", "Welcome newcomer"),
+                            ("DAILY_CHALLENGE", "Daily challenge"),
+                            ("GUILD_MISSION", "Guild mission"),
+                            ("REFLECTION", "Reflection journal"),
+                            ("CLIP_BONUS", "Clip bonus"),
+                            ("COMMITMENT", "Commitment completed"),
+                        ],
+                        max_length=32,
+                    ),
+                ),
+                ("base_amount", models.PositiveIntegerField()),
+                ("multiplier_applied", models.FloatField(default=1.0)),
+                ("final_amount", models.PositiveIntegerField()),
+                ("metadata", models.JSONField(blank=True, default=dict)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="xp_transactions",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Achievement',
+            name="Achievement",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('slug', models.SlugField(max_length=64)),
-                ('title', models.CharField(max_length=200)),
-                ('description', models.TextField(blank=True, max_length=500)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='achievements', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("slug", models.SlugField(max_length=64)),
+                ("title", models.CharField(max_length=200)),
+                ("description", models.TextField(blank=True, max_length=500)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="achievements",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'constraints': [models.UniqueConstraint(fields=('user', 'slug'), name='unique_user_achievement')],
+                "constraints": [
+                    models.UniqueConstraint(fields=("user", "slug"), name="unique_user_achievement")
+                ],
             },
         ),
         migrations.CreateModel(
-            name='UserBadge',
+            name="UserBadge",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('badge', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='awarded_to', to='gamification.badgedefinition')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='badges', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "badge",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="awarded_to",
+                        to="gamification.badgedefinition",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="badges",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'constraints': [models.UniqueConstraint(fields=('user', 'badge'), name='unique_user_badge')],
+                "constraints": [
+                    models.UniqueConstraint(fields=("user", "badge"), name="unique_user_badge")
+                ],
             },
         ),
     ]

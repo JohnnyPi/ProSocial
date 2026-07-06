@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import timedelta
 
 from django.db import transaction
 from django.utils import timezone
@@ -11,9 +11,7 @@ from apps.gamification.models import (
     BadgeDefinition,
     UserBadge,
     UserGamificationProfile,
-    XPSource,
     XPTransaction,
-    level_to_tier,
     xp_for_level,
 )
 

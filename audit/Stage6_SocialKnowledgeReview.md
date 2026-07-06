@@ -1,8 +1,8 @@
 # Stage 6 — Social and Knowledge Features Review
 
-**Method:** CompleteAudit §6 — per-feature evaluation with clip integrity scenarios  
-**Inputs:** Stages 1–5 artifacts, codebase trace  
-**Audit date:** 2026-07-05  
+**Method:** CompleteAudit §6 — per-feature evaluation with clip integrity scenarios
+**Inputs:** Stages 1–5 artifacts, codebase trace
+**Audit date:** 2026-07-05
 **Test baseline:** 80 passed
 
 **Status key:** ✅ Working | ⚠️ Partial | ❌ Missing | 🔒 Schema only
@@ -50,8 +50,8 @@
 | User B views vault | Shows quote + source link | ⚠️ Quote shown; link 404s (`get_post_for_display` → `.visible()`) |
 | Clip content | Should indicate source removed | ❌ No “source unavailable” state |
 
-**Reproduction:** `create_clip` → `soft_delete_post` → visit `/knowledge/vault/`  
-**RTM:** KNOW-CLIP-01, ROAD-P1-CLIP  
+**Reproduction:** `create_clip` → `soft_delete_post` → visit `/knowledge/vault/`
+**RTM:** KNOW-CLIP-01, ROAD-P1-CLIP
 **Severity:** Medium
 
 ### Scenario B — Moderated/removed post
@@ -90,7 +90,7 @@
 - **Admin search:** Django admin `search_fields` on some models only.
 - **Tag browse:** `/knowledge/tags/` provides taxonomy navigation, not free-text search.
 
-**RTM:** ROAD-P2-TAG  
+**RTM:** ROAD-P2-TAG
 **Priority:** Must for Phase 2 completion
 
 ---
@@ -109,7 +109,7 @@
 
 ## 6.5 Reactions: Thank-You vs ProsocialReaction
 
-User-visible “positive reaction” today is **ThankYou** toggle (`interactions/thank_you_button.html`).  
+User-visible “positive reaction” today is **ThankYou** toggle (`interactions/thank_you_button.html`).
 `ProsocialReaction` (Constructive/Supportive/Insightful) is persisted in tests only — no scoring, no UI.
 
 ---

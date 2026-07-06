@@ -158,7 +158,9 @@ def action_complete(request: HttpRequest, public_id: uuid.UUID) -> HttpResponse:
             except ProsocialActionError as exc:
                 form.add_error(None, str(exc))
             else:
-                return redirect("prosocial_actions:commitment_detail", public_id=commitment.public_id)
+                return redirect(
+                    "prosocial_actions:commitment_detail", public_id=commitment.public_id
+                )
     else:
         form = CompletionForm()
     return render(
@@ -180,7 +182,10 @@ def commitment_detail(request: HttpRequest, public_id: uuid.UUID) -> HttpRespons
         Commitment.objects.select_related("action", "action__post"),
         public_id=public_id,
     )
-    if commitment.participant_id != request.user.pk and commitment.action.creator_id != request.user.pk:
+    if (
+        commitment.participant_id != request.user.pk
+        and commitment.action.creator_id != request.user.pk
+    ):
         if not commitment.is_public:
             return HttpResponseForbidden("This commitment is private.")
     return render(request, "prosocial_actions/commitment_detail.html", {"commitment": commitment})
@@ -236,7 +241,9 @@ def commitment_acknowledge(request: HttpRequest, public_id: uuid.UUID) -> HttpRe
             except ProsocialActionError as exc:
                 form.add_error(None, str(exc))
             else:
-                return redirect("prosocial_actions:commitment_detail", public_id=commitment.public_id)
+                return redirect(
+                    "prosocial_actions:commitment_detail", public_id=commitment.public_id
+                )
     else:
         form = AcknowledgementForm()
     return render(
@@ -282,6 +289,7 @@ def invitation_list(request: HttpRequest) -> HttpResponse:
 @login_required
 def invitation_accept(request: HttpRequest, public_id: uuid.UUID) -> HttpResponse:
     from apps.prosocial_actions.models import ActionInvitation
+
     invitation = get_object_or_404(ActionInvitation, public_id=public_id, invitee=request.user)
     if request.method == "POST":
         try:
@@ -295,6 +303,7 @@ def invitation_accept(request: HttpRequest, public_id: uuid.UUID) -> HttpRespons
 @login_required
 def invitation_decline(request: HttpRequest, public_id: uuid.UUID) -> HttpResponse:
     from apps.prosocial_actions.models import ActionInvitation
+
     invitation = get_object_or_404(ActionInvitation, public_id=public_id, invitee=request.user)
     if request.method == "POST":
         decline_invitation(invitation=invitation, invitee=request.user)

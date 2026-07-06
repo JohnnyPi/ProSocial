@@ -6,92 +6,165 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('guilds', '0001_initial'),
+        ("guilds", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Challenge',
+            name="Challenge",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('title', models.CharField(max_length=200)),
-                ('description', models.TextField(max_length=1000)),
-                ('period', models.CharField(choices=[('DAILY', 'Daily'), ('WEEKLY', 'Weekly'), ('SEASONAL', 'Seasonal')], max_length=16)),
-                ('xp_reward', models.PositiveIntegerField(default=30)),
-                ('helper_style', models.CharField(blank=True, max_length=16)),
-                ('is_active', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("title", models.CharField(max_length=200)),
+                ("description", models.TextField(max_length=1000)),
+                (
+                    "period",
+                    models.CharField(
+                        choices=[
+                            ("DAILY", "Daily"),
+                            ("WEEKLY", "Weekly"),
+                            ("SEASONAL", "Seasonal"),
+                        ],
+                        max_length=16,
+                    ),
+                ),
+                ("xp_reward", models.PositiveIntegerField(default=30)),
+                ("helper_style", models.CharField(blank=True, max_length=16)),
+                ("is_active", models.BooleanField(default=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='GuildMission',
+            name="GuildMission",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('title', models.CharField(max_length=200)),
-                ('description', models.TextField(max_length=1000)),
-                ('target_count', models.PositiveIntegerField(default=10)),
-                ('current_count', models.PositiveIntegerField(default=0)),
-                ('xp_reward', models.PositiveIntegerField(default=75)),
-                ('is_active', models.BooleanField(default=True)),
-                ('guild', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='missions', to='guilds.guild')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("title", models.CharField(max_length=200)),
+                ("description", models.TextField(max_length=1000)),
+                ("target_count", models.PositiveIntegerField(default=10)),
+                ("current_count", models.PositiveIntegerField(default=0)),
+                ("xp_reward", models.PositiveIntegerField(default=75)),
+                ("is_active", models.BooleanField(default=True)),
+                (
+                    "guild",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="missions",
+                        to="guilds.guild",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='ReEngagementMessage',
+            name="ReEngagementMessage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('day_threshold', models.PositiveIntegerField()),
-                ('message_text', models.TextField(max_length=1000)),
-                ('sent_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reengagement_messages', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("day_threshold", models.PositiveIntegerField()),
+                ("message_text", models.TextField(max_length=1000)),
+                ("sent_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reengagement_messages",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='RestModeSession',
+            name="RestModeSession",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('started_at', models.DateTimeField(auto_now_add=True)),
-                ('ended_at', models.DateTimeField(blank=True, null=True)),
-                ('mute_notifications', models.BooleanField(default=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rest_sessions', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("started_at", models.DateTimeField(auto_now_add=True)),
+                ("ended_at", models.DateTimeField(blank=True, null=True)),
+                ("mute_notifications", models.BooleanField(default=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="rest_sessions",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='UserChallengeProgress',
+            name="UserChallengeProgress",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('completed_at', models.DateTimeField(blank=True, null=True)),
-                ('challenge', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='progress', to='engagement.challenge')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='challenge_progress', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("completed_at", models.DateTimeField(blank=True, null=True)),
+                (
+                    "challenge",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="progress",
+                        to="engagement.challenge",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="challenge_progress",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'constraints': [models.UniqueConstraint(fields=('user', 'challenge'), name='unique_user_challenge')],
+                "constraints": [
+                    models.UniqueConstraint(
+                        fields=("user", "challenge"), name="unique_user_challenge"
+                    )
+                ],
             },
         ),
     ]

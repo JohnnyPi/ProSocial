@@ -22,7 +22,6 @@ from apps.knowledge.services import (
     create_clip,
     create_collection,
 )
-from apps.posts.models import Post
 from apps.posts.selectors import get_post_for_display
 
 
@@ -128,7 +127,7 @@ def collection_add_clip(request: HttpRequest, public_id, clip_id) -> HttpRespons
     clip = get_object_or_404(collection.owner.clips, public_id=clip_id)
     try:
         add_clip_to_collection(collection=collection, clip=clip, owner=request.user)
-    except KnowledgeError as exc:
+    except KnowledgeError:
         return redirect("knowledge:collection_detail", public_id=collection.public_id)
     return redirect("knowledge:collection_detail", public_id=collection.public_id)
 

@@ -1,8 +1,8 @@
 # Stage 7 — Trust, Reputation, Roles, and Gamification Review
 
-**Method:** CompleteAudit §7 — mechanism matrix, gaming/ethics register, phase-appropriate recommendation  
-**Inputs:** Stages 1–6, codebase trace  
-**Audit date:** 2026-07-05  
+**Method:** CompleteAudit §7 — mechanism matrix, gaming/ethics register, phase-appropriate recommendation
+**Inputs:** Stages 1–6, codebase trace
+**Audit date:** 2026-07-05
 **Test baseline:** 80 passed
 
 ---

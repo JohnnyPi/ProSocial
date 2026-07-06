@@ -1,6 +1,6 @@
 from django import forms
 
-from apps.guilds.models import Guild, GuildType
+from apps.guilds.models import Guild
 
 
 class GuildForm(forms.ModelForm):

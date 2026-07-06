@@ -8,143 +8,420 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('posts', '0002_rename_posts_post_created_870fe2_idx_posts_post_created_dadbfe_idx_and_more'),
+        (
+            "posts",
+            "0002_rename_posts_post_created_870fe2_idx_posts_post_created_dadbfe_idx_and_more",
+        ),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Reply',
+            name="Reply",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('public_id', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
-                ('body', models.TextField(max_length=2000)),
-                ('deleted_at', models.DateTimeField(blank=True, null=True)),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='replies', to=settings.AUTH_USER_MODEL)),
-                ('parent', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='children', to='interactions.reply')),
-                ('post', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='replies', to='posts.post')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("public_id", models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+                ("body", models.TextField(max_length=2000)),
+                ("deleted_at", models.DateTimeField(blank=True, null=True)),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="replies",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "parent",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="children",
+                        to="interactions.reply",
+                    ),
+                ),
+                (
+                    "post",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="replies",
+                        to="posts.post",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['created_at'],
+                "ordering": ["created_at"],
             },
         ),
         migrations.CreateModel(
-            name='ContentReport',
+            name="ContentReport",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('reason', models.CharField(choices=[('HARASSMENT', 'Harassment'), ('THREAT', 'Threat'), ('HATE_OR_DEHUMANIZATION', 'Hate or dehumanization'), ('SPAM', 'Spam'), ('IMPERSONATION', 'Impersonation'), ('PRIVACY', 'Privacy'), ('COORDINATED_ABUSE', 'Coordinated abuse'), ('OTHER', 'Other')], max_length=32)),
-                ('details', models.TextField(blank=True, max_length=1000)),
-                ('status', models.CharField(choices=[('OPEN', 'Open'), ('IN_REVIEW', 'In review'), ('RESOLVED_ACTIONED', 'Resolved — actioned'), ('RESOLVED_NO_ACTION', 'Resolved — no action'), ('DUPLICATE', 'Duplicate')], default='OPEN', max_length=24)),
-                ('resolution_note', models.TextField(blank=True, max_length=1000)),
-                ('resolved_at', models.DateTimeField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('assigned_to', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='assigned_reports', to=settings.AUTH_USER_MODEL)),
-                ('post', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='reports', to='posts.post')),
-                ('reporter', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='content_reports', to=settings.AUTH_USER_MODEL)),
-                ('reply', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='reports', to='interactions.reply')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "reason",
+                    models.CharField(
+                        choices=[
+                            ("HARASSMENT", "Harassment"),
+                            ("THREAT", "Threat"),
+                            ("HATE_OR_DEHUMANIZATION", "Hate or dehumanization"),
+                            ("SPAM", "Spam"),
+                            ("IMPERSONATION", "Impersonation"),
+                            ("PRIVACY", "Privacy"),
+                            ("COORDINATED_ABUSE", "Coordinated abuse"),
+                            ("OTHER", "Other"),
+                        ],
+                        max_length=32,
+                    ),
+                ),
+                ("details", models.TextField(blank=True, max_length=1000)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("OPEN", "Open"),
+                            ("IN_REVIEW", "In review"),
+                            ("RESOLVED_ACTIONED", "Resolved — actioned"),
+                            ("RESOLVED_NO_ACTION", "Resolved — no action"),
+                            ("DUPLICATE", "Duplicate"),
+                        ],
+                        default="OPEN",
+                        max_length=24,
+                    ),
+                ),
+                ("resolution_note", models.TextField(blank=True, max_length=1000)),
+                ("resolved_at", models.DateTimeField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "assigned_to",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="assigned_reports",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "post",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reports",
+                        to="posts.post",
+                    ),
+                ),
+                (
+                    "reporter",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="content_reports",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "reply",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reports",
+                        to="interactions.reply",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ThankYou',
+            name="ThankYou",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('optional_note', models.CharField(blank=True, max_length=280)),
-                ('post', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='thank_yous', to='posts.post')),
-                ('reply', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='thank_yous', to='interactions.reply')),
-                ('sender', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='thank_yous_sent', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("optional_note", models.CharField(blank=True, max_length=280)),
+                (
+                    "post",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="thank_yous",
+                        to="posts.post",
+                    ),
+                ),
+                (
+                    "reply",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="thank_yous",
+                        to="interactions.reply",
+                    ),
+                ),
+                (
+                    "sender",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="thank_yous_sent",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Notification',
+            name="Notification",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('kind', models.CharField(choices=[('REPLY_RECEIVED', 'Reply received'), ('REPLY_TO_REPLY', 'Reply to reply'), ('THANK_YOU_RECEIVED', 'Thank you received'), ('REPORT_RESOLVED', 'Report resolved')], max_length=32)),
-                ('payload', models.JSONField(blank=True, default=dict)),
-                ('read_at', models.DateTimeField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('actor', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='notifications_sent', to=settings.AUTH_USER_MODEL)),
-                ('post', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='notifications', to='posts.post')),
-                ('recipient', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='notifications', to=settings.AUTH_USER_MODEL)),
-                ('reply', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='notifications', to='interactions.reply')),
-                ('thank_you', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='notifications', to='interactions.thankyou')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "kind",
+                    models.CharField(
+                        choices=[
+                            ("REPLY_RECEIVED", "Reply received"),
+                            ("REPLY_TO_REPLY", "Reply to reply"),
+                            ("THANK_YOU_RECEIVED", "Thank you received"),
+                            ("REPORT_RESOLVED", "Report resolved"),
+                        ],
+                        max_length=32,
+                    ),
+                ),
+                ("payload", models.JSONField(blank=True, default=dict)),
+                ("read_at", models.DateTimeField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "actor",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="notifications_sent",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "post",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="notifications",
+                        to="posts.post",
+                    ),
+                ),
+                (
+                    "recipient",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="notifications",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "reply",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="notifications",
+                        to="interactions.reply",
+                    ),
+                ),
+                (
+                    "thank_you",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="notifications",
+                        to="interactions.thankyou",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='UserBlock',
+            name="UserBlock",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('optional_reason_code', models.CharField(blank=True, max_length=32)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('blocked_user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='blocked_by', to=settings.AUTH_USER_MODEL)),
-                ('blocking_user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='blocks_created', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("optional_reason_code", models.CharField(blank=True, max_length=32)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "blocked_user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="blocked_by",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "blocking_user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="blocks_created",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='UserMute',
+            name="UserMute",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('muted_user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='muted_by', to=settings.AUTH_USER_MODEL)),
-                ('muting_user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='mutes_created', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "muted_user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="muted_by",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "muting_user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="mutes_created",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='HiddenPost',
+            name="HiddenPost",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('post', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='hidden_by', to='posts.post')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='hidden_posts', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "post",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="hidden_by",
+                        to="posts.post",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="hidden_posts",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'constraints': [models.UniqueConstraint(fields=('user', 'post'), name='unique_hidden_post')],
+                "constraints": [
+                    models.UniqueConstraint(fields=("user", "post"), name="unique_hidden_post")
+                ],
             },
         ),
         migrations.AddIndex(
-            model_name='reply',
-            index=models.Index(fields=['post', 'created_at'], name='interaction_post_id_6bfd3f_idx'),
+            model_name="reply",
+            index=models.Index(
+                fields=["post", "created_at"], name="interaction_post_id_6bfd3f_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='reply',
-            index=models.Index(fields=['author', 'created_at'], name='interaction_author__41d1eb_idx'),
+            model_name="reply",
+            index=models.Index(
+                fields=["author", "created_at"], name="interaction_author__41d1eb_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='contentreport',
-            index=models.Index(fields=['status', 'created_at'], name='interaction_status_f71a4f_idx'),
+            model_name="contentreport",
+            index=models.Index(
+                fields=["status", "created_at"], name="interaction_status_f71a4f_idx"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='contentreport',
-            constraint=models.CheckConstraint(condition=models.Q(models.Q(('post__isnull', False), ('reply__isnull', True)), models.Q(('post__isnull', True), ('reply__isnull', False)), _connector='OR'), name='report_exactly_one_target'),
+            model_name="contentreport",
+            constraint=models.CheckConstraint(
+                condition=models.Q(
+                    models.Q(("post__isnull", False), ("reply__isnull", True)),
+                    models.Q(("post__isnull", True), ("reply__isnull", False)),
+                    _connector="OR",
+                ),
+                name="report_exactly_one_target",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='thankyou',
-            constraint=models.CheckConstraint(condition=models.Q(models.Q(('post__isnull', False), ('reply__isnull', True)), models.Q(('post__isnull', True), ('reply__isnull', False)), _connector='OR'), name='thank_you_exactly_one_target'),
+            model_name="thankyou",
+            constraint=models.CheckConstraint(
+                condition=models.Q(
+                    models.Q(("post__isnull", False), ("reply__isnull", True)),
+                    models.Q(("post__isnull", True), ("reply__isnull", False)),
+                    _connector="OR",
+                ),
+                name="thank_you_exactly_one_target",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='thankyou',
-            constraint=models.UniqueConstraint(condition=models.Q(('post__isnull', False)), fields=('sender', 'post'), name='unique_thank_you_per_post'),
+            model_name="thankyou",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(("post__isnull", False)),
+                fields=("sender", "post"),
+                name="unique_thank_you_per_post",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='thankyou',
-            constraint=models.UniqueConstraint(condition=models.Q(('reply__isnull', False)), fields=('sender', 'reply'), name='unique_thank_you_per_reply'),
+            model_name="thankyou",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(("reply__isnull", False)),
+                fields=("sender", "reply"),
+                name="unique_thank_you_per_reply",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='userblock',
-            constraint=models.UniqueConstraint(fields=('blocking_user', 'blocked_user'), name='unique_user_block'),
+            model_name="userblock",
+            constraint=models.UniqueConstraint(
+                fields=("blocking_user", "blocked_user"), name="unique_user_block"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='usermute',
-            constraint=models.UniqueConstraint(fields=('muting_user', 'muted_user'), name='unique_user_mute'),
+            model_name="usermute",
+            constraint=models.UniqueConstraint(
+                fields=("muting_user", "muted_user"), name="unique_user_mute"
+            ),
         ),
     ]

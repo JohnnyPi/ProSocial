@@ -6,43 +6,82 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('posts', '0003_post_guild_post_thread_type_post_title'),
+        ("posts", "0003_post_guild_post_thread_type_post_title"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='CommunitySpotlight',
+            name="CommunitySpotlight",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('narrative', models.TextField(max_length=5000)),
-                ('is_published', models.BooleanField(default=False)),
-                ('published_at', models.DateTimeField(blank=True, null=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='spotlights', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("narrative", models.TextField(max_length=5000)),
+                ("is_published", models.BooleanField(default=False)),
+                ("published_at", models.DateTimeField(blank=True, null=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="spotlights",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='RippleLink',
+            name="RippleLink",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('citation_note', models.CharField(blank=True, max_length=500)),
-                ('helped', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ripple_received', to=settings.AUTH_USER_MODEL)),
-                ('helper', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ripple_helped', to=settings.AUTH_USER_MODEL)),
-                ('source_post', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='ripple_links', to='posts.post')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("citation_note", models.CharField(blank=True, max_length=500)),
+                (
+                    "helped",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="ripple_received",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "helper",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="ripple_helped",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "source_post",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="ripple_links",
+                        to="posts.post",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

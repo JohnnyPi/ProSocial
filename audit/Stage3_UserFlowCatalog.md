@@ -1,6 +1,6 @@
 # Stage 3 — User Experience Flow Tracing
 
-**Method:** Trace UI → view → authz → service/ORM → DB → tests per CompleteAudit §3.  
+**Method:** Trace UI → view → authz → service/ORM → DB → tests per CompleteAudit §3.
 **Audit date:** 2026-07-05
 
 ---

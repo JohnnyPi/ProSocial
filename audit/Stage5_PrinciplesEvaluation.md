@@ -1,9 +1,9 @@
 # Stage 5 — Core Prosocial Principles Evaluation
 
-**Method:** CompleteAudit §5 — behavioral assessment of P1–P7 against live code paths  
-**Inputs:** [Stage1_RequirementsBaseline.md](Stage1_RequirementsBaseline.md), [Stage4_RequirementsTraceabilityMatrix.md](Stage4_RequirementsTraceabilityMatrix.md)  
-**Audit date:** 2026-07-05  
-**Application:** [prosocial_platform](../prosocial_platform)  
+**Method:** CompleteAudit §5 — behavioral assessment of P1–P7 against live code paths
+**Inputs:** [Stage1_RequirementsBaseline.md](Stage1_RequirementsBaseline.md), [Stage4_RequirementsTraceabilityMatrix.md](Stage4_RequirementsTraceabilityMatrix.md)
+**Audit date:** 2026-07-05
+**Application:** [prosocial_platform](../prosocial_platform)
 **Test baseline:** 80 passed (`pytest tests/`)
 
 ---
@@ -45,7 +45,7 @@ Each principle is assessed by tracing **what the product actually rewards, surfa
 | P1-G03 | **Medium** | PTS includes raw follower count (`followers × 2` in `recalculate_trust_scores` L74–76), partially re-introducing popularity weighting. |
 | P1-G04 | **Low** | `get_prosocial_ranked_feed` is computed in `discovery/views.py` but not rendered in `discovery/home.html`. |
 
-**Conformance:** **Partial**  
+**Conformance:** **Partial**
 **Fix priority:** Should — wire helpful signals into feed ranking after Phase 1–2 defects are closed.
 
 ---
@@ -79,7 +79,7 @@ Each principle is assessed by tracing **what the product actually rewards, surfa
 | P2-G02 | **Medium** | Feed does not boost high-contribution authors; visibility is not responsibility-weighted in discovery surfaces. |
 | P2-G03 | **Low** | Shell UI misrepresents trust state with static badges. |
 
-**Conformance:** **Partial**  
+**Conformance:** **Partial**
 **Fix priority:** Must — auto `sync_user_role` after `recalculate_trust_scores`.
 
 ---
@@ -113,7 +113,7 @@ Each principle is assessed by tracing **what the product actually rewards, surfa
 | P3-G03 | **Medium** | Reports do not enter moderation queue automatically — friction exists for reporters but not for harmful content pipeline. |
 | P3-G04 | **Low** | No appeal workflow; punitive paths lack user-facing explanation beyond moderator note. |
 
-**Conformance:** **Partial**  
+**Conformance:** **Partial**
 **Fix priority:** Blocker (crisis on create, report→queue); Must (pre-send prompt UI).
 
 ---
@@ -136,7 +136,7 @@ Each principle is assessed by tracing **what the product actually rewards, surfa
 
 Gating privacy behind trust can harm vulnerable users who need anonymity before establishing reputation. No implementation exists today — this is **not aligned** but also **not yet harmful** because gating is absent.
 
-**Conformance:** **Not aligned** (feature absent)  
+**Conformance:** **Not aligned** (feature absent)
 **Fix priority:** Defer — requires product/legal review (ODD-06, ODD-13).
 
 ---
@@ -172,7 +172,7 @@ Gating privacy behind trust can harm vulnerable users who need anonymity before 
 | P5-G03 | **Medium** | Thread summaries are scaffold-only; knowledge does not outlast conversation in summarized form. |
 | P5-G04 | **Medium** | Public/guild collections not readable by non-owners. |
 
-**Conformance:** **Partial**  
+**Conformance:** **Partial**
 **Fix priority:** Should — passage clip, collection visibility, basic search.
 
 ---
@@ -205,7 +205,7 @@ Gating privacy behind trust can harm vulnerable users who need anonymity before 
 | P6-G02 | **Medium** | No prosocial skill KPI dashboard or narrative tying metrics to growth. |
 | P6-G03 | **Low** | Journal XP (20 per entry) may incentivize reflection quantity over depth. |
 
-**Conformance:** **Partial**  
+**Conformance:** **Partial**
 **Fix priority:** Defer expansion of gamification until quality signals mature (per Stage 4 §4.3).
 
 ---
@@ -241,7 +241,7 @@ Gating privacy behind trust can harm vulnerable users who need anonymity before 
 | P7-G03 | **Low** | `ai_sentiment_label` field on `ModerationReview` unused in workflow. |
 | P7-G04 | **Informational** | No opt-out or consent flow for AI processing. |
 
-**Conformance:** **Partial**  
+**Conformance:** **Partial**
 **Fix priority:** Defer LLM integration to Phase 3; Must label AI-assisted prompts when wired.
 
 ---

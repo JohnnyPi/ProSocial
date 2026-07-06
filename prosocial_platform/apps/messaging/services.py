@@ -51,7 +51,11 @@ def send_message(*, sender, recipient, body: str) -> Message:
 
 @transaction.atomic
 def mark_messages_read(*, conversation: Conversation, reader) -> int:
-    return Message.objects.filter(
-        conversation=conversation,
-        read_at__isnull=True,
-    ).exclude(sender=reader).update(read_at=timezone.now())
+    return (
+        Message.objects.filter(
+            conversation=conversation,
+            read_at__isnull=True,
+        )
+        .exclude(sender=reader)
+        .update(read_at=timezone.now())
+    )

@@ -5,35 +5,45 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('posts', '0001_initial'),
+        ("posts", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.RenameIndex(
-            model_name='post',
-            new_name='posts_post_created_dadbfe_idx',
-            old_name='posts_post_created_870fe2_idx',
+            model_name="post",
+            new_name="posts_post_created_dadbfe_idx",
+            old_name="posts_post_created_870fe2_idx",
         ),
         migrations.RenameIndex(
-            model_name='post',
-            new_name='posts_post_author__d94160_idx',
-            old_name='posts_post_author__50f575_idx',
+            model_name="post",
+            new_name="posts_post_author__d94160_idx",
+            old_name="posts_post_author__50f575_idx",
         ),
         migrations.RenameIndex(
-            model_name='post',
-            new_name='posts_post_moderat_6a4313_idx',
-            old_name='posts_post_modera_2a59e9_idx',
+            model_name="post",
+            new_name="posts_post_moderat_6a4313_idx",
+            old_name="posts_post_modera_2a59e9_idx",
         ),
         migrations.AddField(
-            model_name='post',
-            name='kind',
-            field=models.CharField(choices=[('GENERAL', 'General'), ('HELP_REQUEST', 'Help request'), ('HELP_OFFER', 'Help offer'), ('ENCOURAGEMENT_REQUEST', 'Encouragement request'), ('LOCAL_ACTION', 'Local action'), ('VOLUNTEER_OPPORTUNITY', 'Volunteer opportunity')], default='GENERAL', max_length=32),
+            model_name="post",
+            name="kind",
+            field=models.CharField(
+                choices=[
+                    ("GENERAL", "General"),
+                    ("HELP_REQUEST", "Help request"),
+                    ("HELP_OFFER", "Help offer"),
+                    ("ENCOURAGEMENT_REQUEST", "Encouragement request"),
+                    ("LOCAL_ACTION", "Local action"),
+                    ("VOLUNTEER_OPPORTUNITY", "Volunteer opportunity"),
+                ],
+                default="GENERAL",
+                max_length=32,
+            ),
         ),
         migrations.AddIndex(
-            model_name='post',
-            index=models.Index(fields=['kind', 'created_at'], name='posts_post_kind_6794c3_idx'),
+            model_name="post",
+            index=models.Index(fields=["kind", "created_at"], name="posts_post_kind_6794c3_idx"),
         ),
     ]

@@ -1,7 +1,7 @@
 # Stage 1 — Audit Baseline
 
-**Source specification:** [ProsocialNetworkDesign.md](../ProsocialNetworkDesign.md)  
-**Audit date:** 2026-07-05  
+**Source specification:** [ProsocialNetworkDesign.md](../ProsocialNetworkDesign.md)
+**Audit date:** 2026-07-05
 **Method:** Full read of design document; requirements extracted and classified per [CompleteAudit.md](../CompleteAudit.md) §1.
 
 ---

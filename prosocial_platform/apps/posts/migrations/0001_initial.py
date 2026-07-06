@@ -16,7 +16,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Post",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("public_id", models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
@@ -27,7 +32,11 @@ class Migration(migrations.Migration):
                 (
                     "moderation_status",
                     models.CharField(
-                        choices=[("ACTIVE", "Active"), ("HIDDEN", "Hidden"), ("REMOVED", "Removed")],
+                        choices=[
+                            ("ACTIVE", "Active"),
+                            ("HIDDEN", "Hidden"),
+                            ("REMOVED", "Removed"),
+                        ],
                         default="ACTIVE",
                         max_length=16,
                     ),
@@ -51,10 +60,14 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="post",
-            index=models.Index(fields=["author", "created_at"], name="posts_post_author__50f575_idx"),
+            index=models.Index(
+                fields=["author", "created_at"], name="posts_post_author__50f575_idx"
+            ),
         ),
         migrations.AddIndex(
             model_name="post",
-            index=models.Index(fields=["moderation_status", "created_at"], name="posts_post_modera_2a59e9_idx"),
+            index=models.Index(
+                fields=["moderation_status", "created_at"], name="posts_post_modera_2a59e9_idx"
+            ),
         ),
     ]

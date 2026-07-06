@@ -6,7 +6,9 @@ from apps.advanced.models import DataExportRequest, Donation, DonationCampaign, 
 
 
 @transaction.atomic
-def create_donation_campaign(*, creator, title: str, organization_name: str, description: str = "") -> DonationCampaign:
+def create_donation_campaign(
+    *, creator, title: str, organization_name: str, description: str = ""
+) -> DonationCampaign:
     return DonationCampaign.objects.create(
         created_by=creator,
         title=title.strip(),

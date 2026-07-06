@@ -1,6 +1,5 @@
 from django.db.models import Count
 
-from apps.knowledge.models import Clip
 from apps.posts.models import Post
 
 

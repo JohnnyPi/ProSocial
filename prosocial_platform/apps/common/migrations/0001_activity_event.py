@@ -14,7 +14,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="ActivityEvent",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
@@ -54,6 +59,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="activityevent",
-            index=models.Index(fields=["event_type", "created_at"], name="common_acti_event_t_aed9aa_idx"),
+            index=models.Index(
+                fields=["event_type", "created_at"], name="common_acti_event_t_aed9aa_idx"
+            ),
         ),
     ]

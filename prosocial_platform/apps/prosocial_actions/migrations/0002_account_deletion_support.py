@@ -6,21 +6,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('prosocial_actions', '0001_initial'),
+        ("prosocial_actions", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='actionopportunity',
-            name='creator',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='created_actions', to=settings.AUTH_USER_MODEL),
+            model_name="actionopportunity",
+            name="creator",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="created_actions",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='commitment',
-            name='participant',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='commitments', to=settings.AUTH_USER_MODEL),
+            model_name="commitment",
+            name="participant",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="commitments",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

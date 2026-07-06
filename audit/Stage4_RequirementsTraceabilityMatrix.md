@@ -1,6 +1,6 @@
 # Stage 4 — Requirements Traceability Matrix (RTM)
 
-**Inputs:** [Stage1_RequirementsBaseline.md](Stage1_RequirementsBaseline.md), [Stage2_ApplicationInventory.md](Stage2_ApplicationInventory.md), [Stage3_UserFlowCatalog.md](Stage3_UserFlowCatalog.md)  
+**Inputs:** [Stage1_RequirementsBaseline.md](Stage1_RequirementsBaseline.md), [Stage2_ApplicationInventory.md](Stage2_ApplicationInventory.md), [Stage3_UserFlowCatalog.md](Stage3_UserFlowCatalog.md)
 **Audit date:** 2026-07-05
 
 **Status legend:** Implemented | Implemented with defects | Partially implemented | Scaffold only | Not implemented | Implemented differently | Not verifiable | Intentionally deferred | Not recommended without redesign

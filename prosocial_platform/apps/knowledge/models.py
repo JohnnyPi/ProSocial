@@ -94,14 +94,16 @@ class Collection(TimeStampedModel):
 
 
 class CollectionItem(models.Model):
-    collection = models.ForeignKey(
-        Collection, on_delete=models.CASCADE, related_name="items"
-    )
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE, related_name="items")
     clip = models.ForeignKey(
         Clip, null=True, blank=True, on_delete=models.CASCADE, related_name="collection_items"
     )
     post = models.ForeignKey(
-        "posts.Post", null=True, blank=True, on_delete=models.CASCADE, related_name="collection_items"
+        "posts.Post",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="collection_items",
     )
     sort_order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)

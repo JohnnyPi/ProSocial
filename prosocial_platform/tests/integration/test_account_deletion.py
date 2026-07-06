@@ -14,13 +14,10 @@ from apps.accounts.services import (
     request_account_deletion,
 )
 from apps.common.models import ActivityEvent, ActivityEventType
-from apps.interactions.models import ContentReport, Reply
 from apps.interactions.services import create_reply, submit_report
-from apps.posts.models import Post
+from apps.posts.models import Post, PostKind
 from apps.profiles.models import Profile
-from apps.prosocial_actions.models import Commitment
 from apps.prosocial_actions.services import commit_to_action, create_action_post
-from apps.posts.models import PostKind
 
 User = get_user_model()
 

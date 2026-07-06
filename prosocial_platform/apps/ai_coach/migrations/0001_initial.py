@@ -6,76 +6,153 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('interactions', '0002_alter_notification_kind_prosocialreaction'),
-        ('posts', '0003_post_guild_post_thread_type_post_title'),
+        ("interactions", "0002_alter_notification_kind_prosocialreaction"),
+        ("posts", "0003_post_guild_post_thread_type_post_title"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AIIntervention',
+            name="AIIntervention",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('intervention_type', models.CharField(max_length=64)),
-                ('message', models.TextField(max_length=1000)),
-                ('dismissed_at', models.DateTimeField(blank=True, null=True)),
-                ('post', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='ai_interventions', to='posts.post')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ai_interventions', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("intervention_type", models.CharField(max_length=64)),
+                ("message", models.TextField(max_length=1000)),
+                ("dismissed_at", models.DateTimeField(blank=True, null=True)),
+                (
+                    "post",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="ai_interventions",
+                        to="posts.post",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="ai_interventions",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='ReflectionJournalEntry',
+            name="ReflectionJournalEntry",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('prompt', models.CharField(blank=True, max_length=500)),
-                ('body', models.TextField(max_length=5000)),
-                ('ai_response', models.TextField(blank=True, max_length=2000)),
-                ('trigger_event', models.CharField(blank=True, max_length=64)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='journal_entries', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("prompt", models.CharField(blank=True, max_length=500)),
+                ("body", models.TextField(max_length=5000)),
+                ("ai_response", models.TextField(blank=True, max_length=2000)),
+                ("trigger_event", models.CharField(blank=True, max_length=64)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="journal_entries",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='SentimentSnapshot',
+            name="SentimentSnapshot",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('label', models.CharField(choices=[('POSITIVE', 'Positive'), ('NEUTRAL', 'Neutral'), ('NEGATIVE', 'Negative')], max_length=16)),
-                ('score', models.FloatField()),
-                ('model_version', models.CharField(default='keyword-v1', max_length=32)),
-                ('post', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='sentiment_snapshots', to='posts.post')),
-                ('reply', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='sentiment_snapshots', to='interactions.reply')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "label",
+                    models.CharField(
+                        choices=[
+                            ("POSITIVE", "Positive"),
+                            ("NEUTRAL", "Neutral"),
+                            ("NEGATIVE", "Negative"),
+                        ],
+                        max_length=16,
+                    ),
+                ),
+                ("score", models.FloatField()),
+                ("model_version", models.CharField(default="keyword-v1", max_length=32)),
+                (
+                    "post",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sentiment_snapshots",
+                        to="posts.post",
+                    ),
+                ),
+                (
+                    "reply",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sentiment_snapshots",
+                        to="interactions.reply",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='ThreadSummary',
+            name="ThreadSummary",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('summary_text', models.TextField(max_length=5000)),
-                ('is_ai_generated', models.BooleanField(default=True)),
-                ('post', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='ai_summary', to='posts.post')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("summary_text", models.TextField(max_length=5000)),
+                ("is_ai_generated", models.BooleanField(default=True)),
+                (
+                    "post",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="ai_summary",
+                        to="posts.post",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

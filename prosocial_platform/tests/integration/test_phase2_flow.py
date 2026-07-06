@@ -1,9 +1,7 @@
 import pytest
 from django.contrib.auth import get_user_model
-from django.utils import timezone
 
 from apps.posts.models import PostKind
-from apps.prosocial_actions.exceptions import InvalidTransitionError
 from apps.prosocial_actions.models import ActionStatus, CommitmentStatus
 from apps.prosocial_actions.services import (
     cancel_action,

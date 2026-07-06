@@ -1,7 +1,7 @@
 import pytest
 from django.contrib.auth import get_user_model
 
-from apps.gamification.models import UserGamificationProfile, XPTransaction
+from apps.gamification.models import XPTransaction
 from apps.gamification.services import award_xp, get_or_create_gamification_profile
 
 User = get_user_model()

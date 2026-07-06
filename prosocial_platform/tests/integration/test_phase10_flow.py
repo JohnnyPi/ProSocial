@@ -19,7 +19,9 @@ def test_most_clipped_posts(user, other_user):
 
 @pytest.mark.django_db
 def test_ripple_link(user, other_user):
-    RippleLink.objects.create(helper=user, helped=other_user, citation_note="Inspired their approach")
+    RippleLink.objects.create(
+        helper=user, helped=other_user, citation_note="Inspired their approach"
+    )
     assert RippleLink.objects.filter(helper=user).exists()
 
 

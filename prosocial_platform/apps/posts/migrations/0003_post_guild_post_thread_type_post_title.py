@@ -5,26 +5,44 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('guilds', '0001_initial'),
-        ('posts', '0002_rename_posts_post_created_870fe2_idx_posts_post_created_dadbfe_idx_and_more'),
+        ("guilds", "0001_initial"),
+        (
+            "posts",
+            "0002_rename_posts_post_created_870fe2_idx_posts_post_created_dadbfe_idx_and_more",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='post',
-            name='guild',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='posts', to='guilds.guild'),
+            model_name="post",
+            name="guild",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="posts",
+                to="guilds.guild",
+            ),
         ),
         migrations.AddField(
-            model_name='post',
-            name='thread_type',
-            field=models.CharField(choices=[('DISCUSSION', 'Discussion'), ('HELP_REQUEST', 'Help request'), ('KNOWLEDGE_SHARE', 'Knowledge share'), ('SUPPORT_CIRCLE', 'Support circle'), ('CHALLENGE', 'Challenge')], default='DISCUSSION', max_length=32),
+            model_name="post",
+            name="thread_type",
+            field=models.CharField(
+                choices=[
+                    ("DISCUSSION", "Discussion"),
+                    ("HELP_REQUEST", "Help request"),
+                    ("KNOWLEDGE_SHARE", "Knowledge share"),
+                    ("SUPPORT_CIRCLE", "Support circle"),
+                    ("CHALLENGE", "Challenge"),
+                ],
+                default="DISCUSSION",
+                max_length=32,
+            ),
         ),
         migrations.AddField(
-            model_name='post',
-            name='title',
+            model_name="post",
+            name="title",
             field=models.CharField(blank=True, max_length=200),
         ),
     ]

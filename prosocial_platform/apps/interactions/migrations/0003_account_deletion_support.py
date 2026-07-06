@@ -6,21 +6,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('interactions', '0002_alter_notification_kind_prosocialreaction'),
+        ("interactions", "0002_alter_notification_kind_prosocialreaction"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='contentreport',
-            name='reporter',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='content_reports', to=settings.AUTH_USER_MODEL),
+            model_name="contentreport",
+            name="reporter",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="content_reports",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='reply',
-            name='author',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='replies', to=settings.AUTH_USER_MODEL),
+            model_name="reply",
+            name="author",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="replies",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

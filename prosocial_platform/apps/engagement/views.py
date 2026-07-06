@@ -3,7 +3,12 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 
 from apps.engagement.models import Challenge
-from apps.engagement.services import complete_challenge, end_rest_mode, is_in_rest_mode, start_rest_mode
+from apps.engagement.services import (
+    complete_challenge,
+    end_rest_mode,
+    is_in_rest_mode,
+    start_rest_mode,
+)
 
 
 @login_required
