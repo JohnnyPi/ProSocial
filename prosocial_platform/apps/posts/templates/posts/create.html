@@ -1,16 +1,33 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}New post · Common Good{% endblock %}
+{% block extra_head %}
+  <script src="{% static 'js/content_review.js' %}" defer></script>
+{% endblock %}
 {% block content %}
   <h1>Create post</h1>
-  <form method="post" enctype="multipart/form-data" novalidate>
+  <form method="post" enctype="multipart/form-data" novalidate id="post-create-form">
     {% csrf_token %}
     {% include "components/form_errors.html" %}
     {% for field in form %}
       <div class="field">
         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
         {{ field }}
+        {% if field.name == "body" %}
+        <div id="content-review-panel-create"></div>
+        {% endif %}
       </div>
     {% endfor %}
-    <button type="submit">Publish</button>
+    <button type="button" data-content-review-submit>Review</button>
   </form>
+  <div
+    hidden
+    data-content-review-body="{{ form.body.id_for_label }}"
+    data-content-review-target="content-review-panel-create"
+    data-content-review-url="{% url 'ai_coach:content_review' %}"
+    data-content-review-submit-label="Publish"
+    data-content-review-surface="POST"
+    data-content-review-enabled="{% if functional_trust_features.content_review %}true{% else %}false{% endif %}"
+    data-csrf-token="{{ csrf_token }}"
+  ></div>
 {% endblock %}

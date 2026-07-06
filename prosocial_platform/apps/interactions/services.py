@@ -65,6 +65,7 @@ def create_reply(
     body: str,
     parent: Reply | None = None,
     civility_event_id: int | None = None,
+    review_event_id: int | None = None,
 ) -> Reply:
     _check_not_blocked(actor=author, target_user=post.author)
     if parent:
@@ -103,11 +104,28 @@ def create_reply(
         from apps.ai_coach.services import finalize_civility_event
 
         finalize_civility_event(event_id=civility_event_id, reply=reply, final_text=body)
+    if review_event_id:
+        from apps.ai_coach.services import finalize_content_review_event, score_from_review_event
+
+        event = finalize_content_review_event(
+            event_id=review_event_id, reply=reply, final_text=body
+        )
+        score_from_review_event(event=event, reply=reply)
+    else:
+        from apps.ai_coach.services import score_content
+
+        score_content(text=body, reply=reply)
     return reply
 
 
 @transaction.atomic
-def update_reply(*, reply: Reply, body: str, civility_event_id: int | None = None) -> Reply:
+def update_reply(
+    *,
+    reply: Reply,
+    body: str,
+    civility_event_id: int | None = None,
+    review_event_id: int | None = None,
+) -> Reply:
     body = body.strip()
     if not body:
         raise InteractionError("Reply cannot be empty.")
@@ -120,6 +138,13 @@ def update_reply(*, reply: Reply, body: str, civility_event_id: int | None = Non
         from apps.ai_coach.services import finalize_civility_event
 
         finalize_civility_event(event_id=civility_event_id, reply=reply, final_text=body)
+    if review_event_id:
+        from apps.ai_coach.services import finalize_content_review_event, score_from_review_event
+
+        event = finalize_content_review_event(
+            event_id=review_event_id, reply=reply, final_text=body
+        )
+        score_from_review_event(event=event, reply=reply)
     return reply
 
 

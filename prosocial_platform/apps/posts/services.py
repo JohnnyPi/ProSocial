@@ -18,6 +18,7 @@ def create_post(
     title: str = "",
     tag_slugs: list[str] | None = None,
     civility_event_id: int | None = None,
+    review_event_id: int | None = None,
     _allow_action_kind: bool = False,
 ) -> Post:
     if kind in ACTION_POST_KINDS and not _allow_action_kind:
@@ -47,15 +48,23 @@ def create_post(
         from apps.ai_coach.services import finalize_civility_event
 
         finalize_civility_event(event_id=civility_event_id, post=post, final_text=post.body)
+    if review_event_id:
+        from apps.ai_coach.services import finalize_content_review_event, score_from_review_event
+
+        event = finalize_content_review_event(
+            event_id=review_event_id, post=post, final_text=post.body
+        )
+        score_from_review_event(event=event, post=post)
+    else:
+        from apps.ai_coach.services import score_content
+
+        score_content(text=post.body, post=post)
     record_activity_event(
         event_type=ActivityEventType.POST_CREATED,
         actor=author,
         object_type="post",
         object_public_id=post.public_id,
     )
-    from apps.ai_coach.services import score_content
-
-    score_content(text=post.body, post=post)
     return post
 
 
@@ -71,6 +80,7 @@ def update_post(
     title: str | None = None,
     tag_slugs: list[str] | None = None,
     civility_event_id: int | None = None,
+    review_event_id: int | None = None,
 ) -> Post:
     if kind is not None and kind in ACTION_POST_KINDS:
         raise PostError("Use the Actions module to set action post kinds.")
@@ -97,6 +107,13 @@ def update_post(
         from apps.ai_coach.services import finalize_civility_event
 
         finalize_civility_event(event_id=civility_event_id, post=post, final_text=post.body)
+    if review_event_id:
+        from apps.ai_coach.services import finalize_content_review_event, score_from_review_event
+
+        event = finalize_content_review_event(
+            event_id=review_event_id, post=post, final_text=post.body
+        )
+        score_from_review_event(event=event, post=post)
     record_activity_event(
         event_type=ActivityEventType.POST_UPDATED,
         actor=post.author,

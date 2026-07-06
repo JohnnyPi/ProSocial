@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 
 from apps.knowledge.models import PostTag, Tag
 from apps.posts.models import Post, PostKind, ThreadType
+from tests.conftest import with_review_event
 
 User = get_user_model()
 
@@ -35,13 +36,16 @@ def test_create_post_with_thread_type_and_tags(user, client):
     client.force_login(user)
     response = client.post(
         "/dashboard/",
-        {
-            "kind": PostKind.GENERAL,
-            "thread_type": ThreadType.KNOWLEDGE_SHARE,
-            "title": "Moving tips",
-            "body": "Looking for advice on packing boxes.",
-            "tags": "moving, neighborhood",
-        },
+        with_review_event(
+            user=user,
+            data={
+                "kind": PostKind.GENERAL,
+                "thread_type": ThreadType.KNOWLEDGE_SHARE,
+                "title": "Moving tips",
+                "body": "Looking for advice on packing boxes.",
+                "tags": "moving, neighborhood",
+            },
+        ),
     )
     assert response.status_code == 302
 

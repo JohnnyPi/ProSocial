@@ -1,6 +1,8 @@
 import pytest
 from django.contrib.auth import get_user_model
 
+from tests.conftest import with_review_event
+
 User = get_user_model()
 
 
@@ -64,7 +66,11 @@ def test_user_cannot_edit_other_users_post(client):
     )
     client.force_login(author)
     client.post(
-        "/dashboard/", {"body": "Author post", "kind": "GENERAL", "thread_type": "DISCUSSION"}
+        "/dashboard/",
+        with_review_event(
+            user=author,
+            data={"body": "Author post", "kind": "GENERAL", "thread_type": "DISCUSSION"},
+        ),
     )
     post = author.posts.first()
     client.force_login(other)

@@ -567,12 +567,35 @@ select:focus-visible {
 
 .modal-sheet {
   width: min(32rem, calc(100% - 2rem));
-  margin: 10vh auto;
+  margin: max(1rem, 5vh) auto;
   background: var(--surface);
   border: 1px solid var(--ink-border);
   border-radius: var(--radius-sheet);
   box-shadow: var(--shadow-raised);
   padding: var(--space-lg);
+}
+
+.modal-sheet--composer {
+  display: flex;
+  flex-direction: column;
+  max-height: min(90vh, 36rem);
+  padding: 0;
+  overflow: hidden;
+}
+
+.modal-sheet--composer .modal-header {
+  flex-shrink: 0;
+  margin-bottom: 0;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--ink-border);
+}
+
+.modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-md) var(--space-lg);
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-header {
@@ -609,8 +632,83 @@ select:focus-visible {
 }
 
 .post-composer-form textarea {
-  min-height: 7rem;
+  min-height: 5rem;
+  max-height: 10rem;
   resize: vertical;
+}
+
+.composer-primary__label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.composer-advanced {
+  margin-top: var(--space-md);
+  border: 1px solid var(--ink-border);
+  border-radius: var(--radius-md, 8px);
+  background: var(--surface-muted, var(--surface-alt));
+}
+
+.composer-advanced__summary {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+  cursor: pointer;
+  list-style: none;
+}
+
+.composer-advanced__summary::-webkit-details-marker {
+  display: none;
+}
+
+.composer-advanced__summary::before {
+  content: "+ ";
+  font-weight: 700;
+}
+
+.composer-advanced[open] .composer-advanced__summary::before {
+  content: "− ";
+}
+
+.composer-advanced__fields {
+  padding: 0 0.75rem 0.75rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.field--compact {
+  margin-bottom: 0;
+}
+
+.field--compact label {
+  font-size: 0.8125rem;
+  margin-bottom: 0.2rem;
+}
+
+.composer-actions {
+  position: sticky;
+  bottom: 0;
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  background: linear-gradient(to top, var(--surface) 70%, transparent);
+}
+
+.modal-sheet--composer .composer-actions {
+  margin-top: var(--space-sm);
+  padding-bottom: var(--space-xs);
+}
+
+.modal-sheet--composer .content-review-panel {
+  margin-top: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.modal-sheet--composer .emotion-bar {
+  grid-template-columns: 6rem 1fr 2rem;
+  font-size: 0.8125rem;
 }
 
 /* Chips — post kinds & filters */
@@ -815,6 +913,89 @@ button.tertiary:hover,
   display: flex;
   gap: 0.75rem;
   margin-top: 0.5rem;
+}
+
+.content-review-panel {
+  margin-top: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--surface-muted);
+}
+
+.content-review-panel__heading {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.content-review-panel__tone {
+  margin: 0 0 0.75rem;
+}
+
+.content-review-panel__label {
+  margin: 0 0 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.content-review-panel__conduct {
+  margin: 0.75rem 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 6px;
+  background: #fff4e5;
+  border: 1px solid #e8c98a;
+}
+
+.content-review-panel__conduct ul,
+.content-review-panel__tips ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.content-review-panel__tips {
+  margin: 0.75rem 0;
+}
+
+.content-review-panel__disclaimer {
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
+
+.content-review-panel__loading,
+.content-review-panel__error {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+}
+
+.emotion-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.emotion-bar {
+  display: grid;
+  grid-template-columns: 8rem 1fr 2.5rem;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.emotion-bar__track {
+  display: block;
+  height: 0.55rem;
+  background: #e8dfd0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.emotion-bar__fill {
+  display: block;
+  height: 100%;
+  background: var(--moss-soft);
+  border-radius: 999px;
 }
 
 button.danger {

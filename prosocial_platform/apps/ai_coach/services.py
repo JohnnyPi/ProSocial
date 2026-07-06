@@ -9,11 +9,14 @@ from apps.ai_coach.models import (
     CivilityPromptEvent,
     CivilityPromptType,
     CivilityUserAction,
+    ContentReviewEvent,
     ReflectionJournalEntry,
     SentimentLabel,
     SentimentSnapshot,
     ThreadSummary,
 )
+from apps.ai_coach.sentiment.analyzer import ContentAnalysisResult, analyze_content
+from apps.ai_coach.sentiment.constants import CONTENT_REVIEW_MIN_LENGTH
 from apps.gamification.models import XPSource
 from apps.gamification.services import award_xp
 
@@ -51,6 +54,10 @@ HOSTILE_PATTERNS = [
 ]
 
 
+class ContentReviewError(Exception):
+    pass
+
+
 @dataclass(frozen=True)
 class CivilityResult:
     prompt_type: str
@@ -61,26 +68,138 @@ def _text_hash(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def content_review_required(*, text: str) -> bool:
+    if not settings.FUNCTIONAL_TRUST_FEATURES.get("content_review"):
+        return False
+    return len(text.strip()) >= CONTENT_REVIEW_MIN_LENGTH
+
+
 def analyze_sentiment(*, text: str) -> tuple[str, float]:
-    words = set(re.findall(r"[a-z']+", text.lower()))
-    pos = len(words & POSITIVE_WORDS)
-    neg = len(words & NEGATIVE_WORDS)
-    if neg > pos and neg >= 2:
-        return SentimentLabel.NEGATIVE, -0.5 - neg * 0.1
-    if pos > neg and pos >= 2:
-        return SentimentLabel.POSITIVE, 0.5 + pos * 0.1
-    return SentimentLabel.NEUTRAL, 0.0
+    result = analyze_content(text=text)
+    return result.label, result.score
 
 
 @transaction.atomic
-def score_content(*, text: str, post=None, reply=None) -> SentimentSnapshot:
-    label, score = analyze_sentiment(text=text)
+def score_content(
+    *,
+    text: str,
+    post=None,
+    reply=None,
+    analysis: ContentAnalysisResult | None = None,
+) -> SentimentSnapshot:
+    if analysis is None:
+        analysis = analyze_content(text=text)
     return SentimentSnapshot.objects.create(
         post=post,
         reply=reply,
-        label=label,
-        score=score,
+        label=analysis.label,
+        score=analysis.score,
+        emotion_scores=analysis.all_emotion_scores,
+        conduct_flags=analysis.conduct_flags,
+        coaching_summary=analysis.coaching_summary,
+        confidence=analysis.confidence,
+        model_version=analysis.model_version,
     )
+
+
+@transaction.atomic
+def create_content_review_event(
+    *,
+    user,
+    text: str,
+    surface: str,
+) -> ContentReviewEvent:
+    text = text.strip()
+    if len(text) < CONTENT_REVIEW_MIN_LENGTH:
+        raise ContentReviewError("Text is too short to review.")
+    analysis = analyze_content(text=text)
+    return ContentReviewEvent.objects.create(
+        user=user,
+        surface=surface,
+        text_hash=_text_hash(text),
+        emotion_scores=analysis.all_emotion_scores,
+        conduct_flags=analysis.conduct_flags,
+        coaching_summary=analysis.coaching_summary,
+        coaching_tips=analysis.coaching.coaching_tips,
+        tone_summary=analysis.coaching.tone_summary,
+        label=analysis.label,
+        score=analysis.score,
+        model_version=analysis.model_version,
+    )
+
+
+def get_content_review_event(*, event_id: int, user) -> ContentReviewEvent:
+    return ContentReviewEvent.objects.get(pk=event_id, user=user)
+
+
+def validate_content_review(
+    *,
+    user,
+    text: str,
+    review_event_id: int | None,
+    surface: str,
+) -> ContentReviewEvent:
+    if not content_review_required(text=text):
+        raise ContentReviewError("Review not required for this content.")
+    if not review_event_id:
+        raise ContentReviewError("Please review your content before publishing.")
+    try:
+        event = get_content_review_event(event_id=review_event_id, user=user)
+    except ContentReviewEvent.DoesNotExist as exc:
+        raise ContentReviewError("Please review your content before publishing.") from exc
+    if event.is_consumed:
+        raise ContentReviewError("This review has already been used. Please review again.")
+    if event.surface != surface:
+        raise ContentReviewError("Review does not match this form. Please review again.")
+    text = text.strip()
+    if event.text_hash != _text_hash(text):
+        raise ContentReviewError("Content changed after review. Please review again.")
+    return event
+
+
+@transaction.atomic
+def score_from_review_event(
+    *, event: ContentReviewEvent, post=None, reply=None
+) -> SentimentSnapshot:
+    return SentimentSnapshot.objects.create(
+        post=post,
+        reply=reply,
+        label=event.label,
+        score=event.score,
+        emotion_scores=event.emotion_scores,
+        conduct_flags=event.conduct_flags,
+        coaching_summary=event.coaching_summary,
+        model_version=event.model_version,
+    )
+
+
+@transaction.atomic
+def finalize_content_review_event(
+    *,
+    event_id: int,
+    post=None,
+    reply=None,
+    final_text: str,
+) -> ContentReviewEvent:
+    event = ContentReviewEvent.objects.select_for_update().get(pk=event_id)
+    final_hash = _text_hash(final_text.strip())
+    if event.text_hash != final_hash:
+        event.edited_after_review = True
+    event.post = post
+    event.reply = reply
+    event.is_finalized = True
+    event.is_consumed = True
+    event.save(
+        update_fields=[
+            "edited_after_review",
+            "post",
+            "reply",
+            "is_finalized",
+            "is_consumed",
+            "updated_at",
+        ]
+    )
+    return event
 
 
 def classify_civility(*, text: str) -> CivilityResult:

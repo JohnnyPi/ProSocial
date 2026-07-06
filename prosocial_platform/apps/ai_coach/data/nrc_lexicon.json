@@ -1,0 +1,1044 @@
+{
+  "abandon": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "abandoned": {
+    "anger": 1,
+    "fear": 1,
+    "sadness": 1
+  },
+  "abuse": {
+    "anger": 1,
+    "disgust": 1,
+    "fear": 1,
+    "sadness": 1
+  },
+  "acceptance": {
+    "joy": 1,
+    "trust": 1
+  },
+  "admirable": {
+    "joy": 1,
+    "trust": 1
+  },
+  "admiration": {
+    "joy": 1,
+    "trust": 1
+  },
+  "admire": {
+    "joy": 1,
+    "trust": 1
+  },
+  "adore": {
+    "joy": 1,
+    "trust": 1
+  },
+  "adventure": {
+    "anticipation": 1,
+    "joy": 1
+  },
+  "agony": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "agree": {
+    "trust": 1
+  },
+  "agreement": {
+    "trust": 1
+  },
+  "alarm": {
+    "fear": 1,
+    "surprise": 1
+  },
+  "alienated": {
+    "anger": 1,
+    "sadness": 1
+  },
+  "alone": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "amuse": {
+    "joy": 1
+  },
+  "amusement": {
+    "joy": 1
+  },
+  "anger": {
+    "anger": 1
+  },
+  "annoyance": {
+    "anger": 1
+  },
+  "anxiety": {
+    "anticipation": 1,
+    "fear": 1
+  },
+  "apologize": {
+    "sadness": 1,
+    "trust": 1
+  },
+  "apology": {
+    "sadness": 1,
+    "trust": 1
+  },
+  "appreciate": {
+    "joy": 1,
+    "trust": 1
+  },
+  "arrogant": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "ashamed": {
+    "disgust": 1,
+    "fear": 1,
+    "sadness": 1
+  },
+  "assault": {
+    "anger": 1,
+    "disgust": 1,
+    "fear": 1
+  },
+  "attack": {
+    "anger": 1,
+    "fear": 1
+  },
+  "backstab": {
+    "anger": 1,
+    "disgust": 1,
+    "sadness": 1
+  },
+  "betray": {
+    "anger": 1,
+    "disgust": 1,
+    "sadness": 1
+  },
+  "betrayal": {
+    "anger": 1,
+    "disgust": 1,
+    "sadness": 1
+  },
+  "blame": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "bore": {
+    "sadness": 1
+  },
+  "boredom": {
+    "sadness": 1
+  },
+  "brave": {
+    "anticipation": 1,
+    "trust": 1
+  },
+  "bravery": {
+    "trust": 1
+  },
+  "broken": {
+    "sadness": 1
+  },
+  "burden": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "calm": {
+    "joy": 1,
+    "trust": 1
+  },
+  "careful": {
+    "anticipation": 1,
+    "fear": 1
+  },
+  "caring": {
+    "joy": 1,
+    "trust": 1
+  },
+  "celebration": {
+    "joy": 1,
+    "surprise": 1
+  },
+  "chaos": {
+    "anger": 1,
+    "fear": 1,
+    "surprise": 1
+  },
+  "cheer": {
+    "joy": 1
+  },
+  "comfort": {
+    "joy": 1,
+    "trust": 1
+  },
+  "comforting": {
+    "joy": 1,
+    "trust": 1
+  },
+  "commitment": {
+    "anticipation": 1,
+    "trust": 1
+  },
+  "compassion": {
+    "sadness": 1,
+    "trust": 1
+  },
+  "compliment": {
+    "joy": 1,
+    "trust": 1
+  },
+  "concern": {
+    "fear": 1,
+    "sadness": 1,
+    "trust": 1
+  },
+  "concerned": {
+    "fear": 1,
+    "sadness": 1,
+    "trust": 1
+  },
+  "conflict": {
+    "anger": 1,
+    "fear": 1
+  },
+  "confusion": {
+    "fear": 1,
+    "surprise": 1
+  },
+  "considerate": {
+    "joy": 1,
+    "trust": 1
+  },
+  "contribute": {
+    "joy": 1,
+    "trust": 1
+  },
+  "contribution": {
+    "joy": 1,
+    "trust": 1
+  },
+  "courage": {
+    "anticipation": 1,
+    "trust": 1
+  },
+  "courageous": {
+    "trust": 1
+  },
+  "cruel": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "cruelty": {
+    "anger": 1,
+    "disgust": 1,
+    "sadness": 1
+  },
+  "damage": {
+    "anger": 1,
+    "fear": 1,
+    "sadness": 1
+  },
+  "dangerous": {
+    "fear": 1
+  },
+  "death": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "deceive": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "deception": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "defeat": {
+    "anger": 1,
+    "sadness": 1
+  },
+  "delightful": {
+    "joy": 1
+  },
+  "denial": {
+    "anger": 1,
+    "fear": 1
+  },
+  "depressed": {
+    "sadness": 1
+  },
+  "desperate": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "desperation": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "disappointed": {
+    "anger": 1,
+    "sadness": 1
+  },
+  "disappointing": {
+    "disgust": 1,
+    "sadness": 1
+  },
+  "disappointment": {
+    "sadness": 1,
+    "surprise": 1
+  },
+  "disaster": {
+    "fear": 1,
+    "sadness": 1,
+    "surprise": 1
+  },
+  "discourage": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "discouraged": {
+    "sadness": 1
+  },
+  "distress": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "distressed": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "distrust": {
+    "anger": 1,
+    "disgust": 1,
+    "fear": 1
+  },
+  "doubt": {
+    "anticipation": 1,
+    "fear": 1
+  },
+  "doubtful": {
+    "fear": 1
+  },
+  "dreadful": {
+    "disgust": 1,
+    "fear": 1
+  },
+  "encourage": {
+    "anticipation": 1,
+    "joy": 1,
+    "trust": 1
+  },
+  "encouragement": {
+    "joy": 1,
+    "trust": 1
+  },
+  "encouraging": {
+    "joy": 1,
+    "trust": 1
+  },
+  "enemy": {
+    "anger": 1,
+    "disgust": 1,
+    "fear": 1
+  },
+  "envy": {
+    "anger": 1,
+    "sadness": 1
+  },
+  "exhausted": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "exhaustion": {
+    "sadness": 1
+  },
+  "fail": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "failure": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "fairness": {
+    "joy": 1,
+    "trust": 1
+  },
+  "faithless": {
+    "anger": 1,
+    "disgust": 1,
+    "sadness": 1
+  },
+  "fidelity": {
+    "trust": 1
+  },
+  "forgive": {
+    "joy": 1,
+    "trust": 1
+  },
+  "forgiveness": {
+    "joy": 1,
+    "trust": 1
+  },
+  "generosity": {
+    "joy": 1,
+    "trust": 1
+  },
+  "generous": {
+    "joy": 1,
+    "trust": 1
+  },
+  "gentle": {
+    "joy": 1,
+    "trust": 1
+  },
+  "gently": {
+    "trust": 1
+  },
+  "gloom": {
+    "sadness": 1
+  },
+  "gloomy": {
+    "sadness": 1
+  },
+  "goodwill": {
+    "joy": 1,
+    "trust": 1
+  },
+  "grace": {
+    "joy": 1,
+    "trust": 1
+  },
+  "gracious": {
+    "joy": 1,
+    "trust": 1
+  },
+  "grateful": {
+    "joy": 1,
+    "trust": 1
+  },
+  "grief": {
+    "sadness": 1
+  },
+  "grieve": {
+    "sadness": 1
+  },
+  "guilt": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "guilty": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "harm": {
+    "anger": 1,
+    "fear": 1,
+    "sadness": 1
+  },
+  "harmful": {
+    "anger": 1,
+    "disgust": 1,
+    "fear": 1
+  },
+  "harmony": {
+    "joy": 1,
+    "trust": 1
+  },
+  "harsh": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "hate": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "heartache": {
+    "sadness": 1
+  },
+  "heartfelt": {
+    "joy": 1,
+    "sadness": 1,
+    "trust": 1
+  },
+  "helpful": {
+    "joy": 1,
+    "trust": 1
+  },
+  "helpless": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "helplessness": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "honor": {
+    "joy": 1,
+    "trust": 1
+  },
+  "honorable": {
+    "trust": 1
+  },
+  "horrific": {
+    "disgust": 1,
+    "fear": 1
+  },
+  "hug": {
+    "joy": 1,
+    "trust": 1
+  },
+  "humiliate": {
+    "anger": 1,
+    "disgust": 1,
+    "sadness": 1
+  },
+  "humiliation": {
+    "anger": 1,
+    "disgust": 1,
+    "sadness": 1
+  },
+  "humility": {
+    "trust": 1
+  },
+  "hurtful": {
+    "anger": 1,
+    "sadness": 1
+  },
+  "idiot": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "ignorant": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "immoral": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "important": {
+    "anticipation": 1,
+    "trust": 1
+  },
+  "incompetent": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "injustice": {
+    "anger": 1,
+    "sadness": 1
+  },
+  "insecure": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "insult": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "insulting": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "integrity": {
+    "trust": 1
+  },
+  "interest": {
+    "anticipation": 1,
+    "joy": 1
+  },
+  "interested": {
+    "anticipation": 1
+  },
+  "jealous": {
+    "anger": 1,
+    "fear": 1,
+    "sadness": 1
+  },
+  "jealousy": {
+    "anger": 1,
+    "fear": 1,
+    "sadness": 1
+  },
+  "joke": {
+    "joy": 1,
+    "surprise": 1
+  },
+  "joking": {
+    "joy": 1
+  },
+  "kindly": {
+    "joy": 1,
+    "trust": 1
+  },
+  "lie": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "loneliness": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "loss": {
+    "sadness": 1
+  },
+  "love": {
+    "joy": 1,
+    "trust": 1
+  },
+  "loyal": {
+    "trust": 1
+  },
+  "malicious": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "mean": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "meaningful": {
+    "joy": 1,
+    "trust": 1
+  },
+  "miserable": {
+    "sadness": 1
+  },
+  "misery": {
+    "sadness": 1
+  },
+  "misunderstand": {
+    "anger": 1,
+    "sadness": 1
+  },
+  "misunderstood": {
+    "anger": 1,
+    "sadness": 1
+  },
+  "mock": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "mockery": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "murder": {
+    "anger": 1,
+    "disgust": 1,
+    "fear": 1
+  },
+  "neglect": {
+    "anger": 1,
+    "sadness": 1
+  },
+  "neglected": {
+    "anger": 1,
+    "sadness": 1
+  },
+  "nurture": {
+    "joy": 1,
+    "trust": 1
+  },
+  "nurturing": {
+    "joy": 1,
+    "trust": 1
+  },
+  "offend": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "offended": {
+    "anger": 1,
+    "sadness": 1
+  },
+  "offensive": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "optimism": {
+    "anticipation": 1,
+    "joy": 1
+  },
+  "outcast": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "overjoyed": {
+    "joy": 1,
+    "surprise": 1
+  },
+  "panic": {
+    "fear": 1,
+    "surprise": 1
+  },
+  "peace": {
+    "joy": 1,
+    "trust": 1
+  },
+  "peaceful": {
+    "joy": 1,
+    "trust": 1
+  },
+  "pity": {
+    "sadness": 1,
+    "trust": 1
+  },
+  "pleasant": {
+    "joy": 1
+  },
+  "pleased": {
+    "joy": 1
+  },
+  "praise": {
+    "joy": 1,
+    "trust": 1
+  },
+  "problem": {
+    "anticipation": 1,
+    "fear": 1,
+    "sadness": 1
+  },
+  "protect": {
+    "anticipation": 1,
+    "trust": 1
+  },
+  "protection": {
+    "trust": 1
+  },
+  "protective": {
+    "fear": 1,
+    "trust": 1
+  },
+  "rage": {
+    "anger": 1
+  },
+  "reassurance": {
+    "joy": 1,
+    "trust": 1
+  },
+  "reconcile": {
+    "joy": 1,
+    "trust": 1
+  },
+  "reconciliation": {
+    "joy": 1,
+    "trust": 1
+  },
+  "reject": {
+    "anger": 1,
+    "sadness": 1
+  },
+  "rejected": {
+    "anger": 1,
+    "sadness": 1
+  },
+  "rejection": {
+    "anger": 1,
+    "sadness": 1
+  },
+  "reliable": {
+    "trust": 1
+  },
+  "relief": {
+    "joy": 1,
+    "trust": 1
+  },
+  "relieved": {
+    "joy": 1
+  },
+  "remorse": {
+    "sadness": 1,
+    "trust": 1
+  },
+  "rescue": {
+    "anticipation": 1,
+    "joy": 1,
+    "trust": 1
+  },
+  "respectful": {
+    "trust": 1
+  },
+  "revenge": {
+    "anger": 1,
+    "anticipation": 1
+  },
+  "reward": {
+    "anticipation": 1,
+    "joy": 1
+  },
+  "rewarding": {
+    "joy": 1
+  },
+  "ridicule": {
+    "anger": 1,
+    "disgust": 1,
+    "sadness": 1
+  },
+  "risk": {
+    "anticipation": 1,
+    "fear": 1
+  },
+  "ruin": {
+    "anger": 1,
+    "fear": 1,
+    "sadness": 1
+  },
+  "sacrifice": {
+    "sadness": 1,
+    "trust": 1
+  },
+  "sad": {
+    "sadness": 1
+  },
+  "satisfaction": {
+    "joy": 1
+  },
+  "satisfied": {
+    "joy": 1
+  },
+  "scared": {
+    "fear": 1
+  },
+  "selfish": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "selfless": {
+    "joy": 1,
+    "trust": 1
+  },
+  "shame": {
+    "disgust": 1,
+    "fear": 1,
+    "sadness": 1
+  },
+  "share": {
+    "joy": 1,
+    "trust": 1
+  },
+  "sharing": {
+    "joy": 1,
+    "trust": 1
+  },
+  "shock": {
+    "fear": 1,
+    "surprise": 1
+  },
+  "sincere": {
+    "trust": 1
+  },
+  "sincerity": {
+    "trust": 1
+  },
+  "skeptical": {
+    "anticipation": 1,
+    "fear": 1
+  },
+  "skepticism": {
+    "fear": 1
+  },
+  "slander": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "sorrow": {
+    "sadness": 1
+  },
+  "soul": {
+    "sadness": 1,
+    "trust": 1
+  },
+  "spite": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "spiteful": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "stupid": {
+    "anger": 1,
+    "disgust": 1
+  },
+  "suffer": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "suffering": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "supportive": {
+    "joy": 1,
+    "trust": 1
+  },
+  "suspicious": {
+    "anger": 1,
+    "fear": 1
+  },
+  "sympathetic": {
+    "sadness": 1,
+    "trust": 1
+  },
+  "sympathy": {
+    "sadness": 1,
+    "trust": 1
+  },
+  "tender": {
+    "joy": 1,
+    "sadness": 1,
+    "trust": 1
+  },
+  "terrible": {
+    "disgust": 1,
+    "fear": 1,
+    "sadness": 1
+  },
+  "terror": {
+    "fear": 1
+  },
+  "thankful": {
+    "joy": 1,
+    "trust": 1
+  },
+  "thoughtful": {
+    "joy": 1,
+    "trust": 1
+  },
+  "threat": {
+    "anger": 1,
+    "fear": 1
+  },
+  "threaten": {
+    "anger": 1,
+    "fear": 1
+  },
+  "tolerance": {
+    "trust": 1
+  },
+  "tolerant": {
+    "trust": 1
+  },
+  "torture": {
+    "anger": 1,
+    "disgust": 1,
+    "fear": 1,
+    "sadness": 1
+  },
+  "trauma": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "traumatic": {
+    "fear": 1,
+    "sadness": 1
+  },
+  "treasure": {
+    "joy": 1,
+    "trust": 1
+  },
+  "triumph": {
+    "anticipation": 1,
+    "joy": 1,
+    "surprise": 1
+  },
+  "trustworthy": {
+    "trust": 1
+  },
+  "uncomfortable": {
+    "disgust": 1,
+    "fear": 1
+  },
+  "understanding": {
+    "trust": 1
+  },
+  "unfair": {
+    "anger": 1,
+    "sadness": 1
+  },
+  "united": {
+    "joy": 1,
+    "trust": 1
+  },
+  "unity": {
+    "joy": 1,
+    "trust": 1
+  },
+  "unworthy": {
+    "disgust": 1,
+    "sadness": 1
+  },
+  "upset": {
+    "anger": 1,
+    "sadness": 1
+  },
+  "useful": {
+    "joy": 1,
+    "trust": 1
+  },
+  "valuable": {
+    "joy": 1,
+    "trust": 1
+  },
+  "value": {
+    "joy": 1,
+    "trust": 1
+  },
+  "vengeance": {
+    "anger": 1,
+    "anticipation": 1
+  },
+  "victim": {
+    "anger": 1,
+    "fear": 1,
+    "sadness": 1
+  },
+  "victimize": {
+    "anger": 1,
+    "disgust": 1,
+    "sadness": 1
+  },
+  "violence": {
+    "anger": 1,
+    "disgust": 1,
+    "fear": 1
+  },
+  "violent": {
+    "anger": 1,
+    "disgust": 1,
+    "fear": 1
+  },
+  "warmth": {
+    "joy": 1,
+    "trust": 1
+  },
+  "welcome": {
+    "joy": 1,
+    "trust": 1
+  },
+  "welcoming": {
+    "joy": 1,
+    "trust": 1
+  },
+  "worry": {
+    "anticipation": 1,
+    "fear": 1
+  },
+  "worthless": {
+    "anger": 1,
+    "disgust": 1,
+    "sadness": 1
+  },
+  "worthy": {
+    "joy": 1,
+    "trust": 1
+  },
+  "wronged": {
+    "anger": 1,
+    "sadness": 1
+  }
+}

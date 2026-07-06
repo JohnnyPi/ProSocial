@@ -1,9 +1,12 @@
 import uuid
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.http import HttpRequest, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 
+from apps.ai_coach.models import ContentReviewSurface
+from apps.ai_coach.review_validation import enforce_content_review, parse_review_event_id
 from apps.interactions.forms import (
     BlockConfirmForm,
     MuteConfirmForm,
@@ -66,15 +69,26 @@ def reply_create(request: HttpRequest, post_id: uuid.UUID) -> HttpResponse:
         if form.is_valid():
             try:
                 civility_event_id = request.POST.get("civility_event_id")
+                review_event_id = parse_review_event_id(request.POST.get("review_event_id"))
+                body = form.cleaned_data["body"]
+                enforce_content_review(
+                    user=request.user,
+                    text=body,
+                    review_event_id=review_event_id,
+                    surface=ContentReviewSurface.REPLY,
+                )
                 create_reply(
                     post=post,
                     author=request.user,
-                    body=form.cleaned_data["body"],
+                    body=body,
                     parent=parent,
                     civility_event_id=int(civility_event_id) if civility_event_id else None,
+                    review_event_id=review_event_id,
                 )
             except BlockedInteractionError:
                 return HttpResponseForbidden("This interaction is not available.")
+            except ValidationError as exc:
+                form.add_error(None, exc.messages[0])
             except InteractionError as exc:
                 form.add_error(None, str(exc))
             else:
@@ -102,13 +116,30 @@ def reply_edit(request: HttpRequest, reply_id: uuid.UUID) -> HttpResponse:
     if request.method == "POST":
         form = ReplyForm(request.POST, instance=reply)
         if form.is_valid():
+            from django.core.exceptions import ValidationError
+
+            from apps.ai_coach.review_validation import enforce_content_review
+
             civility_event_id = request.POST.get("civility_event_id")
-            update_reply(
-                reply=reply,
-                body=form.cleaned_data["body"],
-                civility_event_id=int(civility_event_id) if civility_event_id else None,
-            )
-            return redirect("posts:detail", public_id=reply.post.public_id)
+            review_event_id = parse_review_event_id(request.POST.get("review_event_id"))
+            body = form.cleaned_data["body"]
+            try:
+                enforce_content_review(
+                    user=request.user,
+                    text=body,
+                    review_event_id=review_event_id,
+                    surface=ContentReviewSurface.EDIT,
+                )
+                update_reply(
+                    reply=reply,
+                    body=body,
+                    civility_event_id=int(civility_event_id) if civility_event_id else None,
+                    review_event_id=review_event_id,
+                )
+            except ValidationError as exc:
+                form.add_error(None, exc.messages[0])
+            else:
+                return redirect("posts:detail", public_id=reply.post.public_id)
     else:
         form = ReplyForm(instance=reply)
     return render(

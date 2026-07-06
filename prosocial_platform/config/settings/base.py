@@ -58,6 +58,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.common.context_processors.shell_context",
+                "apps.common.context_processors.functional_trust_context",
                 "apps.posts.context_processors.feed_filters",
             ],
         },
@@ -119,6 +120,8 @@ ACCOUNT_DELETION_GRACE_DAYS = 30
 FUNCTIONAL_TRUST_FEATURES = {
     "prosocial_reactions": True,
     "civility_prompts": True,
+    "content_review": True,
+    "sentiment_llm_enhancement": False,
     "moderation_actions": True,
     "moderation_appeals": True,
     "assurance_profile": True,
@@ -129,6 +132,10 @@ FUNCTIONAL_TRUST_FEATURES = {
 }
 
 APPEAL_WINDOW_DAYS = 14
+
+SENTIMENT_LLM_PROVIDER = env("SENTIMENT_LLM_PROVIDER", default="")
+SENTIMENT_LLM_API_KEY = env("SENTIMENT_LLM_API_KEY", default="")
+SENTIMENT_LLM_TIMEOUT_SECONDS = env.int("SENTIMENT_LLM_TIMEOUT_SECONDS", default=5)
 
 CACHES = {
     "default": {

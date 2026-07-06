@@ -1,3 +1,6 @@
+from django.conf import settings
+
+
 def shell_context(request):
     """Sidebar data for the three-column app shell."""
     if not request.user.is_authenticated:
@@ -22,3 +25,7 @@ def shell_context(request):
         ),
         "shell_user_guilds": list(get_user_guilds(user=request.user)),
     }
+
+
+def functional_trust_context(request):
+    return {"functional_trust_features": settings.FUNCTIONAL_TRUST_FEATURES}

@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 
+from apps.ai_coach.models import ContentReviewSurface
+from apps.ai_coach.review_validation import parse_review_event_id
 from apps.interactions.selectors import get_post_replies
 from apps.posts.forms import PostDeleteForm, PostForm
 from apps.posts.selectors import get_owned_post, get_post_for_display
@@ -68,13 +70,30 @@ def post_edit(request: HttpRequest, public_id: uuid.UUID) -> HttpResponse:
         form = PostForm(request.POST, request.FILES, instance=post)
         form.actor = request.user
         if form.is_valid():
+            from django.core.exceptions import ValidationError
+
+            from apps.ai_coach.review_validation import enforce_content_review
+
             civility_event_id = request.POST.get("civility_event_id")
-            update_post(
-                post=post,
-                civility_event_id=int(civility_event_id) if civility_event_id else None,
-                **form.cleaned_post_kwargs(),
-            )
-            return redirect("posts:detail", public_id=post.public_id)
+            review_event_id = parse_review_event_id(request.POST.get("review_event_id"))
+            kwargs = form.cleaned_post_kwargs()
+            try:
+                enforce_content_review(
+                    user=request.user,
+                    text=kwargs["body"],
+                    review_event_id=review_event_id,
+                    surface=ContentReviewSurface.EDIT,
+                )
+                update_post(
+                    post=post,
+                    civility_event_id=int(civility_event_id) if civility_event_id else None,
+                    review_event_id=review_event_id,
+                    **kwargs,
+                )
+            except ValidationError as exc:
+                form.add_error(None, exc.messages[0])
+            else:
+                return redirect("posts:detail", public_id=post.public_id)
     else:
         form = PostForm(instance=post)
 

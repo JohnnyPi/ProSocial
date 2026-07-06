@@ -2,24 +2,26 @@
 {% load static %}
 {% block title %}Reply · Common Good{% endblock %}
 {% block extra_head %}
-  <script src="{% static 'js/pre_send_prompt.js' %}" defer></script>
+  <script src="{% static 'js/content_review.js' %}" defer></script>
 {% endblock %}
 {% block content %}
-  <h1>{% if parent %}Reply to comment{% else %}Reply to post{% endif %}</h1>
-  <form method="post">
+  <h1>{% if reply %}Edit reply{% elif parent %}Reply to comment{% else %}Reply to post{% endif %}</h1>
+  <form method="post" id="reply-form">
     {% csrf_token %}
     {% include "components/form_errors.html" %}
     {{ form.body }}
-    <div id="pre-send-prompt-reply"></div>
+    <div id="content-review-panel-reply"></div>
     {% if parent %}<input type="hidden" name="parent" value="{{ parent.public_id }}">{% endif %}
-    <button type="submit">Submit reply</button>
+    <button type="button" data-content-review-submit>Review</button>
   </form>
   <div
     hidden
-    data-pre-send-body="id_body"
-    data-pre-send-target="pre-send-prompt-reply"
-    data-pre-send-url="{% url 'ai_coach:pre_send_check' %}"
-    data-pre-send-record-url="{% url 'ai_coach:record_civility_action' %}"
+    data-content-review-body="{{ form.body.id_for_label }}"
+    data-content-review-target="content-review-panel-reply"
+    data-content-review-url="{% url 'ai_coach:content_review' %}"
+    data-content-review-submit-label="{% if reply %}Save changes{% else %}Submit reply{% endif %}"
+    data-content-review-surface="{% if reply %}EDIT{% else %}REPLY{% endif %}"
+    data-content-review-enabled="{% if functional_trust_features.content_review %}true{% else %}false{% endif %}"
     data-csrf-token="{{ csrf_token }}"
   ></div>
 {% endblock %}

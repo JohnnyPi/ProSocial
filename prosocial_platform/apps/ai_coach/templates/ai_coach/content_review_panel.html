@@ -1,0 +1,49 @@
+{% if event %}
+<div class="content-review-panel" data-review-event-id="{{ event.pk }}">
+  <h3 class="content-review-panel__heading">Review results</h3>
+  <p class="content-review-panel__tone"><strong>Overall tone:</strong> {{ event.tone_summary }}</p>
+
+  {% if labeled_emotions %}
+  <div class="content-review-panel__emotions">
+    <p class="content-review-panel__label">Emotion profile</p>
+    <ul class="emotion-bars">
+      {% for item in labeled_emotions %}
+      <li class="emotion-bar">
+        <span class="emotion-bar__label">{{ item.label }}</span>
+        <span class="emotion-bar__track">
+          <span class="emotion-bar__fill" style="width: {{ item.percent }}%"></span>
+        </span>
+        <span class="emotion-bar__pct">{{ item.percent }}%</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if event.conduct_flags %}
+  <div class="content-review-panel__conduct" role="note">
+    <p class="content-review-panel__label">Conduct notices</p>
+    <ul>
+      {% for message in conduct_messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if event.coaching_tips %}
+  <div class="content-review-panel__tips">
+    <p class="content-review-panel__label">Coaching tips</p>
+    <ul>
+      {% for tip in event.coaching_tips %}
+      <li>{{ tip }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <p class="content-review-panel__disclaimer">
+    Automated coaching — not a moderation decision. Negative emotions are allowed; personal attacks are not.
+  </p>
+</div>
+{% endif %}

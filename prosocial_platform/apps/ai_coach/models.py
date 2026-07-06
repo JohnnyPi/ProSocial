@@ -10,6 +10,12 @@ class SentimentLabel(models.TextChoices):
     NEGATIVE = "NEGATIVE", "Negative"
 
 
+class ContentReviewSurface(models.TextChoices):
+    POST = "POST", "Post"
+    REPLY = "REPLY", "Reply"
+    EDIT = "EDIT", "Edit"
+
+
 class SentimentSnapshot(TimeStampedModel):
     post = models.ForeignKey(
         "posts.Post",
@@ -27,7 +33,48 @@ class SentimentSnapshot(TimeStampedModel):
     )
     label = models.CharField(max_length=16, choices=SentimentLabel.choices)
     score = models.FloatField()
+    emotion_scores = models.JSONField(default=dict, blank=True)
+    conduct_flags = models.JSONField(default=list, blank=True)
+    coaching_summary = models.TextField(blank=True)
+    confidence = models.FloatField(default=1.0)
     model_version = models.CharField(max_length=32, default="keyword-v1")
+
+
+class ContentReviewEvent(TimeStampedModel):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="content_review_events",
+    )
+    post = models.ForeignKey(
+        "posts.Post",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="content_review_events",
+    )
+    reply = models.ForeignKey(
+        "interactions.Reply",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="content_review_events",
+    )
+    surface = models.CharField(max_length=8, choices=ContentReviewSurface.choices)
+    text_hash = models.CharField(max_length=64)
+    emotion_scores = models.JSONField(default=dict)
+    conduct_flags = models.JSONField(default=list)
+    coaching_summary = models.TextField(blank=True)
+    coaching_tips = models.JSONField(default=list)
+    tone_summary = models.TextField(blank=True)
+    label = models.CharField(
+        max_length=16, choices=SentimentLabel.choices, default=SentimentLabel.NEUTRAL
+    )
+    score = models.FloatField(default=0.0)
+    model_version = models.CharField(max_length=32, default="nrc-v1")
+    edited_after_review = models.BooleanField(default=False)
+    is_finalized = models.BooleanField(default=False)
+    is_consumed = models.BooleanField(default=False)
 
 
 class ThreadSummary(TimeStampedModel):

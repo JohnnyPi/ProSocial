@@ -3,7 +3,7 @@
 {% block title %}Home · Common Good{% endblock %}
 {% block extra_head %}
   <script src="{% static 'js/site.js' %}" defer></script>
-  <script src="{% static 'js/pre_send_prompt.js' %}" defer></script>
+  <script src="{% static 'js/content_review.js' %}" defer></script>
 {% endblock %}
 {% block content %}
   <header class="dashboard-header">
@@ -36,14 +36,14 @@
   </section>
 
   <dialog class="modal" id="post-modal" aria-labelledby="post-modal-title">
-    <div class="modal-sheet">
+    <div class="modal-sheet modal-sheet--composer">
       <header class="modal-header">
         <h2 id="post-modal-title">Share an update</h2>
         <button type="button" class="modal-close icon-button" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </header>
-      <div id="post-composer-container">
+      <div class="modal-body" id="post-composer-container">
         {% include "components/post_composer.html" %}
       </div>
     </div>

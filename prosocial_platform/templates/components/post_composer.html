@@ -13,48 +13,55 @@
 >
   {% csrf_token %}
   {% include "components/form_errors.html" %}
-  <div class="field">
-    <label for="{{ form.kind.id_for_label }}">Post type</label>
-    {{ form.kind }}
-    <p class="help-text">Choose how this post should appear in feed filters.</p>
-  </div>
-  <div class="field">
-    <label for="{{ form.thread_type.id_for_label }}">Thread shape</label>
-    {{ form.thread_type }}
-    <p class="help-text">Conversation format for knowledge hub and thread tracking.</p>
-  </div>
-  <div class="field">
-    <label for="{{ form.title.id_for_label }}">Title (optional)</label>
-    {{ form.title }}
-  </div>
-  <div class="field">
-    <label for="{{ form.body.id_for_label }}">What would help your neighbors know?</label>
+
+  <div class="composer-primary">
+    <label for="{{ form.body.id_for_label }}" class="composer-primary__label">What would help your neighbors know?</label>
     {{ form.body }}
-    <div id="pre-send-prompt-composer"></div>
+    <div id="content-review-panel-composer"></div>
   </div>
-  <div class="field">
-    <label for="{{ form.tags.id_for_label }}">Tags (optional)</label>
-    {{ form.tags }}
-    {% if form.tags.help_text %}<p class="help-text">{{ form.tags.help_text }}</p>{% endif %}
-  </div>
-  <div class="field">
-    <label for="{{ form.image.id_for_label }}">Photo (optional)</label>
-    {{ form.image }}
-  </div>
-  <div class="field">
-    <label for="{{ form.image_alt_text.id_for_label }}">Photo description (optional)</label>
-    {{ form.image_alt_text }}
-  </div>
-  <div class="form-actions">
+
+  <details class="composer-advanced">
+    <summary class="composer-advanced__summary">More options</summary>
+    <div class="composer-advanced__fields">
+      <div class="field field--compact">
+        <label for="{{ form.kind.id_for_label }}">Post type</label>
+        {{ form.kind }}
+      </div>
+      <div class="field field--compact">
+        <label for="{{ form.thread_type.id_for_label }}">Thread shape</label>
+        {{ form.thread_type }}
+      </div>
+      <div class="field field--compact">
+        <label for="{{ form.title.id_for_label }}">Title (optional)</label>
+        {{ form.title }}
+      </div>
+      <div class="field field--compact">
+        <label for="{{ form.tags.id_for_label }}">Tags (optional)</label>
+        {{ form.tags }}
+      </div>
+      <div class="field field--compact">
+        <label for="{{ form.image.id_for_label }}">Photo (optional)</label>
+        {{ form.image }}
+      </div>
+      <div class="field field--compact">
+        <label for="{{ form.image_alt_text.id_for_label }}">Photo description (optional)</label>
+        {{ form.image_alt_text }}
+      </div>
+    </div>
+  </details>
+
+  <div class="form-actions composer-actions">
     <button type="button" class="secondary modal-close">Cancel</button>
-    <button type="submit">Post</button>
+    <button type="button" data-content-review-submit>Review</button>
   </div>
 </form>
 <div
   hidden
-  data-pre-send-body="{{ form.body.id_for_label }}"
-  data-pre-send-target="pre-send-prompt-composer"
-  data-pre-send-url="{% url 'ai_coach:pre_send_check' %}"
-  data-pre-send-record-url="{% url 'ai_coach:record_civility_action' %}"
+  data-content-review-body="{{ form.body.id_for_label }}"
+  data-content-review-target="content-review-panel-composer"
+  data-content-review-url="{% url 'ai_coach:content_review' %}"
+  data-content-review-submit-label="Post"
+  data-content-review-surface="POST"
+  data-content-review-enabled="{% if functional_trust_features.content_review %}true{% else %}false{% endif %}"
   data-csrf-token="{{ csrf_token }}"
 ></div>

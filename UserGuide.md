@@ -178,7 +178,7 @@ Visitors who are not signed in see a simplified top bar with **Sign in** and **J
 
 ### Creating a Post
 
-**Intent:** Share text and optional images with the community. A pre-send reflection prompt may appear if your draft contains negative keywords.
+**Intent:** Share text and optional images with the community. Click **Review** to see sentiment analysis and coaching tips before **Post**.
 
 | Method | Route | Status |
 |--------|-------|--------|
@@ -590,7 +590,7 @@ This is one of the most complete feature areas in the platform.
 |---------|-------|--------|--------|
 | Discovery home | `/discovery/` | ⚠️ Partial | |
 | Most clipped posts | On discovery home | ✅ | Real clip-count ranking |
-| Sentiment-boosted posts | On discovery home | ⚠️ | Query works but usually **empty** — sentiment snapshots are not created on post/reply |
+| Sentiment-boosted posts | On discovery home | ✅ | Populated when positive sentiment snapshots exist on posts |
 | Ripple effect | `/discovery/ripple/` | ⚠️ Display only | Shows "You helped" / "You were helped by" — data must be admin-seeded |
 | Community spotlights | — | ❌ | Loaded in view but **not rendered** in template |
 | Prosocial ranked feed | — | ❌ | Selector exists; no URL or UI |
@@ -735,34 +735,38 @@ Scores recalculate from trust events with **time decay** and anti-gaming weighti
 
 ---
 
-## 15. AI Coach — Reflection & Pre-Send Prompts
+## 15. AI Coach — Reflection & Content Review
 
 **Intent:** An AI layer that encourages, suggests, and celebrates — never enforces. (Principle: Coach, Not Cop.)
 
-> **Important:** There is **no live LLM integration**. All "AI" features use keyword matching (`model_version: "keyword-v1"`).
+> **Important:** Sentiment analysis uses a local **NRC Emotion Lexicon** (`model_version: nrc-v1`). Optional LLM enhancement is available behind a feature flag when API keys are configured — it adds coaching nuance only; lexicon scores remain authoritative.
 
-### Pre-Send Civility Prompt
+### Content Review (Review → Post)
 
-**Intent:** Gentle friction before potentially harmful posts — preserves your agency while inviting reflection. Outcomes are **logged** for moderation analytics.
+**Intent:** Before publishing, you explicitly **Review** your draft to see an emotion profile and coaching tips. You can edit and re-review; negative emotions (grief, frustration, criticism) are allowed — conduct warnings flag phrasing that may read as hostile, dehumanizing, or threatening.
 
 | Feature | Status | What you see |
 |---------|--------|--------------|
-| Post composer check | ✅ | Hostile-language detection triggers a reflection prompt |
-| Reply form check | ✅ | Same prompt on reply forms |
-| **Edit** | ✅ | Dismiss prompt and revise your draft |
-| **Post anyway** | ✅ | Records choice; content still posts |
-| **Cancel** | ✅ | Blocks submit until you edit or choose again |
-| Civility event logging | ✅ | `prompt_type`, `user_action`, `edited_after_prompt` stored |
-| Report context | ✅ | Recent civility events attached to related reports |
+| Post composer | ✅ | Button starts as **Review** → analysis panel → **Post** |
+| Reply form | ✅ | **Review** → **Submit reply** |
+| Post edit | ✅ | **Review** → **Save changes** |
+| Full-page create | ✅ | **Review** → **Publish** |
+| Emotion profile | ✅ | Top emotions (anger, joy, trust, sadness, grief, etc.) with bar chart |
+| Conduct notices | ✅ | Non-blocking warnings separate from emotions |
+| Re-review on edit | ✅ | Changing body text after review resets to **Review** |
+| Server enforcement | ✅ | Posts ≥ 8 characters require a valid review event before publish |
 
 **Routes:**
 
 | Route | Purpose |
 |-------|---------|
-| `/ai/pre-send-check/` | HTMX partial — classify draft and create event |
-| `/ai/civility-action/` | Record Edit / Post anyway / Cancel before submit |
+| `/ai/content-review/` | POST — analyze draft and return review panel HTML |
 
-> Detection uses keyword heuristics (`keyword-v1`), structured so a future ML classifier can plug in.
+Short drafts (&lt; 8 characters) skip the review step and submit directly.
+
+### Legacy Pre-Send Civility Prompt
+
+The older debounced pre-send prompt (`/ai/pre-send-check/`) is **retired on compose surfaces** in favor of the explicit Review flow. Civility/hostile detection is integrated into the review panel as conduct flags.
 
 ### Reflection Journal
 
@@ -780,7 +784,6 @@ Scores recalculate from trust events with **time decay** and anti-gaming weighti
 
 | Feature | Status |
 |---------|--------|
-| Sentiment analysis on posts/replies | ❌ `score_content()` exists but is never called on create |
 | Thread summaries | ❌ Service exists; never called |
 | Behavioral forecasting | ❌ Not implemented |
 | Personalized challenges from AI | ❌ Not implemented |
@@ -1002,7 +1005,7 @@ All features are toggled via `FUNCTIONAL_TRUST_FEATURES` in `config/settings/bas
 - Helper style onboarding
 - Trust settings (private score view)
 - Gamification progress page
-- AI pre-send civility prompts (with event logging)
+- AI content review with NRC emotion lexicon (optional LLM enhancement)
 - Reflection journal (with static AI response)
 - Challenge list + honor-system completion
 - Discovery home (most clipped)
@@ -1023,7 +1026,7 @@ All features are toggled via `FUNCTIONAL_TRUST_FEATURES` in `config/settings/bas
 | **Assurance / MFA** | Model + capability registry | No MFA enrollment UI |
 | **Earned privileges** | Auto-grant after trust recalc | Most users need reactions before context-note privilege |
 | **Gamification XP** | Engine works; 3 triggers wired | Most XP sources unwired; badges need admin seeding |
-| **AI coach** | Pre-send prompts; journal | Keyword-only (no LLM); sentiment not run on posts |
+| **AI coach** | Content review; journal | NRC lexicon (`nrc-v1`); optional LLM behind flag |
 | **Rest mode** | Session created/ended | No effect on notifications or streaks |
 | **Moderation review** | Queue, actions, appeals, notifications | Review screen doesn't show reported content |
 | **Donations** | Campaign create; stub donate | No payment processor; campaigns need admin verification |
