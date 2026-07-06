@@ -17,7 +17,7 @@ def get_dashboard_feed(
 ):
     queryset = (
         Post.objects.visible()
-        .select_related("author", "author__profile", "guild")
+        .select_related("author", "author__profile", "guild", "action_opportunity")
         .prefetch_related("post_tags__tag")
         .order_by("-created_at")
     )

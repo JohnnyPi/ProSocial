@@ -1,13 +1,19 @@
-<li class="notification-item{% if not notification.read_at %} unread{% endif %}">
-  <p>
-    {% if notification.actor %}{{ notification.actor.profile.public_display_name }}{% else %}Someone{% endif %}
-    — {{ notification.get_kind_display }}
-    <time datetime="{{ notification.created_at|date:'c' }}">{{ notification.created_at|timesince }} ago</time>
-  </p>
+<li class="notification-item{% if not notification.read_at %} notification-item--unread{% endif %}">
+  <div class="notification-item__content">
+    <p class="notification-item__summary">
+      {% if notification.actor %}
+        <a href="{% url 'profiles:detail' handle=notification.actor.profile.handle %}">{{ notification.actor.profile.public_display_name }}</a>
+      {% else %}
+        Someone
+      {% endif %}
+      — {{ notification.get_kind_display }}
+    </p>
+    <time class="hub-list__meta" datetime="{{ notification.created_at|date:'c' }}">{{ notification.created_at|timesince }} ago</time>
+  </div>
   {% if not notification.read_at %}
-    <form method="post" action="{% url 'interactions:notification_read' notification_id=notification.pk %}">
+    <form method="post" action="{% url 'interactions:notification_read' notification_id=notification.pk %}" class="notification-item__action">
       {% csrf_token %}
-      <button type="submit">Mark read</button>
+      <button type="submit" class="link-button">Mark read</button>
     </form>
   {% endif %}
 </li>

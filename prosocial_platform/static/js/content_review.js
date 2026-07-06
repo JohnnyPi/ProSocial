@@ -13,6 +13,9 @@
     let state = "idle";
     let reviewEventId = null;
     let reviewedText = "";
+    let civilityEventId = null;
+    let civilityResolved = false;
+    let blockSubmit = false;
 
     function textValue() {
       return body.value.trim();
@@ -20,6 +23,10 @@
 
     function reviewRequired() {
       return config.enabled && textValue().length >= MIN_LENGTH;
+    }
+
+    function civilityRequired() {
+      return Boolean(civilityEventId) && !civilityResolved;
     }
 
     function setButtonReview() {
@@ -44,6 +51,9 @@
       target.innerHTML = "";
       reviewEventId = null;
       reviewedText = "";
+      civilityEventId = null;
+      civilityResolved = false;
+      blockSubmit = false;
     }
 
     function syncButtonState() {
@@ -52,6 +62,11 @@
         return;
       }
       if (state === "analyzing") {
+        return;
+      }
+      if (blockSubmit || civilityRequired()) {
+        setButtonReview();
+        submitBtn.disabled = true;
         return;
       }
       if (state === "reviewed" && textValue() === reviewedText) {
@@ -75,6 +90,91 @@
       }
       hidden.value = reviewEventId || "";
     }
+
+    function injectCivilityEventId() {
+      let hidden = form.querySelector('input[name="civility_event_id"]');
+      if (!hidden) {
+        hidden = document.createElement("input");
+        hidden.type = "hidden";
+        hidden.name = "civility_event_id";
+        form.appendChild(hidden);
+      }
+      hidden.value = civilityEventId || "";
+    }
+
+    function recordCivilityAction(action) {
+      if (!config.civilityRecordUrl || !civilityEventId) {
+        return Promise.resolve();
+      }
+      return fetch(config.civilityRecordUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": config.csrfToken,
+        },
+        body:
+          "event_id=" +
+          encodeURIComponent(civilityEventId) +
+          "&user_action=" +
+          encodeURIComponent(action) +
+          "&text=" +
+          encodeURIComponent(textValue()),
+      }).catch(function () {});
+    }
+
+    function bindCivilityPrompt(panel) {
+      const promptEl = panel.querySelector("[data-civility-event-id]");
+      if (!promptEl) {
+        civilityEventId = null;
+        civilityResolved = true;
+        blockSubmit = false;
+        return;
+      }
+      civilityEventId = promptEl.getAttribute("data-civility-event-id");
+      civilityResolved = false;
+      blockSubmit = true;
+      syncButtonState();
+    }
+
+    target.addEventListener("click", function (event) {
+      const btn = event.target.closest("[data-civility-action]");
+      if (!btn) {
+        return;
+      }
+      const action = btn.getAttribute("data-civility-action");
+      if (action === "EDITED") {
+        recordCivilityAction("EDITED").then(function () {
+          blockSubmit = false;
+          civilityResolved = true;
+          const prompt = target.querySelector(".content-review-panel__civility");
+          if (prompt) {
+            prompt.remove();
+          }
+          body.focus();
+          syncButtonState();
+        });
+        return;
+      }
+      if (action === "CANCELLED") {
+        recordCivilityAction("CANCELLED").then(function () {
+          blockSubmit = true;
+          civilityResolved = false;
+          syncButtonState();
+        });
+        return;
+      }
+      if (action === "POSTED_ANYWAY") {
+        recordCivilityAction("POSTED_ANYWAY").then(function () {
+          blockSubmit = false;
+          civilityResolved = true;
+          const prompt = target.querySelector(".content-review-panel__civility");
+          if (prompt) {
+            prompt.remove();
+          }
+          syncButtonState();
+        });
+      }
+    });
 
     function runReview() {
       const text = textValue();
@@ -114,8 +214,9 @@
           reviewEventId = panel.getAttribute("data-review-event-id");
           reviewedText = text;
           state = "reviewed";
-          setButtonSubmit();
+          bindCivilityPrompt(panel);
           injectReviewEventId();
+          syncButtonState();
         })
         .catch(function () {
           target.innerHTML =
@@ -133,6 +234,10 @@
     });
 
     form.addEventListener("submit", function (event) {
+      if (blockSubmit) {
+        event.preventDefault();
+        return;
+      }
       if (!config.enabled) {
         return;
       }
@@ -142,12 +247,22 @@
           setButtonReview();
           return;
         }
+        if (civilityRequired()) {
+          event.preventDefault();
+          syncButtonState();
+          return;
+        }
         injectReviewEventId();
+        injectCivilityEventId();
       }
     });
 
     form.addEventListener("htmx:beforeRequest", function (event) {
       if (event.target !== form) {
+        return;
+      }
+      if (blockSubmit) {
+        event.preventDefault();
         return;
       }
       if (!config.enabled) {
@@ -156,8 +271,16 @@
       if (reviewRequired() && (state !== "reviewed" || textValue() !== reviewedText)) {
         event.preventDefault();
         setButtonReview();
-      } else if (reviewEventId) {
-        injectReviewEventId();
+      } else if (civilityRequired()) {
+        event.preventDefault();
+        syncButtonState();
+      } else {
+        if (reviewEventId) {
+          injectReviewEventId();
+        }
+        if (civilityEventId) {
+          injectCivilityEventId();
+        }
       }
     });
 
@@ -186,6 +309,7 @@
       bodyId: el.getAttribute("data-content-review-body"),
       targetId: el.getAttribute("data-content-review-target"),
       reviewUrl: el.getAttribute("data-content-review-url"),
+      civilityRecordUrl: el.getAttribute("data-civility-record-url"),
       submitLabel: el.getAttribute("data-content-review-submit-label") || "Post",
       surface: el.getAttribute("data-content-review-surface") || "POST",
       csrfToken: el.getAttribute("data-csrf-token") || "",

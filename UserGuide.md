@@ -452,6 +452,18 @@ This is one of the platform's core differentiators: turning ephemeral conversati
 
 This is one of the most complete feature areas in the platform.
 
+### Feed vs Actions browse
+
+The **home feed** and **Actions page** (`/actions/`) can both surface help-related content, but they serve different purposes:
+
+| | Home feed (kind filter) | Actions page |
+|---|-------------------------|--------------|
+| **Shows** | All visible posts of a kind (open, closed, cancelled) | Only **open** `ActionOpportunity` records |
+| **Purpose** | Social stream and archive | Actionable task board |
+| **Workflow** | Read, reply, react | Save → commit → complete → verify |
+
+Use the feed to browse discussion history; use Actions when you want to **commit** to something live. When a kind filter is active on the home feed, a link to open opportunities appears below the filter bar.
+
 ### Action Opportunities
 
 | Kind | Status | Created via |
@@ -764,9 +776,11 @@ Scores recalculate from trust events with **time decay** and anti-gaming weighti
 
 Short drafts (&lt; 8 characters) skip the review step and submit directly.
 
-### Legacy Pre-Send Civility Prompt
+### Integrated civility prompt (with content review)
 
-The older debounced pre-send prompt (`/ai/pre-send-check/`) is **retired on compose surfaces** in favor of the explicit Review flow. Civility/hostile detection is integrated into the review panel as conduct flags.
+When a review detects conduct concerns (`hostile_language`, `dehumanization`, or `threat`), a **Reflection prompt** appears below the review panel with **Edit / Post anyway / Cancel**. Your choice is logged via `civility_event_id` on submit.
+
+The standalone debounced pre-send endpoint (`/ai/pre-send-check/`) remains available for API use, but compose surfaces use the integrated review flow above.
 
 ### Reflection Journal
 
@@ -1074,7 +1088,7 @@ All features are toggled via `FUNCTIONAL_TRUST_FEATURES` in `config/settings/bas
 | **Saving content** | Clip → Vault (has buttons) | Add post to collection (backend only) | Add collection UI or remove endpoint |
 | **Navigation** | `shell_left.html` (active) | `navigation.html` (unused) | Remove dead template |
 | **Trust display** | Real scores in `/trust/settings/` | Hardcoded badges in right rail | Wire rail to real data or remove badges |
-| **Post kinds** | Dashboard feed filter | Actions app creation flow | Document that kinds come from Actions, not composer |
+| **Post kinds** | Dashboard feed filter (all posts of a kind) | Actions app (open opportunities + workflow) | Feed = archive/stream; Actions = live task board |
 
 ### Critical UX Gaps (Features That Work But Are Hard to Find)
 

@@ -6,7 +6,7 @@ from datetime import timedelta
 from django.utils import timezone
 
 from apps.interactions.models import ProsocialReaction
-from apps.trust.clusters import get_user_cluster_id
+from apps.trust.clusters import get_cluster_ids_for_users
 from apps.trust.models import PeerRating, TrustEvent
 
 CLUSTER_CONCENTRATION_THRESHOLD = 0.5
@@ -43,16 +43,11 @@ def _rater_cluster_concentration(*, target_user, new_rater, post=None, reply=Non
         )
     if not rater_ids:
         return 0.0
-    new_cluster = get_user_cluster_id(user=new_rater)
-    same_cluster = sum(1 for rid in set(rater_ids) if _get_cluster_for_user_id(rid) == new_cluster)
-    return same_cluster / len(set(rater_ids))
-
-
-def _get_cluster_for_user_id(user_id: int) -> str:
-    from django.contrib.auth import get_user_model
-
-    User = get_user_model()
-    return get_user_cluster_id(user=User.objects.get(pk=user_id))
+    unique_rater_ids = set(rater_ids)
+    cluster_map = get_cluster_ids_for_users(user_ids=unique_rater_ids | {new_rater.pk})
+    new_cluster = cluster_map[new_rater.pk]
+    same_cluster = sum(1 for rid in unique_rater_ids if cluster_map[rid] == new_cluster)
+    return same_cluster / len(unique_rater_ids)
 
 
 def _velocity_multiplier(*, target_user) -> float:

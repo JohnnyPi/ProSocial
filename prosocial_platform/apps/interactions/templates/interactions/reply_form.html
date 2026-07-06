@@ -12,13 +12,22 @@
     {{ form.body }}
     <div id="content-review-panel-reply"></div>
     {% if parent %}<input type="hidden" name="parent" value="{{ parent.public_id }}">{% endif %}
-    <button type="button" data-content-review-submit>Review</button>
+    {% if functional_trust_features.content_review %}
+      <button type="button" data-content-review-submit>Review</button>
+    {% else %}
+      <button type="submit">{% if reply %}Save changes{% else %}Submit reply{% endif %}</button>
+    {% endif %}
+    <noscript>
+      <p class="help-text">JavaScript is required for content review. You can still submit without review:</p>
+      <button type="submit">{% if reply %}Save without review{% else %}Submit without review{% endif %}</button>
+    </noscript>
   </form>
   <div
     hidden
     data-content-review-body="{{ form.body.id_for_label }}"
     data-content-review-target="content-review-panel-reply"
     data-content-review-url="{% url 'ai_coach:content_review' %}"
+    data-civility-record-url="{% url 'ai_coach:record_civility_action' %}"
     data-content-review-submit-label="{% if reply %}Save changes{% else %}Submit reply{% endif %}"
     data-content-review-surface="{% if reply %}EDIT{% else %}REPLY{% endif %}"
     data-content-review-enabled="{% if functional_trust_features.content_review %}true{% else %}false{% endif %}"

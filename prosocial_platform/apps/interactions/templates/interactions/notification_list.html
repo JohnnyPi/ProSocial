@@ -1,16 +1,26 @@
 {% extends "base.html" %}
 {% block title %}Notifications · Common Good{% endblock %}
 {% block content %}
+<header class="page-header">
   <h1>Notifications</h1>
-  <form method="post" action="{% url 'interactions:notification_read_all' %}">
+  <p class="help-text">Updates on replies, reactions, actions, and community activity.</p>
+</header>
+
+<section class="hub-panel hub-panel--actions">
+  <form method="post" action="{% url 'interactions:notification_read_all' %}" class="notification-actions">
     {% csrf_token %}
-    <button type="submit">Mark all read</button>
+    <button type="submit" class="button secondary">Mark all read</button>
   </form>
-  <ul class="notification-list">
+</section>
+
+<section class="hub-panel">
+  <h2>Recent</h2>
+  <ul class="hub-list notification-list">
     {% for notification in notifications %}
       {% include "interactions/notification_item.html" %}
     {% empty %}
-      <li>No notifications.</li>
+      <li class="help-text">No notifications yet.</li>
     {% endfor %}
   </ul>
+</section>
 {% endblock %}

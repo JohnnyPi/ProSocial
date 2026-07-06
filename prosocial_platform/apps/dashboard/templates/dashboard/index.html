@@ -6,6 +6,20 @@
   <script src="{% static 'js/content_review.js' %}" defer></script>
 {% endblock %}
 {% block content %}
+  {% if ai_interventions %}
+    <section class="panel ai-interventions" aria-label="Coaching reminders">
+      {% for intervention in ai_interventions %}
+        <div class="ai-intervention-banner" role="status">
+          <p>{{ intervention.message }}</p>
+          <form method="post" action="{% url 'ai_coach:dismiss_intervention' intervention_id=intervention.pk %}" class="inline-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button type="submit" class="link-button">Dismiss</button>
+          </form>
+        </div>
+      {% endfor %}
+    </section>
+  {% endif %}
   <header class="dashboard-header">
     {% include "components/kind_filter.html" %}
   </header>

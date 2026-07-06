@@ -1,12 +1,24 @@
 {% extends "base.html" %}
 {% block title %}Messages · Common Good{% endblock %}
 {% block content %}
-<h1>Messages</h1>
-<ul>
-  {% for conv in conversations %}
-    <li><a href="{% url 'messaging:detail' public_id=conv.public_id %}">Conversation</a></li>
-  {% empty %}
-    <li class="help-text">No conversations yet.</li>
-  {% endfor %}
-</ul>
+<header class="page-header">
+  <h1>Messages</h1>
+  <p class="help-text">Private conversations with people in your community.</p>
+</header>
+
+<section class="hub-panel">
+  <h2>Conversations</h2>
+  {% if conversation_rows %}
+    <ul class="hub-list hub-list--interactive">
+      {% for row in conversation_rows %}
+        <li>
+          <a href="{% url 'messaging:detail' public_id=row.conversation.public_id %}">{{ row.other.profile.public_display_name }}</a>
+          <span class="hub-list__meta">@{{ row.other.profile.handle }} · {{ row.conversation.updated_at|timesince }} ago</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="help-text">No conversations yet. Visit someone's profile to start a message.</p>
+  {% endif %}
+</section>
 {% endblock %}

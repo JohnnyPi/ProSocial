@@ -8,6 +8,12 @@
 {% endblock %}
 {% block content %}
   {% include "components/post_card.html" %}
+  {% if thread_summary %}
+    <details class="panel thread-summary">
+      <summary>Thread summary</summary>
+      <p>{{ thread_summary.summary_text|linebreaksbr }}</p>
+    </details>
+  {% endif %}
   {% if user.is_authenticated %}
     <div class="post-actions">
       {% include "interactions/prosocial_reactions.html" with post=post summary=reaction_summary %}

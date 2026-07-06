@@ -12,13 +12,12 @@ def _build_adjacency() -> dict[int, set[int]]:
     for follower_id, following_id in UserFollow.objects.values_list("follower_id", "following_id"):
         adjacency[follower_id].add(following_id)
         adjacency[following_id].add(follower_id)
+    guild_members: dict[int, set[int]] = defaultdict(set)
     for user_id, guild_id in GuildMembership.objects.values_list("user_id", "guild_id"):
-        members = GuildMembership.objects.filter(guild_id=guild_id).values_list(
-            "user_id", flat=True
-        )
-        for other_id in members:
-            if other_id != user_id:
-                adjacency[user_id].add(other_id)
+        guild_members[guild_id].add(user_id)
+    for members in guild_members.values():
+        for user_id in members:
+            adjacency[user_id].update(members - {user_id})
     return adjacency
 
 
@@ -58,6 +57,15 @@ def get_user_cluster_id(*, user) -> str:
     cluster = TrustCluster.objects.filter(user=user).first()
     if cluster:
         return cluster.cluster_id
-    sync_trust_clusters()
-    cluster = TrustCluster.objects.filter(user=user).first()
-    return cluster.cluster_id if cluster else f"solo_{user.pk}"
+    return f"solo_{user.pk}"
+
+
+def get_cluster_ids_for_users(*, user_ids: set[int]) -> dict[int, str]:
+    if not user_ids:
+        return {}
+    clusters = dict(
+        TrustCluster.objects.filter(user_id__in=user_ids).values_list("user_id", "cluster_id")
+    )
+    for user_id in user_ids:
+        clusters.setdefault(user_id, f"solo_{user_id}")
+    return clusters

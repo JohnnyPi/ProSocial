@@ -5,3 +5,9 @@
     <a href="?kind={{ kind_value }}"{% if request.GET.kind == kind_value %} class="is-active"{% endif %}>{{ kind_label }}</a>
   {% endfor %}
 </nav>
+{% if request.GET.kind %}
+  <p class="kind-filter-help">
+    Showing all posts of this type.
+    <a href="{% url 'prosocial_actions:action_list' %}?kind={{ request.GET.kind }}">View open opportunities →</a>
+  </p>
+{% endif %}

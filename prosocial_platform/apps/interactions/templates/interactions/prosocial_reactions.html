@@ -12,8 +12,8 @@
   {% endif %}
   {% if summary.category_totals %}
     <ul class="reaction-category-totals help-text">
-      {% for cat, total in summary.category_totals.items %}
-        <li>{{ cat }}: {{ total }}</li>
+      {% for item in summary.category_totals %}
+        <li>{{ item.label }}: {{ item.count }}</li>
       {% endfor %}
     </ul>
   {% endif %}

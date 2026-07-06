@@ -3,14 +3,28 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 
 from apps.guilds.forms import GuildForm
-from apps.guilds.selectors import get_guild_by_slug, get_guild_feed, get_guild_list, is_guild_member
+from apps.guilds.models import Guild
+from apps.guilds.selectors import (
+    get_guild_by_slug,
+    get_guild_feed,
+    get_user_guild_ids,
+    get_user_guilds,
+    is_guild_member,
+)
 from apps.guilds.services import create_guild, join_guild, leave_guild
 
 
 @login_required
 def guild_list(request: HttpRequest) -> HttpResponse:
-    guilds = get_guild_list(user=request.user)
-    return render(request, "guilds/guild_list.html", {"guilds": guilds})
+    user_guilds = get_user_guilds(user=request.user, limit=50)
+    browse_guilds = Guild.objects.exclude(pk__in=get_user_guild_ids(user=request.user)).order_by(
+        "name"
+    )[:20]
+    return render(
+        request,
+        "guilds/guild_list.html",
+        {"user_guilds": user_guilds, "browse_guilds": browse_guilds},
+    )
 
 
 @login_required

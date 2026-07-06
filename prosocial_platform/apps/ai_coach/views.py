@@ -9,10 +9,12 @@ from apps.ai_coach.models import ContentReviewSurface, ReflectionJournalEntry
 from apps.ai_coach.sentiment.constants import CONDUCT_LABELS, EMOTION_LABELS
 from apps.ai_coach.services import (
     ContentReviewError,
+    civility_prompt_needed,
     classify_civility,
     create_civility_prompt_event,
     create_content_review_event,
     create_journal_entry,
+    dismiss_intervention,
     record_civility_action,
 )
 
@@ -55,6 +57,11 @@ def content_review(request: HttpRequest) -> HttpResponse:
             status=422,
         )
     context = {"event": event, **_emotion_display_context(event)}
+    if civility_prompt_needed(conduct_flags=event.conduct_flags):
+        civility_result = classify_civility(text=text)
+        civility_event = create_civility_prompt_event(user=request.user, text=text)
+        context["civility_event"] = civility_event
+        context["civility_prompt"] = civility_result.message
     return render(request, "ai_coach/content_review_panel.html", context)
 
 
@@ -88,6 +95,13 @@ def record_civility_action_view(request: HttpRequest) -> HttpResponse:
         text=text,
     )
     return JsonResponse({"ok": True})
+
+
+@login_required
+@require_POST
+def dismiss_intervention_view(request: HttpRequest, intervention_id: int) -> HttpResponse:
+    dismiss_intervention(intervention_id=intervention_id, user=request.user)
+    return redirect(request.POST.get("next") or "dashboard:index")
 
 
 @login_required

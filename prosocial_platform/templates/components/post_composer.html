@@ -52,7 +52,15 @@
 
   <div class="form-actions composer-actions">
     <button type="button" class="secondary modal-close">Cancel</button>
-    <button type="button" data-content-review-submit>Review</button>
+    {% if functional_trust_features.content_review %}
+      <button type="button" data-content-review-submit>Review</button>
+    {% else %}
+      <button type="submit">Post</button>
+    {% endif %}
+    <noscript>
+      <p class="help-text">JavaScript is required for content review. You can still post without review:</p>
+      <button type="submit">Post without review</button>
+    </noscript>
   </div>
 </form>
 <div
@@ -60,6 +68,7 @@
   data-content-review-body="{{ form.body.id_for_label }}"
   data-content-review-target="content-review-panel-composer"
   data-content-review-url="{% url 'ai_coach:content_review' %}"
+  data-civility-record-url="{% url 'ai_coach:record_civility_action' %}"
   data-content-review-submit-label="Post"
   data-content-review-surface="POST"
   data-content-review-enabled="{% if functional_trust_features.content_review %}true{% else %}false{% endif %}"

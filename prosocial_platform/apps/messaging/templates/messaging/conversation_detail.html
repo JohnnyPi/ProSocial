@@ -1,11 +1,37 @@
 {% extends "base.html" %}
-{% block title %}Chat · Common Good{% endblock %}
+{% block title %}Chat with {{ other.profile.public_display_name }} · Common Good{% endblock %}
 {% block content %}
-<h1>Chat with {{ other.profile.display_name }}</h1>
-<div class="message-thread">
-  {% for msg in messages %}
-    <p class="{% if msg.sender_id == user.id %}message-self{% else %}message-other{% endif %}">{{ msg.body }}</p>
-  {% endfor %}
-</div>
-<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Send</button></form>
+<header class="page-header">
+  <h1>{{ other.profile.public_display_name }}</h1>
+  <p class="help-text">@{{ other.profile.handle }}</p>
+  <nav class="inline-nav">
+    <a href="{% url 'messaging:list' %}">← Back to messages</a>
+    <a href="{% url 'profiles:detail' handle=other.profile.handle %}">View profile</a>
+  </nav>
+</header>
+
+<section class="hub-panel message-panel">
+  <h2 class="visually-hidden">Conversation</h2>
+  <div class="message-thread">
+    {% for msg in messages %}
+      <p class="message-bubble {% if msg.sender_id == user.id %}message-bubble--self{% else %}message-bubble--other{% endif %}">
+        <span class="message-bubble__body">{{ msg.body }}</span>
+        <time class="message-bubble__time" datetime="{{ msg.created_at|date:'c' }}">{{ msg.created_at|timesince }} ago</time>
+      </p>
+    {% empty %}
+      <p class="help-text">No messages yet. Say hello.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="hub-panel message-compose">
+  <h2>Send a message</h2>
+  <form method="post" class="message-form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <p class="form-actions">
+      <button type="submit" class="button">Send</button>
+    </p>
+  </form>
+</section>
 {% endblock %}

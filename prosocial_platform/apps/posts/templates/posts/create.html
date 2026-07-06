@@ -18,13 +18,18 @@
         {% endif %}
       </div>
     {% endfor %}
-    <button type="button" data-content-review-submit>Review</button>
+    <button type="{% if functional_trust_features.content_review %}button{% else %}submit{% endif %}" data-content-review-submit>Review</button>
+    <noscript>
+      <p class="help-text">JavaScript is required for content review. You can still publish without review:</p>
+      <button type="submit">Publish without review</button>
+    </noscript>
   </form>
   <div
     hidden
     data-content-review-body="{{ form.body.id_for_label }}"
     data-content-review-target="content-review-panel-create"
     data-content-review-url="{% url 'ai_coach:content_review' %}"
+    data-civility-record-url="{% url 'ai_coach:record_civility_action' %}"
     data-content-review-submit-label="Publish"
     data-content-review-surface="POST"
     data-content-review-enabled="{% if functional_trust_features.content_review %}true{% else %}false{% endif %}"

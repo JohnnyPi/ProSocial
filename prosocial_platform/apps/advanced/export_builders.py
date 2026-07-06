@@ -10,8 +10,6 @@ from django.utils import timezone
 def _iso(value: datetime | date | None) -> str | None:
     if value is None:
         return None
-    if isinstance(value, datetime):
-        return value.isoformat()
     return value.isoformat()
 
 

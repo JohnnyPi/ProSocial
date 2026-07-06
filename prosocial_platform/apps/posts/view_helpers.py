@@ -4,12 +4,9 @@ from django.shortcuts import redirect, render
 
 from apps.ai_coach.models import ContentReviewSurface
 from apps.ai_coach.review_validation import enforce_content_review, parse_review_event_id
+from apps.common.http import is_htmx
 from apps.posts.forms import PostForm
 from apps.posts.services import create_post
-
-
-def is_htmx(request: HttpRequest) -> bool:
-    return request.headers.get("HX-Request") == "true"
 
 
 def handle_post_create(

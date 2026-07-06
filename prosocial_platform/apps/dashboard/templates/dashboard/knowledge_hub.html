@@ -1,55 +1,147 @@
 {% extends "base.html" %}
 {% block title %}Knowledge Hub · Common Good{% endblock %}
 {% block content %}
-<section class="panel">
+<header class="page-header">
   <h1>Knowledge Hub</h1>
   <p class="help-text">Your growing body of saved knowledge and followed threads.</p>
-  <nav class="inline-nav">
+  <nav class="inline-nav" aria-label="Knowledge shortcuts">
     <a href="{% url 'knowledge:vault' %}">Vault</a>
     <a href="{% url 'knowledge:collection_list' %}">Collections</a>
     <a href="{% url 'knowledge:tag_browse' %}">Tags</a>
     <a href="{% url 'trust:onboarding' %}">Helper style</a>
   </nav>
-</section>
+</header>
 
-<section class="panel">
-  <h2>Activity from people you follow</h2>
-  {% for post in activity_feed %}
-    <article class="feed-item"><a href="{% url 'posts:detail' public_id=post.public_id %}">{{ post.body|truncatechars:120 }}</a></article>
-  {% empty %}
-    <p class="help-text">Follow people to see their updates here.</p>
-  {% endfor %}
-</section>
+<div class="knowledge-hub">
+  <div class="knowledge-hub__hero">
+    <section class="hub-panel hub-panel--challenges">
+      <h2>Active challenges</h2>
+      {% if active_challenges %}
+        <ul class="hub-list">
+          {% for challenge in active_challenges %}
+            <li>
+              <strong>{{ challenge.title }}</strong>
+              <span class="hub-list__meta">{{ challenge.get_period_display }} · {{ challenge.xp_reward }} XP</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="help-text">No active challenges right now. Browse what's available and earn XP.</p>
+      {% endif %}
+      <p class="hub-panel__cta">
+        <a href="{% url 'engagement:challenges' %}" class="button">Browse all challenges</a>
+      </p>
+    </section>
 
-<section class="panel">
-  <h2>My collections</h2>
-  <ul>
-    {% for c in collections %}
-      <li><a href="{% url 'knowledge:collection_detail' public_id=c.public_id %}">{{ c.title }}</a></li>
-    {% empty %}
-      <li><a href="{% url 'knowledge:collection_create' %}">Create your first collection</a></li>
-    {% endfor %}
-  </ul>
-</section>
+    <section class="hub-panel hub-panel--progress">
+      <h2>Streak &amp; XP</h2>
+      <div class="hub-stat-row">
+        <div class="hub-stat">
+          <span class="hub-stat__value">{{ gamification_profile.streak_days }}</span>
+          <span class="hub-stat__label">Day streak</span>
+        </div>
+        <div class="hub-stat">
+          <span class="hub-stat__value">Level {{ gamification_profile.level }}</span>
+          <span class="hub-stat__label">{{ tier_label }}</span>
+        </div>
+        <div class="hub-stat">
+          <span class="hub-stat__value">{{ gamification_profile.total_xp }}</span>
+          <span class="hub-stat__label">Total XP</span>
+        </div>
+        <div class="hub-stat">
+          <span class="hub-stat__value">{{ gamification_profile.multiplier }}×</span>
+          <span class="hub-stat__label">Multiplier</span>
+        </div>
+      </div>
+      <div class="xp-progress" aria-label="XP progress to next level">
+        <div class="xp-progress__bar">
+          <div class="xp-progress__fill" style="width: {{ xp_progress_pct }}%;"></div>
+        </div>
+        <p class="xp-progress__label">{{ xp_in_level }} / {{ xp_needed }} XP to level {{ gamification_profile.level|add:1 }}</p>
+      </div>
+      <p class="hub-panel__cta">
+        <a href="{% url 'gamification:progress' %}">View full progress</a>
+      </p>
+    </section>
+  </div>
 
-<section class="panel">
-  <h2>Followed threads</h2>
-  <ul>
-    {% for post in followed_threads %}
-      <li><a href="{% url 'posts:detail' public_id=post.public_id %}">{{ post.title|default:post.body|truncatechars:80 }}</a></li>
-    {% empty %}
-      <li class="help-text">No followed threads yet.</li>
-    {% endfor %}
-  </ul>
-</section>
+  <section class="hub-panel hub-panel--create">
+    <h2>Create &amp; explore</h2>
+    <p class="help-text">Start building your knowledge library or find something new.</p>
+    <div class="hub-panel__actions">
+      <a href="{% url 'knowledge:collection_create' %}" class="button">New collection</a>
+      <a href="{% url 'knowledge:vault' %}" class="button secondary">Clip to vault</a>
+      <a href="{% url 'knowledge:search' %}" class="button secondary">Search knowledge</a>
+    </div>
+  </section>
 
-<section class="panel placeholder-panel">
-  <h2>Active challenges</h2>
-  <p class="help-text"><a href="{% url 'engagement:challenges' %}">View challenges</a> — coming soon to this panel.</p>
-</section>
+  <div class="knowledge-hub__grid">
+    <div class="knowledge-hub__main">
+      <section class="hub-panel">
+        <h2>Activity from people you follow</h2>
+        {% for post in activity_feed %}
+          <article class="feed-item">
+            <a href="{% url 'posts:detail' public_id=post.public_id %}">{{ post.body|truncatechars:120 }}</a>
+            <span class="hub-list__meta">
+              <a href="{% url 'profiles:detail' handle=post.author.profile.handle %}">{{ post.author.profile.public_display_name }}</a>
+            </span>
+          </article>
+        {% empty %}
+          <p class="help-text">Follow people to see their updates here.</p>
+        {% endfor %}
+      </section>
 
-<section class="panel placeholder-panel">
-  <h2>Streak tracker</h2>
-  <p class="help-text"><a href="{% url 'gamification:progress' %}">View XP progress</a></p>
-</section>
+      <section class="hub-panel">
+        <h2>Followed threads</h2>
+        <ul class="hub-list">
+          {% for post in followed_threads %}
+            <li>
+              <a href="{% url 'posts:detail' public_id=post.public_id %}">{{ post.title|default:post.body|truncatechars:80 }}</a>
+            </li>
+          {% empty %}
+            <li class="help-text">No followed threads yet.</li>
+          {% endfor %}
+        </ul>
+      </section>
+    </div>
+
+    <aside class="knowledge-hub__aside">
+      <section class="hub-panel">
+        <h2>My collections{% if collections_count %} ({{ collections_count }}){% endif %}</h2>
+        <ul class="hub-list">
+          {% for c in collections %}
+            <li><a href="{% url 'knowledge:collection_detail' public_id=c.public_id %}">{{ c.title }}</a></li>
+          {% empty %}
+            <li><a href="{% url 'knowledge:collection_create' %}">Create your first collection</a></li>
+          {% endfor %}
+        </ul>
+        {% if collections_count > collections|length %}
+          <p class="hub-panel__cta"><a href="{% url 'knowledge:collection_list' %}">View all collections</a></p>
+        {% endif %}
+      </section>
+
+      <section class="hub-panel">
+        <h2>Recent vault clips{% if vault_count %} ({{ vault_count }}){% endif %}</h2>
+        <ul class="hub-list">
+          {% for clip in vault_recent %}
+            <li>
+              {% if clip.post %}
+                <a href="{% url 'posts:detail' public_id=clip.post.public_id %}">{{ clip.quoted_text|default:clip.post.body|truncatechars:80 }}</a>
+              {% elif clip.reply %}
+                <a href="{% url 'posts:detail' public_id=clip.reply.post.public_id %}">{{ clip.quoted_text|default:clip.reply.body|truncatechars:80 }}</a>
+              {% else %}
+                {{ clip.quoted_text|truncatechars:80 }}
+              {% endif %}
+            </li>
+          {% empty %}
+            <li class="help-text">No clips yet. <a href="{% url 'knowledge:vault' %}">Browse your vault</a>.</li>
+          {% endfor %}
+        </ul>
+        {% if vault_count > vault_recent|length %}
+          <p class="hub-panel__cta"><a href="{% url 'knowledge:vault' %}">View all clips</a></p>
+        {% endif %}
+      </section>
+    </aside>
+  </div>
+</div>
 {% endblock %}

@@ -10,4 +10,9 @@ urlpatterns = [
     path("content-review/", views.content_review, name="content_review"),
     path("pre-send-check/", views.pre_send_check, name="pre_send_check"),
     path("civility-action/", views.record_civility_action_view, name="record_civility_action"),
+    path(
+        "interventions/<int:intervention_id>/dismiss/",
+        views.dismiss_intervention_view,
+        name="dismiss_intervention",
+    ),
 ]

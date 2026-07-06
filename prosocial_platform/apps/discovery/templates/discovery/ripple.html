@@ -1,9 +1,43 @@
 {% extends "base.html" %}
 {% block title %}Ripple effect · Common Good{% endblock %}
 {% block content %}
-<h1>Your ripple effect</h1>
-<h2>You helped</h2>
-<ul>{% for link in outgoing %}<li>{{ link.helped.profile.display_name }}</li>{% empty %}<li class="help-text">No ripple links yet.</li>{% endfor %}</ul>
-<h2>You were helped by</h2>
-<ul>{% for link in incoming %}<li>{{ link.helper.profile.display_name }}</li>{% endfor %}</ul>
+<header class="page-header">
+  <h1>Your ripple effect</h1>
+  <p class="help-text">How your support has helped others — and who has helped you.</p>
+  <nav class="inline-nav">
+    <a href="{% url 'discovery:home' %}">← Back to Discover</a>
+  </nav>
+</header>
+
+<section class="hub-panel">
+  <h2>You helped</h2>
+  <ul class="hub-list">
+    {% for link in outgoing %}
+      <li>
+        <a href="{% url 'profiles:detail' handle=link.helped.profile.handle %}">{{ link.helped.profile.public_display_name }}</a>
+        {% if link.citation_note %}
+          <span class="hub-list__meta">{{ link.citation_note|truncatechars:120 }}</span>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li class="help-text">No ripple links yet.</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section class="hub-panel hub-panel--quiet">
+  <h2>You were helped by</h2>
+  <ul class="hub-list">
+    {% for link in incoming %}
+      <li>
+        <a href="{% url 'profiles:detail' handle=link.helper.profile.handle %}">{{ link.helper.profile.public_display_name }}</a>
+        {% if link.citation_note %}
+          <span class="hub-list__meta">{{ link.citation_note|truncatechars:120 }}</span>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li class="help-text">No one has linked your help yet.</li>
+    {% endfor %}
+  </ul>
+</section>
 {% endblock %}

@@ -42,6 +42,17 @@
   </div>
   {% endif %}
 
+  {% if civility_event and civility_prompt %}
+  <div class="pre-send-prompt content-review-panel__civility" role="status" aria-live="polite" data-civility-event-id="{{ civility_event.id }}">
+    <p><strong>Reflection prompt:</strong> {{ civility_prompt }}</p>
+    <div class="pre-send-prompt__actions">
+      <button type="button" class="link-button" data-civility-action="EDITED">Edit</button>
+      <button type="button" class="link-button" data-civility-action="POSTED_ANYWAY">Post anyway</button>
+      <button type="button" class="link-button" data-civility-action="CANCELLED">Cancel</button>
+    </div>
+  </div>
+  {% endif %}
+
   <p class="content-review-panel__disclaimer">
     Automated coaching — not a moderation decision. Negative emotions are allowed; personal attacks are not.
   </p>

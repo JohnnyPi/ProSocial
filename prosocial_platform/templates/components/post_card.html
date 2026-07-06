@@ -14,6 +14,9 @@
       {% if post.kind != "GENERAL" %}
         <span class="chip chip--{{ post.kind|lower }}">{{ post.get_kind_display }}</span>
       {% endif %}
+      {% if post.action_opportunity %}
+        <span class="chip chip--action-{{ post.action_opportunity.status|lower }}">{{ post.action_opportunity.get_status_display }}</span>
+      {% endif %}
       {% if post.thread_type != "DISCUSSION" %}
         <span class="chip chip--thread">{{ post.get_thread_type_display }}</span>
       {% endif %}

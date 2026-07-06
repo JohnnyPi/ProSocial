@@ -31,6 +31,8 @@ def post_create(request: HttpRequest) -> HttpResponse:
 
 
 def post_detail(request: HttpRequest, public_id: uuid.UUID) -> HttpResponse:
+    from django.conf import settings
+
     post = get_post_for_display(public_id=public_id)
     replies = get_post_replies(post=post)
     from apps.interactions.selectors import get_reaction_summary, get_visible_context_notes
@@ -45,10 +47,16 @@ def post_detail(request: HttpRequest, public_id: uuid.UUID) -> HttpResponse:
                 child.reaction_summary = get_reaction_summary(reply=child, user=request.user)
     context_notes = get_visible_context_notes(post=post)
     is_following_post = False
+    thread_summary = None
     if request.user.is_authenticated:
         from apps.follows.selectors import is_following_post as check_following_post
 
         is_following_post = check_following_post(user=request.user, post=post)
+    visible_reply_count = post.replies.visible().count()
+    if settings.FUNCTIONAL_TRUST_FEATURES.get("thread_summaries") and visible_reply_count >= 5:
+        from apps.ai_coach.services import generate_thread_summary
+
+        thread_summary = generate_thread_summary(post=post)
     context = {
         "post": post,
         "replies": replies,
@@ -56,6 +64,7 @@ def post_detail(request: HttpRequest, public_id: uuid.UUID) -> HttpResponse:
         "reaction_summary": reaction_summary,
         "context_notes": context_notes,
         "post_card_clickable": False,
+        "thread_summary": thread_summary,
     }
     if is_htmx(request):
         return render(request, "components/post_card.html", context)

@@ -17,7 +17,15 @@ User = get_user_model()
 @login_required
 def conversation_list(request: HttpRequest) -> HttpResponse:
     conversations = get_user_conversations(user=request.user)
-    return render(request, "messaging/conversation_list.html", {"conversations": conversations})
+    conversation_rows = [
+        {"conversation": conversation, "other": conversation.other_participant(request.user)}
+        for conversation in conversations
+    ]
+    return render(
+        request,
+        "messaging/conversation_list.html",
+        {"conversation_rows": conversation_rows},
+    )
 
 
 @login_required

@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from apps.ai_coach.models import ContentReviewSurface
 from apps.ai_coach.review_validation import enforce_content_review, parse_review_event_id
+from apps.common.http import is_htmx
 from apps.interactions.forms import (
     BlockConfirmForm,
     MuteConfirmForm,
@@ -45,10 +46,6 @@ from apps.interactions.services import (
 from apps.posts.models import Post
 from apps.posts.selectors import get_post_for_display
 from apps.profiles.selectors import get_public_profile
-
-
-def _is_htmx(request: HttpRequest) -> bool:
-    return request.headers.get("HX-Request") == "true"
 
 
 @login_required
@@ -92,7 +89,7 @@ def reply_create(request: HttpRequest, post_id: uuid.UUID) -> HttpResponse:
             except InteractionError as exc:
                 form.add_error(None, str(exc))
             else:
-                if _is_htmx(request):
+                if is_htmx(request):
                     replies = get_post_replies(post=post)
                     return render(
                         request,
@@ -116,10 +113,6 @@ def reply_edit(request: HttpRequest, reply_id: uuid.UUID) -> HttpResponse:
     if request.method == "POST":
         form = ReplyForm(request.POST, instance=reply)
         if form.is_valid():
-            from django.core.exceptions import ValidationError
-
-            from apps.ai_coach.review_validation import enforce_content_review
-
             civility_event_id = request.POST.get("civility_event_id")
             review_event_id = parse_review_event_id(request.POST.get("review_event_id"))
             body = form.cleaned_data["body"]
@@ -136,8 +129,12 @@ def reply_edit(request: HttpRequest, reply_id: uuid.UUID) -> HttpResponse:
                     civility_event_id=int(civility_event_id) if civility_event_id else None,
                     review_event_id=review_event_id,
                 )
+            except BlockedInteractionError:
+                return HttpResponseForbidden("This interaction is not available.")
             except ValidationError as exc:
                 form.add_error(None, exc.messages[0])
+            except InteractionError as exc:
+                form.add_error(None, str(exc))
             else:
                 return redirect("posts:detail", public_id=reply.post.public_id)
     else:
@@ -154,7 +151,7 @@ def reply_delete(request: HttpRequest, reply_id: uuid.UUID) -> HttpResponse:
         form = ReplyDeleteForm(request.POST)
         if form.is_valid():
             delete_reply(reply=reply)
-            if _is_htmx(request):
+            if is_htmx(request):
                 replies = get_post_replies(post=reply.post)
                 return render(
                     request,
@@ -170,7 +167,7 @@ def reply_delete(request: HttpRequest, reply_id: uuid.UUID) -> HttpResponse:
 @login_required
 def notification_list(request: HttpRequest) -> HttpResponse:
     notifications = get_user_notifications(user=request.user)
-    if _is_htmx(request) and request.GET.get("fragment") == "count":
+    if is_htmx(request) and request.GET.get("fragment") == "count":
         return render(
             request,
             "interactions/notification_count.html",
@@ -280,6 +277,10 @@ def report_reply(request: HttpRequest, reply_id: uuid.UUID) -> HttpResponse:
     from apps.interactions.models import Reply
 
     reply = get_object_or_404(Reply.objects.visible(), public_id=reply_id)
+    if is_blocked(user_a=request.user, user_b=reply.author) or is_blocked(
+        user_a=request.user, user_b=reply.post.author
+    ):
+        return HttpResponseForbidden("This interaction is not available.")
     if request.method == "POST":
         form = ReportForm(request.POST)
         if form.is_valid():
@@ -307,7 +308,7 @@ def react_post(request: HttpRequest, post_id: uuid.UUID) -> HttpResponse:
         toggle_prosocial_reaction(sender=request.user, post=post, kind=kind)
     except (InteractionError, BlockedInteractionError):
         return HttpResponseForbidden("This interaction is not available.")
-    if _is_htmx(request):
+    if is_htmx(request):
         return _render_reactions(request, post=post)
     return redirect("posts:detail", public_id=post.public_id)
 
@@ -317,6 +318,10 @@ def react_reply(request: HttpRequest, reply_id: uuid.UUID) -> HttpResponse:
     from apps.interactions.models import ProsocialReactionKind, Reply
 
     reply = get_object_or_404(Reply.objects.visible(), public_id=reply_id)
+    if is_blocked(user_a=request.user, user_b=reply.author) or is_blocked(
+        user_a=request.user, user_b=reply.post.author
+    ):
+        return HttpResponseForbidden("This interaction is not available.")
     if request.method != "POST":
         return redirect("posts:detail", public_id=reply.post.public_id)
     kind = request.POST.get("kind", ProsocialReactionKind.HELPFUL)
@@ -324,7 +329,7 @@ def react_reply(request: HttpRequest, reply_id: uuid.UUID) -> HttpResponse:
         toggle_prosocial_reaction(sender=request.user, reply=reply, kind=kind)
     except (InteractionError, BlockedInteractionError):
         return HttpResponseForbidden("This interaction is not available.")
-    if _is_htmx(request):
+    if is_htmx(request):
         return _render_reactions(request, reply=reply)
     return redirect("posts:detail", public_id=reply.post.public_id)
 
@@ -364,5 +369,8 @@ def context_note_rate(request: HttpRequest, note_id: int) -> HttpResponse:
     note = get_object_or_404(ContextNote, pk=note_id)
     if request.method == "POST":
         is_helpful = request.POST.get("helpful") == "1"
-        rate_context_note(rater=request.user, note=note, is_helpful=is_helpful)
+        try:
+            rate_context_note(rater=request.user, note=note, is_helpful=is_helpful)
+        except (BlockedInteractionError, InteractionError):
+            return HttpResponseForbidden("This interaction is not available.")
     return redirect("posts:detail", public_id=note.post.public_id)

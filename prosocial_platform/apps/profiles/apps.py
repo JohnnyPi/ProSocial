@@ -1,4 +1,6 @@
 from django.apps import AppConfig
+from django.contrib.auth import get_user_model
+from django.db.models.signals import post_save
 
 
 class ProfilesConfig(AppConfig):
@@ -7,4 +9,7 @@ class ProfilesConfig(AppConfig):
     label = "profiles"
 
     def ready(self):
-        import apps.profiles.signals  # noqa: F401
+        from apps.profiles.signals import ensure_profile_on_user_created
+
+        User = get_user_model()
+        post_save.connect(ensure_profile_on_user_created, sender=User)

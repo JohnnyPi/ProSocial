@@ -27,3 +27,12 @@ X_FRAME_OPTIONS = "DENY"
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 LOGGING["root"]["level"] = "WARNING"  # noqa: F405
+
+REDIS_URL = env("REDIS_URL", default="")
+if REDIS_URL:
+    CACHES = {  # noqa: F405
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": REDIS_URL,
+        }
+    }

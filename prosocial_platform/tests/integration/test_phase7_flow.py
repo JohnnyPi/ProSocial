@@ -2,7 +2,12 @@ import pytest
 from django.contrib.auth import get_user_model
 
 from apps.ai_coach.models import ReflectionJournalEntry, SentimentSnapshot
-from apps.ai_coach.services import analyze_sentiment, create_journal_entry, pre_send_prompt, score_content
+from apps.ai_coach.services import (
+    analyze_sentiment,
+    classify_civility,
+    create_journal_entry,
+    score_content,
+)
 from apps.posts.models import Post
 
 User = get_user_model()
@@ -16,9 +21,9 @@ def test_sentiment_positive():
 
 
 @pytest.mark.django_db
-def test_pre_send_prompt_negative():
-    prompt = pre_send_prompt(text="You are stupid and I hate this")
-    assert prompt is not None
+def test_classify_civility_negative():
+    result = classify_civility(text="You are stupid and I hate this")
+    assert result.message is not None
 
 
 @pytest.mark.django_db

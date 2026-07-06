@@ -1,10 +1,84 @@
 {% extends "base.html" %}
 {% block title %}Discover · Common Good{% endblock %}
 {% block content %}
-<h1>Discover</h1>
-<h2>Most clipped</h2>
-<ul>{% for p in most_clipped %}<li><a href="{% url 'posts:detail' public_id=p.public_id %}">{{ p.body|truncatechars:100 }}</a></li>{% endfor %}</ul>
-<h2>Sentiment-boosted</h2>
-<ul>{% for p in sentiment_boosted %}<li><a href="{% url 'posts:detail' public_id=p.public_id %}">{{ p.body|truncatechars:100 }}</a></li>{% endfor %}</ul>
-<p><a href="{% url 'discovery:ripple' %}">View ripple effect</a></p>
+<header class="page-header">
+  <h1>Discover</h1>
+  <p class="help-text">Find uplifting content, community standouts, and the ripple effect of good deeds.</p>
+</header>
+
+<div class="discover-layout">
+  <div class="discover-layout__main">
+    <section class="hub-panel">
+      <h2>Recommended for you</h2>
+      <p class="help-text">Posts ranked by community clips and recency.</p>
+      {% for post in ranked_page %}
+        <article class="feed-item">
+          <a href="{% url 'posts:detail' public_id=post.public_id %}">{{ post.body|truncatechars:120 }}</a>
+          <span class="hub-list__meta">
+            <a href="{% url 'profiles:detail' handle=post.author.profile.handle %}">{{ post.author.profile.public_display_name }}</a>
+            {% if post.clip_count %} · {{ post.clip_count }} clip{{ post.clip_count|pluralize }}{% endif %}
+          </span>
+        </article>
+      {% empty %}
+        <p class="help-text">Nothing to recommend yet. Check back as the community grows.</p>
+      {% endfor %}
+      {% with page_obj=ranked_page %}
+        {% include "components/pagination.html" %}
+      {% endwith %}
+    </section>
+  </div>
+
+  <aside class="discover-layout__aside">
+    <section class="hub-panel">
+      <h2>Most clipped</h2>
+      <ul class="hub-list">
+        {% for p in most_clipped %}
+          <li>
+            <a href="{% url 'posts:detail' public_id=p.public_id %}">{{ p.body|truncatechars:100 }}</a>
+          </li>
+        {% empty %}
+          <li class="help-text">No clipped posts yet.</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="hub-panel">
+      <h2>Sentiment-boosted</h2>
+      <ul class="hub-list">
+        {% for p in sentiment_boosted %}
+          <li>
+            <a href="{% url 'posts:detail' public_id=p.public_id %}">{{ p.body|truncatechars:100 }}</a>
+            <span class="hub-list__meta">
+              <a href="{% url 'profiles:detail' handle=p.author.profile.handle %}">{{ p.author.profile.public_display_name }}</a>
+            </span>
+          </li>
+        {% empty %}
+          <li class="help-text">No sentiment-boosted posts yet.</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    {% if spotlights %}
+      <section class="hub-panel">
+        <h2>Community spotlights</h2>
+        <ul class="hub-list">
+          {% for spotlight in spotlights %}
+            <li>
+              <a href="{% url 'profiles:detail' handle=spotlight.user.profile.handle %}">{{ spotlight.user.profile.public_display_name }}</a>
+              <span class="hub-list__meta">{{ spotlight.narrative|truncatechars:120 }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+
+    <section class="hub-panel hub-panel--quiet">
+      <h2>Your ripple effect</h2>
+      <p class="help-text">See how your help has spread through the community.</p>
+      <p class="hub-panel__cta">
+        <a href="{% url 'discovery:ripple' %}" class="button secondary">View ripple effect</a>
+      </p>
+    </section>
+  </aside>
+</div>
 {% endblock %}

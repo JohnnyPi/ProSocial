@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from django.db.models import Count, Exists, OuterRef, Prefetch, Q, QuerySet
 from django.shortcuts import get_object_or_404
 
+from apps.common.models import ReactionCategory
 from apps.interactions.models import (
     ContextNote,
     ContextNoteStatus,
@@ -36,9 +37,16 @@ class ReactionItem:
 
 
 @dataclass
+class CategoryTotal:
+    slug: str
+    label: str
+    count: int
+
+
+@dataclass
 class ReactionSummary:
     items: list[ReactionItem] = field(default_factory=list)
-    category_totals: dict[str, int] = field(default_factory=dict)
+    category_totals: list[CategoryTotal] = field(default_factory=list)
 
 
 def is_blocked(*, user_a, user_b) -> bool:
@@ -120,10 +128,16 @@ def get_reaction_summary(*, post=None, reply=None, user=None) -> ReactionSummary
         return ReactionSummary()
 
     counts = dict(qs.values("kind").annotate(c=Count("id")).values_list("kind", "c"))
-    category_totals: dict[str, int] = {}
+    category_totals: list[CategoryTotal] = []
     for row in qs.values("category").annotate(c=Count("id")):
         if row["category"]:
-            category_totals[row["category"]] = row["c"]
+            category_totals.append(
+                CategoryTotal(
+                    slug=row["category"],
+                    label=ReactionCategory(row["category"]).label,
+                    count=row["c"],
+                )
+            )
     user_kinds: set[str] = set()
     if user and user.is_authenticated:
         user_kinds = set(qs.filter(sender=user).values_list("kind", flat=True))

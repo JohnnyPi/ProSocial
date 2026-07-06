@@ -1,11 +1,26 @@
 {% extends "base.html" %}
 {% block title %}Actions · Common Good{% endblock %}
 {% block content %}
+<header class="page-header">
   <h1>Prosocial actions</h1>
-  <p><a href="{% url 'prosocial_actions:action_create' %}">Create action</a></p>
+  <p class="help-text">Open, actionable opportunities you can save, commit to, and complete. Looking for past or closed actions? Filter the <a href="{% url 'dashboard:index' %}">home feed</a> by kind.</p>
+</header>
+
+<section class="hub-panel hub-panel--create">
+  <h2>Create an action</h2>
+  <p class="help-text">Post a help request, offer, local initiative, or volunteer shift with a full commitment workflow.</p>
+  <p class="hub-panel__cta">
+    <a href="{% url 'prosocial_actions:action_create' %}" class="button">Create action</a>
+    <a href="{% url 'prosocial_actions:commitment_list' %}" class="button secondary">Your commitments</a>
+  </p>
+</section>
+
+<section class="hub-panel">
+  <h2>Open opportunities</h2>
   {% for action in actions %}
     {% include "prosocial_actions/action_card.html" %}
   {% empty %}
-    <p>No open actions.</p>
+    <p class="help-text">No open actions right now.</p>
   {% endfor %}
+</section>
 {% endblock %}

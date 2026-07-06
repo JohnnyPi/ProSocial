@@ -1,11 +1,52 @@
 {% extends "base.html" %}
 {% block title %}Guilds · Common Good{% endblock %}
 {% block content %}
-<h1>Guilds</h1>
-<p><a href="{% url 'guilds:create' %}">Create a guild</a></p>
-<ul>
-  {% for guild in guilds %}
-    <li><a href="{% url 'guilds:detail' slug=guild.slug %}">{{ guild.name }}</a></li>
-  {% endfor %}
-</ul>
+<header class="page-header">
+  <h1>Guilds</h1>
+  <p class="help-text">Communities built around shared interests and missions.</p>
+</header>
+
+<section class="hub-panel hub-panel--create">
+  <h2>Create a guild</h2>
+  <p class="help-text">Start a community around a shared interest or mission.</p>
+  <p class="hub-panel__cta">
+    <a href="{% url 'guilds:create' %}" class="button">Create a guild</a>
+  </p>
+</section>
+
+<section class="hub-panel">
+  <h2>Your guilds</h2>
+  {% if user_guilds %}
+    <ul class="hub-list">
+      {% for guild in user_guilds %}
+        <li>
+          <a href="{% url 'guilds:detail' slug=guild.slug %}">{{ guild.name }}</a>
+          {% if guild.description %}
+            <span class="hub-list__meta">{{ guild.description|truncatechars:100 }}</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="help-text">You haven't joined any guilds yet. Browse below or create your own.</p>
+  {% endif %}
+</section>
+
+<section class="hub-panel hub-panel--quiet">
+  <h2>Browse guilds</h2>
+  {% if browse_guilds %}
+    <ul class="hub-list">
+      {% for guild in browse_guilds %}
+        <li>
+          <a href="{% url 'guilds:detail' slug=guild.slug %}">{{ guild.name }}</a>
+          {% if guild.description %}
+            <span class="hub-list__meta">{{ guild.description|truncatechars:100 }}</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="help-text">No other guilds to browse right now.</p>
+  {% endif %}
+</section>
 {% endblock %}

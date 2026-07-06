@@ -1,6 +1,5 @@
 import pytest
 from django.contrib.auth import get_user_model
-from django.test import Client
 
 from apps.follows.models import PostFollow, UserFollow
 from apps.follows.services import toggle_post_follow, toggle_user_follow
@@ -21,7 +20,7 @@ def test_clip_post_to_vault(user, other_user):
 
 @pytest.mark.django_db
 def test_create_collection(user):
-    collection = create_collection(owner=user, title="My notes", description="Saved tips")
+    create_collection(owner=user, title="My notes", description="Saved tips")
     assert Collection.objects.filter(owner=user, title="My notes").exists()
 
 
@@ -46,6 +45,7 @@ def test_knowledge_hub_page(user, client):
     response = client.get("/dashboard/knowledge/")
     assert response.status_code == 200
     assert b"Knowledge Hub" in response.content
+    assert b"knowledge-hub__hero" in response.content
 
 
 @pytest.mark.django_db

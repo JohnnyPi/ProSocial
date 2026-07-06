@@ -206,6 +206,12 @@ def submit_report(
 ) -> ContentReport:
     if bool(post) == bool(reply):
         raise InteractionError("Exactly one target is required.")
+    if post:
+        _check_not_blocked(actor=reporter, target_user=post.author)
+    if reply:
+        _check_not_blocked(actor=reporter, target_user=reply.author)
+        if reply.post.author_id != reply.author_id:
+            _check_not_blocked(actor=reporter, target_user=reply.post.author)
     report_details = details.strip()
     civility_context = _civility_context_for_target(post=post, reply=reply)
     if civility_context:
@@ -370,6 +376,12 @@ def create_context_note(
 def rate_context_note(*, rater, note: ContextNote, is_helpful: bool) -> NoteRating:
     from apps.interactions.models import RaterTrustGroup
     from apps.trust.clusters import get_user_cluster_id
+
+    if note.status != ContextNoteStatus.VISIBLE:
+        raise InteractionError("This context note is not available for rating.")
+    if rater.pk == note.author_id:
+        raise InteractionError("You cannot rate your own context note.")
+    _check_not_blocked(actor=rater, target_user=note.author)
 
     rating, _ = NoteRating.objects.update_or_create(
         note=note,

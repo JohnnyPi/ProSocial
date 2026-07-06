@@ -129,6 +129,7 @@ FUNCTIONAL_TRUST_FEATURES = {
     "scoped_endorsements": True,
     "context_notes": True,
     "anti_gaming": True,
+    "thread_summaries": True,
 }
 
 APPEAL_WINDOW_DAYS = 14

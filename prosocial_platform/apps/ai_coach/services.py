@@ -1,57 +1,26 @@
 import hashlib
-import re
 from dataclasses import dataclass
 
 from django.conf import settings
 from django.db import transaction
 
 from apps.ai_coach.models import (
+    AIIntervention,
     CivilityPromptEvent,
     CivilityPromptType,
     CivilityUserAction,
     ContentReviewEvent,
     ReflectionJournalEntry,
-    SentimentLabel,
     SentimentSnapshot,
     ThreadSummary,
 )
 from apps.ai_coach.sentiment.analyzer import ContentAnalysisResult, analyze_content
+from apps.ai_coach.sentiment.conduct import detect_conduct_flags
 from apps.ai_coach.sentiment.constants import CONTENT_REVIEW_MIN_LENGTH
 from apps.gamification.models import XPSource
 from apps.gamification.services import award_xp
 
-POSITIVE_WORDS = {
-    "thank",
-    "thanks",
-    "grateful",
-    "helpful",
-    "support",
-    "kind",
-    "hope",
-    "together",
-    "appreciate",
-    "wonderful",
-    "great",
-    "love",
-    "care",
-    "community",
-}
-NEGATIVE_WORDS = {
-    "hate",
-    "stupid",
-    "idiot",
-    "worthless",
-    "kill",
-    "die",
-    "attack",
-    "harass",
-    "ugly",
-    "dumb",
-}
-HOSTILE_PATTERNS = [
-    r"\b(stupid|idiot|dumb|worthless|hate you)\b",
-    r"\b(shut up|go away)\b",
-]
+CIVILITY_CONDUCT_FLAGS = {"hostile_language", "dehumanization", "threat"}
 
 
 class ContentReviewError(Exception):
@@ -205,10 +174,8 @@ def finalize_content_review_event(
 def classify_civility(*, text: str) -> CivilityResult:
     if not settings.FUNCTIONAL_TRUST_FEATURES.get("civility_prompts"):
         return CivilityResult(prompt_type=CivilityPromptType.NONE, message=None)
-    lower = text.lower()
-    label, score = analyze_sentiment(text=text)
-    hostile_match = any(re.search(p, lower) for p in HOSTILE_PATTERNS)
-    if hostile_match or (label == SentimentLabel.NEGATIVE and score < -0.5):
+    conduct_flags = detect_conduct_flags(text=text)
+    if conduct_flags:
         return CivilityResult(
             prompt_type=CivilityPromptType.HOSTILE_LANGUAGE,
             message=(
@@ -219,9 +186,8 @@ def classify_civility(*, text: str) -> CivilityResult:
     return CivilityResult(prompt_type=CivilityPromptType.NONE, message=None)
 
 
-def pre_send_prompt(*, text: str) -> str | None:
-    result = classify_civility(text=text)
-    return result.message
+def civility_prompt_needed(*, conduct_flags: list[str]) -> bool:
+    return bool(set(conduct_flags) & CIVILITY_CONDUCT_FLAGS)
 
 
 @transaction.atomic
@@ -254,6 +220,15 @@ def record_civility_action(
     event.save(
         update_fields=["user_action", "edited_after_prompt", "final_text_hash", "updated_at"]
     )
+    if user_action == CivilityUserAction.POSTED_ANYWAY:
+        AIIntervention.objects.create(
+            user=user,
+            intervention_type="HOSTILE_POSTED_ANYWAY",
+            message=(
+                "You chose to post content flagged for conduct concerns. "
+                "Consider revisiting community guidelines if this becomes a pattern."
+            ),
+        )
     return event
 
 
@@ -285,7 +260,37 @@ def finalize_civility_event(
             "updated_at",
         ]
     )
+    if event.user_action == CivilityUserAction.POSTED_ANYWAY:
+        pending = (
+            AIIntervention.objects.filter(
+                user=event.user,
+                intervention_type="HOSTILE_POSTED_ANYWAY",
+                post__isnull=True,
+                dismissed_at__isnull=True,
+            )
+            .order_by("-created_at")
+            .first()
+        )
+        if pending:
+            pending.post = post
+            pending.save(update_fields=["post", "updated_at"])
     return event
+
+
+def get_undismissed_interventions(*, user):
+    return AIIntervention.objects.filter(user=user, dismissed_at__isnull=True).order_by(
+        "-created_at"
+    )
+
+
+@transaction.atomic
+def dismiss_intervention(*, intervention_id: int, user) -> AIIntervention:
+    intervention = AIIntervention.objects.get(pk=intervention_id, user=user)
+    from django.utils import timezone
+
+    intervention.dismissed_at = timezone.now()
+    intervention.save(update_fields=["dismissed_at", "updated_at"])
+    return intervention
 
 
 def generate_thread_summary(*, post) -> ThreadSummary:
