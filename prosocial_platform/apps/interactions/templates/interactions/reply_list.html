@@ -1,0 +1,12 @@
+<ul class="reply-list">
+  {% for reply in replies %}
+    {% if not reply.parent_id %}
+      {% include "interactions/reply_item.html" with reply=reply %}
+      {% for child in reply.children.all %}
+        {% include "interactions/reply_item.html" with reply=child nested=True %}
+      {% endfor %}
+    {% endif %}
+  {% empty %}
+    <li class="empty-state">No replies yet.</li>
+  {% endfor %}
+</ul>

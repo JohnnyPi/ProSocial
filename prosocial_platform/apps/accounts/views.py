@@ -15,9 +15,21 @@ from django.contrib.auth.views import (
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
+from django.views.decorators.http import require_POST
 
-from apps.accounts.forms import LoginForm, ProsocialPasswordChangeForm, RegistrationForm
-from apps.accounts.services import register_user
+from apps.accounts.forms import (
+    AccountDeletionForm,
+    LoginForm,
+    ProsocialPasswordChangeForm,
+    RegistrationForm,
+)
+from apps.accounts.services import (
+    AccountDeletionError,
+    cancel_account_deletion,
+    get_pending_deletion_request,
+    register_user,
+    request_account_deletion,
+)
 from apps.common.rate_limit import is_rate_limited, rate_limit_key
 from apps.common.services import ActivityEventType, record_activity_event
 
@@ -128,3 +140,54 @@ class ProsocialPasswordResetCompleteView(PasswordResetCompleteView):
 @login_required
 def password_change_redirect(request: HttpRequest) -> HttpResponse:
     return redirect("accounts:password_change")
+
+
+@login_required
+def account_delete(request: HttpRequest) -> HttpResponse:
+    pending = get_pending_deletion_request(user=request.user)
+    if request.method == "POST":
+        if pending:
+            messages.error(request, "Account deletion is already scheduled.")
+            return redirect("accounts:account_delete")
+        form = AccountDeletionForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            try:
+                deletion_request = request_account_deletion(
+                    user=request.user,
+                    password=form.cleaned_data["password"],
+                )
+            except AccountDeletionError as exc:
+                form.add_error(None, str(exc))
+            else:
+                logout(request)
+                messages.success(
+                    request,
+                    "Your account is scheduled for deletion on "
+                    f"{deletion_request.scheduled_for:%B %d, %Y}. "
+                    "Sign in before then if you want to cancel.",
+                )
+                return redirect("accounts:login")
+    else:
+        form = AccountDeletionForm(user=request.user)
+
+    return render(
+        request,
+        "registration/account_delete.html",
+        {
+            "form": form,
+            "pending": pending,
+            "grace_days": settings.ACCOUNT_DELETION_GRACE_DAYS,
+        },
+    )
+
+
+@login_required
+@require_POST
+def account_delete_cancel(request: HttpRequest) -> HttpResponse:
+    try:
+        cancel_account_deletion(user=request.user)
+    except AccountDeletionError as exc:
+        messages.error(request, str(exc))
+    else:
+        messages.success(request, "Your account deletion request has been cancelled.")
+    return redirect("accounts:account_delete")

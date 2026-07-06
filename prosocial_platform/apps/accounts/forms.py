@@ -30,10 +30,19 @@ class RegistrationForm(UserCreationForm):
         return username
 
     def clean_password2(self) -> str:
-        password = self.cleaned_data.get("password2")
-        if password:
-            validate_password(password, user=self.instance)
-        return super().clean_password2()
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("The two password fields didn't match.")
+        if password2:
+            validate_password(
+                password2,
+                user=User(
+                    username=self.cleaned_data.get("username", ""),
+                    email=self.cleaned_data.get("email", ""),
+                ),
+            )
+        return password2
 
 
 class LoginForm(AuthenticationForm):
@@ -45,3 +54,25 @@ class LoginForm(AuthenticationForm):
 
 class ProsocialPasswordChangeForm(PasswordChangeForm):
     pass
+
+
+class AccountDeletionForm(forms.Form):
+    password = forms.CharField(
+        label="Current password",
+        widget=forms.PasswordInput(attrs={"autocomplete": "current-password"}),
+    )
+    confirm = forms.BooleanField(
+        required=True,
+        label="I understand my account will be permanently deleted after the grace period.",
+        error_messages={"required": "You must confirm account deletion."},
+    )
+
+    def __init__(self, *args, user=None, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def clean_password(self) -> str:
+        password = self.cleaned_data.get("password", "")
+        if self.user and not self.user.check_password(password):
+            raise forms.ValidationError("Incorrect password.")
+        return password

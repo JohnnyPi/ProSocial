@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Complete · Common Good{% endblock %}
+{% block content %}
+  <h1>Submit completion</h1>
+  <form method="post">
+    {% csrf_token %}
+    {% include "components/form_errors.html" %}
+    {{ form.participant_note }}
+    <button type="submit">Submit</button>
+  </form>
+{% endblock %}

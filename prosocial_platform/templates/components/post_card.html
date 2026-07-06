@@ -1,23 +1,49 @@
 <article class="post-card" id="post-{{ post.public_id }}">
   <header class="post-card-header">
-    <a href="{% url 'profiles:detail' handle=post.author.profile.handle %}">
-      {{ post.author.profile.public_display_name }}
-    </a>
+    <div>
+      <a href="{% url 'profiles:detail' handle=post.author.profile.handle %}">
+        {{ post.author.profile.public_display_name }}
+      </a>
+      {% if post.kind != "GENERAL" %}
+        <span class="chip chip--{{ post.kind|lower }}">{{ post.get_kind_display }}</span>
+      {% endif %}
+      {% if post.thread_type != "DISCUSSION" %}
+        <span class="chip chip--thread">{{ post.get_thread_type_display }}</span>
+      {% endif %}
+    </div>
     <time datetime="{{ post.created_at|date:'c' }}">{{ post.created_at|timesince }} ago</time>
   </header>
+  {% if post.title %}
+    <h3 class="post-title">{{ post.title }}</h3>
+  {% endif %}
   {% if post.body %}
-    <p class="post-body">{{ post.body|linebreaksbr }}</p>
+    <p class="post-body reading-text">{{ post.body|linebreaksbr }}</p>
   {% endif %}
   {% if post.image %}
     <figure class="post-image">
       <img src="{{ post.image.url }}" alt="{{ post.image_alt_text|default:'Post image' }}">
     </figure>
   {% endif %}
+  {% if post.post_tags.all %}
+    <ul class="post-tag-list" aria-label="Tags">
+      {% for post_tag in post.post_tags.all %}
+        <li>
+          <a href="{% url 'knowledge:tag_detail' slug=post_tag.tag.slug %}" class="chip chip--tag">#{{ post_tag.tag.name }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
   <footer class="post-card-footer">
-    <a href="{% url 'posts:detail' public_id=post.public_id %}">View</a>
+    <a href="{% url 'posts:detail' public_id=post.public_id %}">View thread</a>
     {% if user.is_authenticated and user == post.author %}
       <a href="{% url 'posts:edit' public_id=post.public_id %}">Edit</a>
-      <a href="{% url 'posts:delete' public_id=post.public_id %}">Delete</a>
+      <button
+        type="button"
+        class="link-button"
+        hx-get="{% url 'posts:delete' public_id=post.public_id %}"
+        hx-target="#post-{{ post.public_id }}"
+        hx-swap="innerHTML"
+      >Delete</button>
     {% endif %}
   </footer>
 </article>

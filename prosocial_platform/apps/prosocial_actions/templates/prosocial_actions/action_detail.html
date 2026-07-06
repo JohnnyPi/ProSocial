@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Action · Common Good{% endblock %}
+{% block content %}
+  <article>
+    <h1>{{ action.post.get_kind_display }}</h1>
+    <p>{{ action.post.body|linebreaksbr }}</p>
+    {% if action.location_label %}<p><strong>Location:</strong> {{ action.location_label }}</p>{% endif %}
+    {% if action.starts_at %}<p><strong>Starts:</strong> {{ action.starts_at }}</p>{% endif %}
+    {% if action.ends_at %}<p><strong>Ends:</strong> {{ action.ends_at }}</p>{% endif %}
+    <p><strong>Verification:</strong> {{ action.get_verification_mode_display }}</p>
+    {% if action.completion_instructions %}<p>{{ action.completion_instructions }}</p>{% endif %}
+
+    {% if user == action.creator %}
+      <form method="post" action="{% url 'prosocial_actions:action_cancel' public_id=action.public_id %}">
+        {% csrf_token %}
+        <button type="submit" class="danger">Cancel action</button>
+      </form>
+      <a href="{% url 'prosocial_actions:action_invite' public_id=action.public_id %}">Invite someone</a>
+      <a href="{% url 'prosocial_actions:verification_queue' %}">Verification queue</a>
+    {% elif action.accepts_commitments %}
+      {% if not user_commitment %}
+        <form method="post" action="{% url 'prosocial_actions:action_save' public_id=action.public_id %}">
+          {% csrf_token %}
+          <button type="submit">Save for later</button>
+        </form>
+        <a href="{% url 'prosocial_actions:action_commit' public_id=action.public_id %}">Commit</a>
+      {% else %}
+        <p>Your status: {{ user_commitment.get_status_display }}{% if not user_commitment.is_public %} (private){% endif %}</p>
+        {% if user_commitment.status == 'COMMITTED' %}
+          <a href="{% url 'prosocial_actions:action_complete' public_id=action.public_id %}">Mark complete</a>
+          <form method="post" action="{% url 'prosocial_actions:action_withdraw' public_id=action.public_id %}">
+            {% csrf_token %}
+            <button type="submit">Withdraw</button>
+          </form>
+        {% endif %}
+      {% endif %}
+    {% endif %}
+  </article>
+{% endblock %}

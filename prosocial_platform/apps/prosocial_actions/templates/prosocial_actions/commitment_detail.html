@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Commitment · Common Good{% endblock %}
+{% block content %}
+  <h1>Commitment</h1>
+  <p>Action: {{ commitment.action.post.get_kind_display }}</p>
+  <p>Status: {{ commitment.get_status_display }}</p>
+  {% if commitment.is_public %}<p>Public participation</p>{% else %}<p>Private participation</p>{% endif %}
+{% endblock %}

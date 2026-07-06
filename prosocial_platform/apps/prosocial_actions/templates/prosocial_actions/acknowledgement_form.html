@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Acknowledge · Common Good{% endblock %}
+{% block content %}
+  <h1>Send acknowledgement</h1>
+  <form method="post">
+    {% csrf_token %}
+    {% include "components/form_errors.html" %}
+    {{ form.message }}
+    <button type="submit">Send</button>
+  </form>
+{% endblock %}

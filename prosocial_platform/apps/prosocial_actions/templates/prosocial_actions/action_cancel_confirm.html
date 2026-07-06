@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Cancel action · Common Good{% endblock %}
+{% block content %}
+  <h1>Cancel this action?</h1>
+  <p>Existing commitments will be retained for audit purposes.</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="danger">Confirm cancel</button>
+  </form>
+{% endblock %}

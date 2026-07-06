@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Guilds · Common Good{% endblock %}
+{% block content %}
+<h1>Guilds</h1>
+<p><a href="{% url 'guilds:create' %}">Create a guild</a></p>
+<ul>
+  {% for guild in guilds %}
+    <li><a href="{% url 'guilds:detail' slug=guild.slug %}">{{ guild.name }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}

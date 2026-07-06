@@ -1,24 +1,51 @@
 {% extends "base.html" %}
-{% block title %}Dashboard · ProSocial{% endblock %}
+{% load static %}
+{% block title %}Home · Common Good{% endblock %}
+{% block extra_head %}
+  <script src="{% static 'js/site.js' %}" defer></script>
+  <script src="{% static 'js/pre_send_prompt.js' %}" defer></script>
+{% endblock %}
 {% block content %}
-  <header class="page-header">
-    <h1>Dashboard</h1>
-    <p>Welcome, {{ profile.public_display_name }}.</p>
+  <header class="dashboard-header">
+    {% include "components/kind_filter.html" %}
+    <button
+      type="button"
+      class="button dashboard-post-button"
+      id="post-modal-open"
+      aria-haspopup="dialog"
+      aria-controls="post-modal"
+    >
+      + Post
+    </button>
   </header>
 
-  {% include "components/post_composer.html" %}
-
   <section class="feed" aria-label="Recent posts">
-    <h2>Recent updates</h2>
     <div id="feed-list">
       {% for post in feed_page %}
         {% include "components/post_card.html" %}
       {% empty %}
-        <p class="empty-state">No posts yet. Share something meaningful.</p>
+        <p class="empty-state">Nothing here yet. When you're ready, share a request, offer, or word of thanks.</p>
       {% endfor %}
     </div>
     {% with page_obj=feed_page %}
       {% include "components/pagination.html" %}
     {% endwith %}
+    {% if feed_page.caught_up %}
+      <p class="caught-up-message" role="status">You're caught up — take a break or explore <a href="{% url 'discovery:home' %}">Discover</a>.</p>
+    {% endif %}
   </section>
+
+  <dialog class="modal" id="post-modal" aria-labelledby="post-modal-title">
+    <div class="modal-sheet">
+      <header class="modal-header">
+        <h2 id="post-modal-title">Share an update</h2>
+        <button type="button" class="modal-close icon-button" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </header>
+      <div id="post-composer-container">
+        {% include "components/post_composer.html" %}
+      </div>
+    </div>
+  </dialog>
 {% endblock %}

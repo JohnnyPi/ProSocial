@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Helper style · Common Good{% endblock %}
+{% block content %}
+<h1>What's your helper style?</h1>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Continue</button></form>
+{% endblock %}

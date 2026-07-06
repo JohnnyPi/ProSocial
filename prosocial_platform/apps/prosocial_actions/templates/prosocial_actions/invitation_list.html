@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Invitations · Common Good{% endblock %}
+{% block content %}
+  <h1>Invitations</h1>
+  <ul>
+    {% for invitation in invitations %}
+      <li>
+        {{ invitation.inviter.username }} invited you to {{ invitation.action.post.get_kind_display }}
+        <form method="post" action="{% url 'prosocial_actions:invitation_accept' public_id=invitation.public_id %}" class="inline-form">
+          {% csrf_token %}
+          <button type="submit">Accept</button>
+        </form>
+        <form method="post" action="{% url 'prosocial_actions:invitation_decline' public_id=invitation.public_id %}" class="inline-form">
+          {% csrf_token %}
+          <button type="submit">Decline</button>
+        </form>
+      </li>
+    {% empty %}
+      <li>No pending invitations.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

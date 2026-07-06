@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Discover · Common Good{% endblock %}
+{% block content %}
+<h1>Discover</h1>
+<h2>Most clipped</h2>
+<ul>{% for p in most_clipped %}<li><a href="{% url 'posts:detail' public_id=p.public_id %}">{{ p.body|truncatechars:100 }}</a></li>{% endfor %}</ul>
+<h2>Sentiment-boosted</h2>
+<ul>{% for p in sentiment_boosted %}<li><a href="{% url 'posts:detail' public_id=p.public_id %}">{{ p.body|truncatechars:100 }}</a></li>{% endfor %}</ul>
+<p><a href="{% url 'discovery:ripple' %}">View ripple effect</a></p>
+{% endblock %}

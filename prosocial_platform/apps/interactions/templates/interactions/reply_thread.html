@@ -1,0 +1,8 @@
+{% load static %}
+<section class="replies" id="replies-{{ post.public_id }}">
+  <h3>Replies</h3>
+  {% include "interactions/reply_list.html" %}
+  {% if user.is_authenticated %}
+    <a href="{% url 'interactions:reply_create' post_id=post.public_id %}">Add reply</a>
+  {% endif %}
+</section>

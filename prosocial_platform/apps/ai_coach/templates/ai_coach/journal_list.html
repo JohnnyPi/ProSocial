@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Journal · Common Good{% endblock %}
+{% block content %}
+<h1>Reflection journal</h1>
+<p><a href="{% url 'ai_coach:journal_create' %}">New entry</a></p>
+{% for entry in entries %}
+  <article class="panel"><p>{{ entry.body|truncatechars:300 }}</p><p class="help-text">{{ entry.ai_response }}</p></article>
+{% endfor %}
+{% endblock %}

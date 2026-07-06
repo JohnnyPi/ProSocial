@@ -2,16 +2,41 @@ from django import forms
 from django.conf import settings
 
 from apps.common.image_processing import ImageProcessingError, process_uploaded_image
-from apps.posts.models import Post
+from apps.posts.models import Post, PostKind, ThreadType
+
+
+def _parse_tag_slugs(raw: str) -> list[str]:
+    slugs = [t.strip().lower().replace(" ", "-") for t in raw.split(",") if t.strip()]
+    if len(slugs) > 5:
+        raise forms.ValidationError("At most 5 tags allowed.")
+    return slugs[:5]
 
 
 class PostForm(forms.ModelForm):
+    tags = forms.CharField(
+        max_length=200,
+        required=False,
+        help_text="Comma-separated tags (max 5)",
+    )
+
     class Meta:
         model = Post
-        fields = ("body", "image", "image_alt_text")
+        fields = ("kind", "thread_type", "title", "body", "image", "image_alt_text")
         widgets = {
             "body": forms.Textarea(attrs={"rows": 4, "placeholder": "Share an update…"}),
+            "title": forms.TextInput(attrs={"placeholder": "Optional thread title"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["kind"].choices = PostKind.choices
+        self.fields["thread_type"].choices = ThreadType.choices
+        if self.instance and self.instance.pk:
+            tag_names = [
+                pt.tag.name
+                for pt in self.instance.post_tags.select_related("tag").order_by("tag__name")
+            ]
+            self.fields["tags"].initial = ", ".join(tag_names)
 
     def clean_body(self) -> str:
         body = self.cleaned_data.get("body", "")
@@ -20,6 +45,9 @@ class PostForm(forms.ModelForm):
                 f"Post text must be at most {settings.POST_BODY_MAX_LENGTH} characters."
             )
         return body
+
+    def clean_tags(self) -> list[str]:
+        return _parse_tag_slugs(self.cleaned_data.get("tags", ""))
 
     def clean(self):
         cleaned = super().clean()
@@ -46,6 +74,19 @@ class PostForm(forms.ModelForm):
             return process_uploaded_image(image, actor=getattr(self, "actor", None))
         except ImageProcessingError as exc:
             raise forms.ValidationError(str(exc)) from exc
+
+    def cleaned_post_kwargs(self) -> dict:
+        if not self.is_valid():
+            raise ValueError("Form must be valid before extracting post fields.")
+        return {
+            "body": self.cleaned_data["body"],
+            "image": self.cleaned_data.get("image"),
+            "image_alt_text": self.cleaned_data.get("image_alt_text", ""),
+            "kind": self.cleaned_data["kind"],
+            "thread_type": self.cleaned_data["thread_type"],
+            "title": self.cleaned_data.get("title", ""),
+            "tag_slugs": self.cleaned_data.get("tags", []),
+        }
 
 
 class PostDeleteForm(forms.Form):

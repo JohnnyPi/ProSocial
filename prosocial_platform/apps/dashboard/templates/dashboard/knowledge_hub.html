@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Knowledge Hub · Common Good{% endblock %}
+{% block content %}
+<section class="panel">
+  <h1>Knowledge Hub</h1>
+  <p class="help-text">Your growing body of saved knowledge and followed threads.</p>
+  <nav class="inline-nav">
+    <a href="{% url 'knowledge:vault' %}">Vault</a>
+    <a href="{% url 'knowledge:collection_list' %}">Collections</a>
+    <a href="{% url 'knowledge:tag_browse' %}">Tags</a>
+    <a href="{% url 'trust:onboarding' %}">Helper style</a>
+  </nav>
+</section>
+
+<section class="panel">
+  <h2>Activity from people you follow</h2>
+  {% for post in activity_feed %}
+    <article class="feed-item"><a href="{% url 'posts:detail' public_id=post.public_id %}">{{ post.body|truncatechars:120 }}</a></article>
+  {% empty %}
+    <p class="help-text">Follow people to see their updates here.</p>
+  {% endfor %}
+</section>
+
+<section class="panel">
+  <h2>My collections</h2>
+  <ul>
+    {% for c in collections %}
+      <li><a href="{% url 'knowledge:collection_detail' public_id=c.public_id %}">{{ c.title }}</a></li>
+    {% empty %}
+      <li><a href="{% url 'knowledge:collection_create' %}">Create your first collection</a></li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section class="panel">
+  <h2>Followed threads</h2>
+  <ul>
+    {% for post in followed_threads %}
+      <li><a href="{% url 'posts:detail' public_id=post.public_id %}">{{ post.title|default:post.body|truncatechars:80 }}</a></li>
+    {% empty %}
+      <li class="help-text">No followed threads yet.</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section class="panel placeholder-panel">
+  <h2>Active challenges</h2>
+  <p class="help-text"><a href="{% url 'engagement:challenges' %}">View challenges</a> — coming soon to this panel.</p>
+</section>
+
+<section class="panel placeholder-panel">
+  <h2>Streak tracker</h2>
+  <p class="help-text"><a href="{% url 'gamification:progress' %}">View XP progress</a></p>
+</section>
+{% endblock %}

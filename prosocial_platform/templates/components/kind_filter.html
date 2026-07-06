@@ -1,0 +1,7 @@
+<nav class="kind-filter" aria-label="Filter feed">
+  <a href="{% url 'dashboard:index' %}"{% if feed_mode == 'all' and not request.GET.kind %} class="is-active"{% endif %}>All</a>
+  <a href="?feed=following"{% if feed_mode == 'following' %} class="is-active"{% endif %}>Following</a>
+  {% for kind_value, kind_label in feed_kind_filters %}
+    <a href="?kind={{ kind_value }}"{% if request.GET.kind == kind_value %} class="is-active"{% endif %}>{{ kind_label }}</a>
+  {% endfor %}
+</nav>

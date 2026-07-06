@@ -1,9 +1,19 @@
 <nav class="site-nav" aria-label="Main">
   <div class="container nav-inner">
-    <a class="brand" href="{% url 'home' %}">ProSocial</a>
+    <a class="brand" href="{% url 'home' %}">
+      <svg class="brand-mark" width="28" height="28" viewBox="0 0 100 100" aria-hidden="true">
+        <rect width="100" height="100" rx="18" fill="#26221E"/>
+        <circle cx="50" cy="44" r="20" fill="none" stroke="#F6F1EA" stroke-width="3"/>
+        <circle cx="50" cy="44" r="8" fill="#D98C8C"/>
+        <rect x="30" y="72" width="40" height="4" rx="2" fill="#E4B363"/>
+      </svg>
+      <span class="brand-name">Common Good</span>
+    </a>
     <ul class="nav-links">
       {% if user.is_authenticated %}
-        <li><a href="{% url 'dashboard:index' %}">Dashboard</a></li>
+        <li><a href="{% url 'dashboard:index' %}">Home</a></li>
+        <li><a href="{% url 'prosocial_actions:action_list' %}">Actions</a></li>
+        <li><a href="{% url 'interactions:notifications' %}">Notifications</a></li>
         <li><a href="{% url 'profiles:detail' handle=user.profile.handle %}">Profile</a></li>
         <li><a href="{% url 'profiles:edit' %}">Edit profile</a></li>
         <li>
@@ -13,8 +23,8 @@
           </form>
         </li>
       {% else %}
-        <li><a href="{% url 'accounts:login' %}">Log in</a></li>
-        <li><a href="{% url 'accounts:register' %}">Register</a></li>
+        <li><a href="{% url 'accounts:login' %}">Sign in</a></li>
+        <li><a href="{% url 'accounts:register' %}">Join</a></li>
       {% endif %}
     </ul>
   </div>

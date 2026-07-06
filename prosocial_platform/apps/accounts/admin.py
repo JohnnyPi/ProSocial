@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 
-from apps.accounts.models import User
+from apps.accounts.models import AccountDeletionRequest, User
 
 
 @admin.register(User)
@@ -12,3 +12,11 @@ class UserAdmin(DjangoUserAdmin):
     fieldsets = DjangoUserAdmin.fieldsets + (
         ("Public identity", {"fields": ("public_id",)}),
     )
+
+
+@admin.register(AccountDeletionRequest)
+class AccountDeletionRequestAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "scheduled_for", "cancelled_at", "processed_at", "created_at")
+    list_filter = ("processed_at", "cancelled_at")
+    search_fields = ("user__username", "user__email")
+    readonly_fields = ("created_at", "updated_at")

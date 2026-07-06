@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Messages · Common Good{% endblock %}
+{% block content %}
+<h1>Messages</h1>
+<ul>
+  {% for conv in conversations %}
+    <li><a href="{% url 'messaging:detail' public_id=conv.public_id %}">Conversation</a></li>
+  {% empty %}
+    <li class="help-text">No conversations yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

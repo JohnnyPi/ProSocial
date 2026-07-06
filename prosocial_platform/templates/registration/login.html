@@ -1,20 +1,23 @@
 {% extends "base.html" %}
-{% block title %}Log in · ProSocial{% endblock %}
+{% block title %}Sign in · Common Good{% endblock %}
 {% block content %}
-  <h1>Log in</h1>
-  <form method="post" novalidate>
-    {% csrf_token %}
-    {% include "components/form_errors.html" %}
-    <div class="field">
-      <label for="{{ form.username.id_for_label }}">Username</label>
-      {{ form.username }}
-    </div>
-    <div class="field">
-      <label for="{{ form.password.id_for_label }}">Password</label>
-      {{ form.password }}
-    </div>
-    <button type="submit">Log in</button>
-  </form>
-  <p><a href="{% url 'accounts:password_reset' %}">Forgot password?</a></p>
-  <p>Need an account? <a href="{% url 'accounts:register' %}">Register</a></p>
+  <section class="auth-panel">
+    <h1>Sign in</h1>
+    <p>Welcome back. Pick up where you left off with your neighbors.</p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% include "components/form_errors.html" %}
+      <div class="field">
+        <label for="{{ form.username.id_for_label }}">Username</label>
+        {{ form.username }}
+      </div>
+      <div class="field">
+        <label for="{{ form.password.id_for_label }}">Password</label>
+        {{ form.password }}
+      </div>
+      <button type="submit">Sign in</button>
+    </form>
+    <p><a href="{% url 'accounts:password_reset' %}">Forgot password?</a></p>
+    <p>New here? <a href="{% url 'accounts:register' %}">Join Common Good</a></p>
+  </section>
 {% endblock %}

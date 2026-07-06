@@ -30,4 +30,6 @@ urlpatterns = [
         views.ProsocialPasswordResetCompleteView.as_view(),
         name="password_reset_complete",
     ),
+    path("delete/", views.account_delete, name="account_delete"),
+    path("delete/cancel/", views.account_delete_cancel, name="account_delete_cancel"),
 ]

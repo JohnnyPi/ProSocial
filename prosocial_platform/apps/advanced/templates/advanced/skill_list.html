@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Skills · Common Good{% endblock %}
+{% block content %}
+<h1>Skill sharing</h1>
+<p><a href="{% url 'advanced:skill_create' %}">Offer a skill</a></p>
+<ul>{% for o in offerings %}<li><strong>{{ o.skill_name }}</strong> — {{ o.description|truncatechars:120 }}</li>{% endfor %}</ul>
+{% endblock %}

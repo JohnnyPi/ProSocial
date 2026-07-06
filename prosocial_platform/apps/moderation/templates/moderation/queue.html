@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Moderation queue · Common Good{% endblock %}
+{% block content %}
+<h1>Moderation queue</h1>
+<ul>{% for r in reviews %}<li><a href="{% url 'moderation:review' review_id=r.pk %}">Review #{{ r.pk }}</a></li>{% empty %}<li class="help-text">Queue empty.</li>{% endfor %}</ul>
+{% endblock %}

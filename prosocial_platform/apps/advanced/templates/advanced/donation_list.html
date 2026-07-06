@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Donations · Common Good{% endblock %}
+{% block content %}
+<h1>Donations</h1>
+<p><a href="{% url 'advanced:donation_create' %}">Start a campaign</a></p>
+<ul>{% for c in campaigns %}<li><a href="{% url 'advanced:donation_detail' public_id=c.public_id %}">{{ c.title }}</a></li>{% endfor %}</ul>
+{% endblock %}

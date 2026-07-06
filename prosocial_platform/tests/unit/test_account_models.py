@@ -20,6 +20,22 @@ def test_duplicate_email_rejected():
 
 
 @pytest.mark.django_db
+def test_profile_created_for_new_user():
+    user = User.objects.create_user(username="carol", email="carol@example.com", password="test-pass-123")
+    assert Profile.objects.filter(user=user).exists()
+
+
+@pytest.mark.django_db
+def test_dashboard_creates_missing_profile(client):
+    user = User.objects.create_user(username="carol", email="carol@example.com", password="test-pass-123")
+    Profile.objects.filter(user=user).delete()
+    client.force_login(user)
+    response = client.get("/dashboard/")
+    assert response.status_code == 200
+    assert Profile.objects.filter(user=user).exists()
+
+
+@pytest.mark.django_db
 def test_profile_created_on_registration(client):
     response = client.post(
         "/accounts/register/",

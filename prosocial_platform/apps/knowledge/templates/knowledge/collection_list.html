@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Collections · Common Good{% endblock %}
+{% block content %}
+<h1>Collections</h1>
+<p><a href="{% url 'knowledge:collection_create' %}">New collection</a></p>
+<ul>
+  {% for c in collections %}
+    <li><a href="{% url 'knowledge:collection_detail' public_id=c.public_id %}">{{ c.title }}</a> ({{ c.visibility }})</li>
+  {% empty %}
+    <li class="help-text">No collections yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

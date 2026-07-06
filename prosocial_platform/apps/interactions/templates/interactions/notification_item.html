@@ -1,0 +1,13 @@
+<li class="notification-item{% if not notification.read_at %} unread{% endif %}">
+  <p>
+    {% if notification.actor %}{{ notification.actor.profile.public_display_name }}{% else %}Someone{% endif %}
+    — {{ notification.get_kind_display }}
+    <time datetime="{{ notification.created_at|date:'c' }}">{{ notification.created_at|timesince }} ago</time>
+  </p>
+  {% if not notification.read_at %}
+    <form method="post" action="{% url 'interactions:notification_read' notification_id=notification.pk %}">
+      {% csrf_token %}
+      <button type="submit">Mark read</button>
+    </form>
+  {% endif %}
+</li>

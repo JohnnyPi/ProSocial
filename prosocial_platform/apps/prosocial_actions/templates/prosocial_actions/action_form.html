@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Create action · Common Good{% endblock %}
+{% block content %}
+  <h1>Create prosocial action</h1>
+  <form method="post">
+    {% csrf_token %}
+    {% include "components/form_errors.html" %}
+    {% for field in form %}
+      <div class="field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+      </div>
+    {% endfor %}
+    <button type="submit">Create</button>
+  </form>
+{% endblock %}

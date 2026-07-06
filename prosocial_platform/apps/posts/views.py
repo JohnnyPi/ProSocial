@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 
+from apps.interactions.selectors import get_post_replies
 from apps.posts.forms import PostDeleteForm, PostForm
 from apps.posts.selectors import get_owned_post, get_post_for_display
 from apps.posts.services import create_post, soft_delete_post, update_post
@@ -19,12 +20,7 @@ def post_create(request: HttpRequest) -> HttpResponse:
         form = PostForm(request.POST, request.FILES)
         form.actor = request.user
         if form.is_valid():
-            post = create_post(
-                author=request.user,
-                body=form.cleaned_data["body"],
-                image=form.cleaned_data.get("image"),
-                image_alt_text=form.cleaned_data.get("image_alt_text", ""),
-            )
+            post = create_post(author=request.user, **form.cleaned_post_kwargs())
             if _is_htmx(request):
                 return render(request, "components/post_card.html", {"post": post})
             return redirect("posts:detail", public_id=post.public_id)
@@ -36,7 +32,28 @@ def post_create(request: HttpRequest) -> HttpResponse:
 
 def post_detail(request: HttpRequest, public_id: uuid.UUID) -> HttpResponse:
     post = get_post_for_display(public_id=public_id)
-    return render(request, "posts/detail.html", {"post": post})
+    replies = get_post_replies(post=post)
+    from apps.interactions.models import ThankYou
+    thank_count = ThankYou.objects.filter(post=post).count()
+    user_thanked = (
+        request.user.is_authenticated
+        and ThankYou.objects.filter(sender=request.user, post=post).exists()
+    )
+    is_following_post = False
+    if request.user.is_authenticated:
+        from apps.follows.selectors import is_following_post as check_following_post
+
+        is_following_post = check_following_post(user=request.user, post=post)
+    context = {
+        "post": post,
+        "replies": replies,
+        "thank_count": thank_count,
+        "user_thanked": user_thanked,
+        "is_following_post": is_following_post,
+    }
+    if _is_htmx(request):
+        return render(request, "components/post_card.html", context)
+    return render(request, "posts/detail.html", context)
 
 
 @login_required
@@ -47,12 +64,7 @@ def post_edit(request: HttpRequest, public_id: uuid.UUID) -> HttpResponse:
         form = PostForm(request.POST, request.FILES, instance=post)
         form.actor = request.user
         if form.is_valid():
-            update_post(
-                post=post,
-                body=form.cleaned_data["body"],
-                image=form.cleaned_data.get("image"),
-                image_alt_text=form.cleaned_data.get("image_alt_text", ""),
-            )
+            update_post(post=post, **form.cleaned_post_kwargs())
             return redirect("posts:detail", public_id=post.public_id)
     else:
         form = PostForm(instance=post)

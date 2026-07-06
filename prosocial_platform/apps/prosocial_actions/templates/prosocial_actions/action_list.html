@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Actions · Common Good{% endblock %}
+{% block content %}
+  <h1>Prosocial actions</h1>
+  <p><a href="{% url 'prosocial_actions:action_create' %}">Create action</a></p>
+  {% for action in actions %}
+    {% include "prosocial_actions/action_card.html" %}
+  {% empty %}
+    <p>No open actions.</p>
+  {% endfor %}
+{% endblock %}

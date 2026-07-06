@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Delete account · Common Good{% endblock %}
+{% block content %}
+  <h1>Delete account</h1>
+
+  {% if pending %}
+    <p class="help-text">
+      Your account is scheduled for permanent deletion on
+      <strong>{{ pending.scheduled_for|date:"F j, Y" }}</strong>.
+      You can still use the platform until then, or cancel below.
+    </p>
+    <form method="post" action="{% url 'accounts:account_delete_cancel' %}">
+      {% csrf_token %}
+      <button type="submit">Cancel deletion request</button>
+    </form>
+  {% else %}
+    <p class="help-text">
+      Requesting deletion schedules permanent removal after a {{ grace_days }}-day grace period.
+      During that time you can sign in and cancel. After processing:
+    </p>
+    <ul>
+      <li>Your profile and personal account data are removed.</li>
+      <li>Your posts and replies are soft-deleted for moderation audit.</li>
+      <li>Content reports and commitments may be retained in anonymized form.</li>
+    </ul>
+    <form method="post">
+      {% csrf_token %}
+      {% include "components/form_errors.html" %}
+      {{ form.as_p }}
+      <button type="submit" class="danger">Schedule account deletion</button>
+    </form>
+  {% endif %}
+{% endblock %}

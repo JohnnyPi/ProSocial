@@ -1,7 +1,10 @@
 import uuid
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+from apps.common.models import TimeStampedModel
 
 
 class User(AbstractUser):
@@ -25,3 +28,29 @@ class User(AbstractUser):
 
     def __str__(self) -> str:
         return self.username
+
+
+class AccountDeletionRequest(TimeStampedModel):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="deletion_requests",
+    )
+    scheduled_for = models.DateTimeField()
+    cancelled_at = models.DateTimeField(null=True, blank=True)
+    processed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["scheduled_for", "processed_at"]),
+        ]
+        ordering = ["-created_at"]
+
+    @property
+    def is_pending(self) -> bool:
+        return self.cancelled_at is None and self.processed_at is None
+
+    def __str__(self) -> str:
+        return f"Deletion request for user {self.user_id} ({self.scheduled_for:%Y-%m-%d})"

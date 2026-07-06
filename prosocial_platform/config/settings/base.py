@@ -18,6 +18,19 @@ INSTALLED_APPS = [
     "apps.profiles",
     "apps.posts",
     "apps.dashboard",
+    "apps.interactions",
+    "apps.prosocial_actions",
+    "apps.knowledge",
+    "apps.follows",
+    "apps.guilds",
+    "apps.messaging",
+    "apps.trust",
+    "apps.gamification",
+    "apps.ai_coach",
+    "apps.moderation",
+    "apps.engagement",
+    "apps.discovery",
+    "apps.advanced",
 ]
 
 MIDDLEWARE = [
@@ -26,6 +39,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "apps.profiles.middleware.ensure_user_profile",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -43,6 +57,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "apps.common.context_processors.shell_context",
+                "apps.posts.context_processors.feed_filters",
             ],
         },
     },
@@ -96,6 +112,9 @@ REGISTRATION_RATE_LIMIT = 5
 REGISTRATION_RATE_WINDOW_SECONDS = 3600
 LOGIN_RATE_LIMIT = 10
 LOGIN_RATE_WINDOW_SECONDS = 900
+EXPORT_RATE_LIMIT = 3
+EXPORT_RATE_WINDOW_SECONDS = 3600
+ACCOUNT_DELETION_GRACE_DAYS = 30
 
 CACHES = {
     "default": {

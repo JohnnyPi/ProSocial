@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Challenges · Common Good{% endblock %}
+{% block content %}
+<h1>Challenges</h1>
+<form method="post" action="{% url 'engagement:rest_mode' %}">{% csrf_token %}<button type="submit">Toggle rest mode</button></form>
+<ul>
+  {% for c in challenges %}
+    <li>{{ c.title }} — <form method="post" action="{% url 'engagement:complete_challenge' challenge_id=c.pk %}" class="inline-form">{% csrf_token %}<button type="submit">Complete</button></form></li>
+  {% empty %}
+    <li class="help-text">No active challenges.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

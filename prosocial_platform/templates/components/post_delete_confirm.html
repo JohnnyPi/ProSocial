@@ -1,9 +1,16 @@
 <div class="delete-confirm">
   <p>Delete this post?</p>
-  <form method="post" action="{% url 'posts:delete' public_id=post.public_id %}">
+  <form
+    method="post"
+    action="{% url 'posts:delete' public_id=post.public_id %}"
+    hx-post="{% url 'posts:delete' public_id=post.public_id %}"
+    hx-target="#post-{{ post.public_id }}"
+    hx-swap="outerHTML"
+  >
     {% csrf_token %}
     {{ form.confirm }}
     <label for="{{ form.confirm.id_for_label }}">{{ form.confirm.label }}</label>
     <button type="submit">Delete</button>
+    <button type="button" class="link-button" hx-get="{% url 'posts:detail' public_id=post.public_id %}" hx-target="#post-{{ post.public_id }}" hx-swap="outerHTML">Cancel</button>
   </form>
 </div>

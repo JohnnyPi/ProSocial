@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ guild.name }} · Common Good{% endblock %}
+{% block content %}
+<h1>{{ guild.name }}</h1>
+<p>{{ guild.description }}</p>
+{% if user.is_authenticated %}
+  {% if is_member %}
+    <form method="post" action="{% url 'guilds:leave' slug=guild.slug %}">{% csrf_token %}<button type="submit">Leave guild</button></form>
+  {% else %}
+    <form method="post" action="{% url 'guilds:join' slug=guild.slug %}">{% csrf_token %}<button type="submit">Join guild</button></form>
+  {% endif %}
+{% endif %}
+<h2>Guild feed</h2>
+{% for post in feed_page %}
+  <article class="panel"><a href="{% url 'posts:detail' public_id=post.public_id %}">{{ post.body|truncatechars:200 }}</a></article>
+{% empty %}
+  <p class="help-text">No guild posts yet.</p>
+{% endfor %}
+{% endblock %}

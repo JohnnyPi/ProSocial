@@ -1,28 +1,59 @@
-<section class="post-composer" id="post-composer">
-  <h2>Share an update</h2>
-  <form
-    method="post"
-    enctype="multipart/form-data"
-    action="{% url 'dashboard:index' %}"
-    hx-post="{% url 'dashboard:index' %}"
-    hx-target="#feed-list"
-    hx-swap="afterbegin"
-    hx-on::after-request="if(event.detail.successful) this.reset()"
-  >
-    {% csrf_token %}
-    {% include "components/form_errors.html" %}
-    <div class="field">
-      <label for="{{ form.body.id_for_label }}">Update</label>
-      {{ form.body }}
-    </div>
-    <div class="field">
-      <label for="{{ form.image.id_for_label }}">Image (optional)</label>
-      {{ form.image }}
-    </div>
-    <div class="field">
-      <label for="{{ form.image_alt_text.id_for_label }}">Image description (optional)</label>
-      {{ form.image_alt_text }}
-    </div>
+<form
+  id="post-composer-form"
+  class="post-composer-form"
+  method="post"
+  enctype="multipart/form-data"
+  action="{% url 'dashboard:index' %}"
+  hx-post="{% url 'dashboard:index' %}"
+  hx-target="#feed-list"
+  hx-swap="afterbegin"
+  hx-target-error="#post-composer-container"
+  hx-swap-error="innerHTML"
+  hx-on::after-request="if(event.detail.successful) this.reset()"
+>
+  {% csrf_token %}
+  {% include "components/form_errors.html" %}
+  <div class="field">
+    <label for="{{ form.kind.id_for_label }}">Post type</label>
+    {{ form.kind }}
+    <p class="help-text">Choose how this post should appear in feed filters.</p>
+  </div>
+  <div class="field">
+    <label for="{{ form.thread_type.id_for_label }}">Thread type</label>
+    {{ form.thread_type }}
+    <p class="help-text">Optional knowledge thread category.</p>
+  </div>
+  <div class="field">
+    <label for="{{ form.title.id_for_label }}">Title (optional)</label>
+    {{ form.title }}
+  </div>
+  <div class="field">
+    <label for="{{ form.body.id_for_label }}">What would help your neighbors know?</label>
+    {{ form.body }}
+    <div id="pre-send-prompt-composer"></div>
+  </div>
+  <div class="field">
+    <label for="{{ form.tags.id_for_label }}">Tags (optional)</label>
+    {{ form.tags }}
+    {% if form.tags.help_text %}<p class="help-text">{{ form.tags.help_text }}</p>{% endif %}
+  </div>
+  <div class="field">
+    <label for="{{ form.image.id_for_label }}">Photo (optional)</label>
+    {{ form.image }}
+  </div>
+  <div class="field">
+    <label for="{{ form.image_alt_text.id_for_label }}">Photo description (optional)</label>
+    {{ form.image_alt_text }}
+  </div>
+  <div class="form-actions">
+    <button type="button" class="secondary modal-close">Cancel</button>
     <button type="submit">Post</button>
-  </form>
-</section>
+  </div>
+</form>
+<div
+  hidden
+  data-pre-send-body="{{ form.body.id_for_label }}"
+  data-pre-send-target="pre-send-prompt-composer"
+  data-pre-send-url="{% url 'ai_coach:pre_send_check' %}"
+  data-csrf-token="{{ csrf_token }}"
+></div>

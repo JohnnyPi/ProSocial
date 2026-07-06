@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}My commitments · Common Good{% endblock %}
+{% block content %}
+  <h1>My commitments</h1>
+  <ul>
+    {% for commitment in commitments %}
+      <li>
+        <a href="{% url 'prosocial_actions:commitment_detail' public_id=commitment.public_id %}">
+          {{ commitment.action.post.get_kind_display }} — {{ commitment.get_status_display }}
+        </a>
+      </li>
+    {% empty %}
+      <li>No commitments yet.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

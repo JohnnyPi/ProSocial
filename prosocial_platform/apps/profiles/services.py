@@ -17,12 +17,18 @@ def _default_handle(user: User) -> str:
 
 
 @transaction.atomic
-def create_profile_for_user(user: User) -> Profile:
-    return Profile.objects.create(
+def ensure_profile_for_user(user: User) -> Profile:
+    profile, _ = Profile.objects.get_or_create(
         user=user,
-        handle=_default_handle(user),
-        display_name=user.username,
+        defaults={
+            "handle": _default_handle(user),
+            "display_name": user.username,
+        },
     )
+    return profile
+
+
+create_profile_for_user = ensure_profile_for_user
 
 
 @transaction.atomic

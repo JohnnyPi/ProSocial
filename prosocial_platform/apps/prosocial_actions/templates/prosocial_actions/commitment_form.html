@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Commit · Common Good{% endblock %}
+{% block content %}
+  <h1>Commit to action</h1>
+  <p>Your commitment is private by default.</p>
+  <form method="post">
+    {% csrf_token %}
+    {% include "components/form_errors.html" %}
+    {% for field in form %}
+      <div class="field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+      </div>
+    {% endfor %}
+    <button type="submit">Commit</button>
+  </form>
+{% endblock %}

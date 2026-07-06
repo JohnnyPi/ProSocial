@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Chat · Common Good{% endblock %}
+{% block content %}
+<h1>Chat with {{ other.profile.display_name }}</h1>
+<div class="message-thread">
+  {% for msg in messages %}
+    <p class="{% if msg.sender_id == user.id %}message-self{% else %}message-other{% endif %}">{{ msg.body }}</p>
+  {% endfor %}
+</div>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Send</button></form>
+{% endblock %}

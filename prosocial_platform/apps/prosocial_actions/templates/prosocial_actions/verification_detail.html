@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Reject completion · Common Good{% endblock %}
+{% block content %}
+  <h1>Reject completion</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.reviewer_note }}
+    <button type="submit">Reject</button>
+  </form>
+{% endblock %}

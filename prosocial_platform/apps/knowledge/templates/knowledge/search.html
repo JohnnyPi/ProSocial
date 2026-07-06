@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Search · Common Good{% endblock %}
+{% block content %}
+  <h1>Search</h1>
+  <form method="get" action="{% url 'knowledge:search' %}" class="search-form">
+    <label for="search-q">Search posts and tags</label>
+    <input type="search" id="search-q" name="q" value="{{ query }}" placeholder="Keywords…">
+    <button type="submit">Search</button>
+  </form>
+
+  {% if query %}
+    {% if tags %}
+      <section aria-label="Matching tags">
+        <h2>Tags</h2>
+        <ul>
+          {% for tag in tags %}
+            <li><a href="{% url 'knowledge:tag_detail' slug=tag.slug %}">{{ tag.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+
+    <section aria-label="Matching posts">
+      <h2>Posts</h2>
+      {% for post in page %}
+        {% include "components/post_card.html" %}
+      {% empty %}
+        <p class="empty-state">No posts matched "{{ query }}".</p>
+      {% endfor %}
+      {% with page_obj=page %}
+        {% include "components/pagination.html" %}
+      {% endwith %}
+    </section>
+  {% endif %}
+{% endblock %}

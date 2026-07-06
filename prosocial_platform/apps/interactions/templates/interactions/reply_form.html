@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Reply · Common Good{% endblock %}
+{% block extra_head %}
+  <script src="{% static 'js/pre_send_prompt.js' %}" defer></script>
+{% endblock %}
+{% block content %}
+  <h1>{% if parent %}Reply to comment{% else %}Reply to post{% endif %}</h1>
+  <form method="post">
+    {% csrf_token %}
+    {% include "components/form_errors.html" %}
+    {{ form.body }}
+    <div id="pre-send-prompt-reply"></div>
+    {% if parent %}<input type="hidden" name="parent" value="{{ parent.public_id }}">{% endif %}
+    <button type="submit">Submit reply</button>
+  </form>
+  <div
+    hidden
+    data-pre-send-body="id_body"
+    data-pre-send-target="pre-send-prompt-reply"
+    data-pre-send-url="{% url 'ai_coach:pre_send_check' %}"
+    data-csrf-token="{{ csrf_token }}"
+  ></div>
+{% endblock %}

@@ -1,6 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Not found · ProSocial{% endblock %}
+{% block title %}Not found · Common Good{% endblock %}
 {% block content %}
-  <h1>Page not found</h1>
-  <p>The page you requested does not exist.</p>
+  <section class="auth-panel">
+    <h1>We couldn't find that page</h1>
+    <p class="empty-state">It may have moved, or the link might be out of date. No rush — head back home when you're ready.</p>
+    <p><a href="{% url 'home' %}" class="button">Back to home</a></p>
+  </section>
 {% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Progress · Common Good{% endblock %}
+{% block content %}
+<h1>Your progress</h1>
+<p>Level {{ profile.level }} · {{ profile.total_xp }} XP · {{ profile.streak_days }}-day streak · {{ profile.multiplier }}× multiplier</p>
+<h2>Badges</h2>
+<ul>{% for ub in badges %}<li>{{ ub.badge.name }}</li>{% empty %}<li class="help-text">No badges yet.</li>{% endfor %}</ul>
+<h2>Recent XP</h2>
+<ul>{% for txn in recent_xp %}<li>+{{ txn.final_amount }} ({{ txn.source }})</li>{% endfor %}</ul>
+{% endblock %}

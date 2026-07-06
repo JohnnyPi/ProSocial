@@ -1,0 +1,84 @@
+<aside class="shell-right" aria-label="Community and trust">
+  <section class="rail-panel rail-panel--profile">
+    <h2 class="rail-heading">You</h2>
+    <a href="{% url 'profiles:detail' handle=user.profile.handle %}" class="rail-profile">
+      {% if user.profile.profile_image %}
+        <img class="rail-avatar" src="{{ user.profile.profile_image.url }}" alt="">
+      {% else %}
+        <span class="rail-avatar rail-avatar--placeholder" aria-hidden="true">{{ user.profile.public_display_name|slice:":1" }}</span>
+      {% endif %}
+      <span class="rail-profile-text">
+        <span class="rail-profile-name">{{ user.profile.public_display_name }}</span>
+        <span class="rail-profile-handle">@{{ user.profile.handle }}</span>
+      </span>
+    </a>
+    <span class="trust-badge trust-badge--new">◐ New here</span>
+  </section>
+
+  <section class="rail-panel">
+    <h2 class="rail-heading">Your circles</h2>
+    <p class="rail-copy">Circles are coming soon. For now, browse open actions and commitments across the community.</p>
+    <div class="rail-chip-row">
+      {% for kind_value, kind_label in feed_kind_filters %}
+        {% if kind_value != "GENERAL" %}
+          <a href="{% url 'dashboard:index' %}?kind={{ kind_value }}" class="chip chip--{{ kind_value|lower }}">{{ kind_label }}</a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if shell_pending_invitations %}
+    <section class="rail-panel">
+      <h2 class="rail-heading">Invitations</h2>
+      <ul class="rail-list">
+        {% for invitation in shell_pending_invitations %}
+          <li>
+            <a href="{% url 'prosocial_actions:invitations' %}">
+              {{ invitation.inviter.profile.public_display_name }} invited you
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+      <a href="{% url 'prosocial_actions:invitations' %}" class="rail-more">View all invitations</a>
+    </section>
+  {% endif %}
+
+  {% if shell_open_actions %}
+    <section class="rail-panel">
+      <h2 class="rail-heading">Open near you</h2>
+      <ul class="rail-list">
+        {% for action in shell_open_actions %}
+          <li>
+            <a href="{% url 'prosocial_actions:action_detail' public_id=action.public_id %}">
+              <span class="chip chip--{{ action.post.kind|lower }}">{{ action.post.get_kind_display }}</span>
+              <span class="rail-list-body">{{ action.post.body|truncatewords:12 }}</span>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+      <a href="{% url 'prosocial_actions:action_list' %}" class="rail-more">Browse all actions</a>
+    </section>
+  {% endif %}
+
+  {% if shell_commitments %}
+    <section class="rail-panel">
+      <h2 class="rail-heading">Your commitments</h2>
+      <ul class="rail-list">
+        {% for commitment in shell_commitments %}
+          <li>
+            <a href="{% url 'prosocial_actions:commitment_detail' public_id=commitment.public_id %}">
+              {{ commitment.action.post.get_kind_display }} — {{ commitment.get_status_display }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+      <a href="{% url 'prosocial_actions:commitment_list' %}" class="rail-more">View commitments</a>
+    </section>
+  {% endif %}
+
+  <section class="rail-panel rail-panel--quiet">
+    <h2 class="rail-heading">Trust</h2>
+    <p class="rail-copy">Vouches and circles will show plainly here — so you always know who stands behind whom.</p>
+    <span class="trust-badge trust-badge--helpful">✔ Verified helper</span>
+  </section>
+</aside>

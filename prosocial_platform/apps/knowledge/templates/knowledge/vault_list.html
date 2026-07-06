@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Vault · Common Good{% endblock %}
+{% block content %}
+<h1>Your Vault</h1>
+<p class="help-text">Clipped knowledge with source attribution.</p>
+{% for clip in page %}
+  <article class="panel">
+    <blockquote>{{ clip.quoted_text|truncatechars:300 }}</blockquote>
+    <p>
+      {% if clip.post %}
+        <a href="{% url 'posts:detail' public_id=clip.post.public_id %}">View source</a>
+      {% elif clip.reply %}
+        <a href="{% url 'posts:detail' public_id=clip.reply.post.public_id %}">View source</a>
+      {% endif %}
+    </p>
+    {% if clip.private_note %}<p class="help-text">Note: {{ clip.private_note }}</p>{% endif %}
+  </article>
+{% empty %}
+  <p class="help-text">No clips yet. Clip helpful posts to build your vault.</p>
+{% endfor %}
+{% if page.has_other_pages %}
+  <nav>{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">Previous</a>{% endif %}</nav>
+{% endif %}
+{% endblock %}

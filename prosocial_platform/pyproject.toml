@@ -24,6 +24,13 @@ dev = [
 DJANGO_SETTINGS_MODULE = "config.settings.testing"
 python_files = ["test_*.py"]
 pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "--import-mode=importlib"
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+exclude = ["migrations/", "tests/"]
 
 [tool.ruff]
 line-length = 100
@@ -31,6 +38,13 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+"migrations/*.py" = ["E501", "I001"]
+"tests/**/*.py" = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["apps", "config"]
 
 [tool.setuptools.packages.find]
 where = ["."]

@@ -4,17 +4,40 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}ProSocial{% endblock %}</title>
+  <title>{% block title %}Common Good{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..600;1,400..600&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/site.css' %}">
   <script src="{% static 'js/htmx.min.js' %}" defer></script>
   {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body class="{% if user.is_authenticated %}has-app-shell{% else %}has-guest-layout{% endif %}">
   <a class="skip-link" href="#main-content">Skip to content</a>
-  {% include "components/navigation.html" %}
-  {% include "components/flash_messages.html" %}
-  <main id="main-content" class="container">
-    {% block content %}{% endblock %}
-  </main>
+
+  {% if user.is_authenticated %}
+    <div class="app-shell">
+      {% include "components/shell_left.html" %}
+      <div class="shell-center">
+        {% include "components/flash_messages.html" %}
+        <main id="main-content">
+  {% else %}
+    {% include "components/guest_nav.html" %}
+    {% include "components/flash_messages.html" %}
+    <main id="main-content" class="container">
+  {% endif %}
+
+  {% block content %}{% endblock %}
+
+  {% if user.is_authenticated %}
+        </main>
+      </div>
+      {% block right_rail %}
+        {% include "components/shell_right.html" %}
+      {% endblock %}
+    </div>
+  {% else %}
+    </main>
+  {% endif %}
 </body>
 </html>

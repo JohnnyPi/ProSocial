@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ profile.public_display_name }} · ProSocial{% endblock %}
+{% block title %}{{ profile.public_display_name }} · Common Good{% endblock %}
 {% block content %}
   <article class="profile-page">
     <header class="profile-header">
@@ -10,7 +10,13 @@
       <p class="profile-handle">@{{ profile.handle }}</p>
     </header>
     {% if profile.biography %}
-      <p class="profile-bio">{{ profile.biography|linebreaksbr }}</p>
+      <p class="profile-bio reading-text">{{ profile.biography|linebreaksbr }}</p>
+    {% endif %}
+    {% if user.is_authenticated and user != profile.user %}
+      <div class="profile-actions">
+        <a href="{% url 'interactions:mute_user' handle=profile.handle %}">Mute</a>
+        <a href="{% url 'interactions:block_user' handle=profile.handle %}">Block</a>
+      </div>
     {% endif %}
   </article>
 {% endblock %}

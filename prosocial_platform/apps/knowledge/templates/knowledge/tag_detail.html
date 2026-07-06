@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}#{{ tag.name }} · Common Good{% endblock %}
+{% block content %}
+<h1>#{{ tag.name }}</h1>
+{% for post in page %}
+  <article class="panel"><a href="{% url 'posts:detail' public_id=post.public_id %}">{{ post.body|truncatechars:200 }}</a></article>
+{% empty %}
+  <p class="help-text">No posts with this tag.</p>
+{% endfor %}
+{% endblock %}

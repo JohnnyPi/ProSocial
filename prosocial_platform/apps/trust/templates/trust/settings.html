@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Trust settings · Common Good{% endblock %}
+{% block content %}
+<h1>Trust & visibility</h1>
+<p>ETS: {{ profile.engagement_trust_score }} · PTS: {{ profile.popularity_trust_score }} · Contribution: {{ profile.contribution_score }}</p>
+<p>Public label: {{ profile.contribution_range_label }}</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Save</button></form>
+{% endblock %}

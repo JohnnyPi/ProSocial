@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Review · Common Good{% endblock %}
+{% block content %}
+<h1>Review #{{ review.pk }}</h1>
+<form method="post">
+  {% csrf_token %}
+  <label>Status <select name="status">
+    <option value="APPROVED">Approve</option>
+    <option value="REMOVED">Remove</option>
+    <option value="EDIT_REQUIRED">Edit required</option>
+  </select></label>
+  <label>Explanation <textarea name="explanation" rows="3"></textarea></label>
+  <button type="submit">Submit</button>
+</form>
+{% endblock %}

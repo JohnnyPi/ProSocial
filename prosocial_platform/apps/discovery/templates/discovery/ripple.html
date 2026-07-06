@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Ripple effect · Common Good{% endblock %}
+{% block content %}
+<h1>Your ripple effect</h1>
+<h2>You helped</h2>
+<ul>{% for link in outgoing %}<li>{{ link.helped.profile.display_name }}</li>{% empty %}<li class="help-text">No ripple links yet.</li>{% endfor %}</ul>
+<h2>You were helped by</h2>
+<ul>{% for link in incoming %}<li>{{ link.helper.profile.display_name }}</li>{% endfor %}</ul>
+{% endblock %}

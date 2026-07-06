@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Report · Common Good{% endblock %}
+{% block content %}
+  <h1>Report content</h1>
+  <p>Reporting helps staff review content. It is not a dislike button.</p>
+  <form method="post">
+    {% csrf_token %}
+    {% include "components/form_errors.html" %}
+    <div class="field">
+      <label for="{{ form.reason.id_for_label }}">Reason</label>
+      {{ form.reason }}
+    </div>
+    <div class="field">
+      <label for="{{ form.details.id_for_label }}">Details (optional)</label>
+      {{ form.details }}
+    </div>
+    <button type="submit">Submit report</button>
+  </form>
+{% endblock %}

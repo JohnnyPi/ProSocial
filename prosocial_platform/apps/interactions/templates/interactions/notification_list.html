@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Notifications · Common Good{% endblock %}
+{% block content %}
+  <h1>Notifications</h1>
+  <form method="post" action="{% url 'interactions:notification_read_all' %}">
+    {% csrf_token %}
+    <button type="submit">Mark all read</button>
+  </form>
+  <ul class="notification-list">
+    {% for notification in notifications %}
+      {% include "interactions/notification_item.html" %}
+    {% empty %}
+      <li>No notifications.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

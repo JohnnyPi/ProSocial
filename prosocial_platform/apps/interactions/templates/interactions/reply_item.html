@@ -1,0 +1,25 @@
+<li class="reply-item{% if nested %} reply-nested{% endif %}" id="reply-{{ reply.public_id }}">
+  {% if reply.is_deleted %}
+    <p class="reply-removed"><em>Reply removed.</em></p>
+  {% else %}
+    <header>
+      <strong>{{ reply.author.profile.public_display_name }}</strong>
+      <time datetime="{{ reply.created_at|date:'c' }}">{{ reply.created_at|timesince }} ago</time>
+    </header>
+    <p>{{ reply.body|linebreaksbr }}</p>
+    <footer class="reply-actions">
+      {% if user.is_authenticated %}
+        {% include "interactions/thank_you_button.html" with reply=reply %}
+        {% if not nested %}
+          <a href="{% url 'interactions:reply_create' post_id=reply.post.public_id %}?parent={{ reply.public_id }}">Reply</a>
+        {% endif %}
+        {% if user == reply.author %}
+          <a href="{% url 'interactions:reply_edit' reply_id=reply.public_id %}">Edit</a>
+          <a href="{% url 'interactions:reply_delete' reply_id=reply.public_id %}">Delete</a>
+        {% else %}
+          <a href="{% url 'interactions:report_reply' reply_id=reply.public_id %}">Report</a>
+        {% endif %}
+      {% endif %}
+    </footer>
+  {% endif %}
+</li>

@@ -13,6 +13,23 @@ class ModerationStatus(models.TextChoices):
     REMOVED = "REMOVED", "Removed"
 
 
+class PostKind(models.TextChoices):
+    GENERAL = "GENERAL", "General"
+    HELP_REQUEST = "HELP_REQUEST", "Help request"
+    HELP_OFFER = "HELP_OFFER", "Help offer"
+    ENCOURAGEMENT_REQUEST = "ENCOURAGEMENT_REQUEST", "Encouragement request"
+    LOCAL_ACTION = "LOCAL_ACTION", "Local action"
+    VOLUNTEER_OPPORTUNITY = "VOLUNTEER_OPPORTUNITY", "Volunteer opportunity"
+
+
+class ThreadType(models.TextChoices):
+    DISCUSSION = "DISCUSSION", "Discussion"
+    HELP_REQUEST = "HELP_REQUEST", "Help request"
+    KNOWLEDGE_SHARE = "KNOWLEDGE_SHARE", "Knowledge share"
+    SUPPORT_CIRCLE = "SUPPORT_CIRCLE", "Support circle"
+    CHALLENGE = "CHALLENGE", "Challenge"
+
+
 class PostQuerySet(models.QuerySet):
     def visible(self):
         return self.filter(deleted_at__isnull=True, moderation_status=ModerationStatus.ACTIVE)
@@ -22,7 +39,27 @@ class Post(TimeStampedModel):
     public_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="posts",
+    )
+    kind = models.CharField(
+        max_length=32,
+        choices=PostKind.choices,
+        default=PostKind.GENERAL,
+    )
+    thread_type = models.CharField(
+        max_length=32,
+        choices=ThreadType.choices,
+        default=ThreadType.DISCUSSION,
+    )
+    title = models.CharField(max_length=200, blank=True)
+    guild = models.ForeignKey(
+        "guilds.Guild",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
         related_name="posts",
     )
     body = models.TextField(blank=True, max_length=5000)
@@ -42,6 +79,7 @@ class Post(TimeStampedModel):
             models.Index(fields=["created_at"]),
             models.Index(fields=["author", "created_at"]),
             models.Index(fields=["moderation_status", "created_at"]),
+            models.Index(fields=["kind", "created_at"]),
         ]
         ordering = ["-created_at"]
 

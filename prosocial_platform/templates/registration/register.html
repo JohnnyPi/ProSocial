@@ -1,18 +1,21 @@
 {% extends "base.html" %}
-{% block title %}Register · ProSocial{% endblock %}
+{% block title %}Join · Common Good{% endblock %}
 {% block content %}
-  <h1>Create an account</h1>
-  <form method="post" novalidate>
-    {% csrf_token %}
-    {% include "components/form_errors.html" %}
-    {% for field in form %}
-      <div class="field">
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {{ field }}
-        {% if field.help_text %}<p class="help-text">{{ field.help_text }}</p>{% endif %}
-      </div>
-    {% endfor %}
-    <button type="submit">Register</button>
-  </form>
-  <p>Already have an account? <a href="{% url 'accounts:login' %}">Log in</a></p>
+  <section class="auth-panel">
+    <h1>Join Common Good</h1>
+    <p>A place to help and be helped — at the pace of real neighbors.</p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% include "components/form_errors.html" %}
+      {% for field in form %}
+        <div class="field">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<p class="help-text">{{ field.help_text }}</p>{% endif %}
+        </div>
+      {% endfor %}
+      <button type="submit">Create account</button>
+    </form>
+    <p>Already have an account? <a href="{% url 'accounts:login' %}">Sign in</a></p>
+  </section>
 {% endblock %}

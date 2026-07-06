@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ collection.title }} · Common Good{% endblock %}
+{% block content %}
+<h1>{{ collection.title }}</h1>
+<p>{{ collection.description }}</p>
+<ul>
+  {% for item in collection.items.all %}
+    <li>
+      {% if item.clip %}
+        {{ item.clip.quoted_text|truncatechars:120 }}
+        <a href="{% url 'knowledge:collection_add_clip' public_id=collection.public_id clip_id=item.clip.public_id %}">(in collection)</a>
+      {% elif item.post %}
+        <a href="{% url 'posts:detail' public_id=item.post.public_id %}">{{ item.post.body|truncatechars:120 }}</a>
+      {% endif %}
+    </li>
+  {% empty %}
+    <li class="help-text">Empty collection.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

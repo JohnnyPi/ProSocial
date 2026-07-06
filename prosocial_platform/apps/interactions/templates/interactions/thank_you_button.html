@@ -1,0 +1,6 @@
+<form method="post" action="{% if post %}{% url 'interactions:thank_post' post_id=post.public_id %}{% else %}{% url 'interactions:thank_reply' reply_id=reply.public_id %}{% endif %}">
+  {% csrf_token %}
+  <button type="submit" class="thank-you-button{% if thanked %} thanked{% endif %}">
+    {% if thanked %}♥{% else %}♡{% endif %} Grateful{% if thank_count %} · {{ thank_count }}{% endif %}
+  </button>
+</form>

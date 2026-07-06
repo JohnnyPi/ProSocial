@@ -1,0 +1,6 @@
+{% if prompt %}
+<div class="pre-send-prompt" role="status" aria-live="polite">
+  <p><strong>Reflection prompt:</strong> {{ prompt }}</p>
+  <button type="button" class="link-button" onclick="this.closest('.pre-send-prompt').remove()">Dismiss</button>
+</div>
+{% endif %}

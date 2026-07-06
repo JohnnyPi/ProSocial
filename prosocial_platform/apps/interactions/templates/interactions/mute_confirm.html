@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Mute {{ profile.public_display_name }} · Common Good{% endblock %}
+{% block content %}
+  <h1>Mute @{{ profile.handle }}</h1>
+  <p>Muting hides this person's posts from your feed. They will not be notified.</p>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.confirm }}
+    <label for="{{ form.confirm.id_for_label }}">{{ form.confirm.label }}</label>
+    <button type="submit">Mute</button>
+  </form>
+{% endblock %}
