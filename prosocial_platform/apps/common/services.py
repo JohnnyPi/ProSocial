@@ -2,7 +2,9 @@ import logging
 import uuid
 from typing import Any
 
-from apps.common.models import ActivityEvent
+from apps.common.models import ActivityEvent, ActivityEventType
+
+__all__ = ["ActivityEventType", "record_activity_event"]
 
 logger = logging.getLogger(__name__)
 
